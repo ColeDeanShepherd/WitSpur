@@ -54,7 +54,10 @@ const BarChart = ({values, title, xAxisLabel, yAxisLabel, width, height}) => {
 
   const barWidth = 20;
   const barMargin = 10;
+  const barFillColor = "rgb(0,0,255)";
   const barsMarginLeft = 5;
+
+  const barValueLabelMarginTop = 5;
 
   function renderTitle() {
     return (
@@ -114,9 +117,13 @@ const BarChart = ({values, title, xAxisLabel, yAxisLabel, width, height}) => {
           const barHeight = valueToHeight(value);
           const x = barsMarginLeft + (index * (barWidth + barMargin));
           const y = barsAreaHeight - barHeight;
-          const barFillColor = "rgb(0,0,255)";
 
-          return <rect width={barWidth} height={barHeight} style={{fill: barFillColor}} x={x} y={y} />;
+          return (
+            <g transform={`translate(${x},${y})`}>
+              <rect width={barWidth} height={barHeight} style={{fill: barFillColor}} />
+              <text x={barWidth / 2} y={barValueLabelMarginTop} textAnchor="middle" alignmentBaseline="hanging">{value}</text>
+            </g>
+          );
         })}
       </g>
     );
@@ -136,14 +143,39 @@ class App extends Component {
   constructor() {
     super();
 
+    const values = [1, 2, 3, 4, 5];
+
     this.state = {
-      values: [1, 2, 3, 4, 5],
+      values: values,
+      valuesText: this.valuesToText(values),
       title: "Bar Chart",
       xAxisLabel: "X Axis",
       yAxisLabel: "Y Axis",
       width: 640,
       height: 480};
   }
+
+  valuesToText(values) {
+    var text = "";
+
+    for(var i = 0; i < values.length; i++) {
+      if(i > 0) {
+        text += ",";
+      }
+
+      text += values[i];
+    }
+
+    return text;
+  }
+  valuesFromText(text) {
+    const valueStrings = text.split(",");
+
+    return valueStrings.map(function(valueString) {
+      return parseFloat(valueString.trim());
+    });
+  }
+
   onTitleChange(event) {
     this.setState({title: event.target.value});
   }
@@ -152,6 +184,9 @@ class App extends Component {
   }
   onYAxisLabelChange(event) {
     this.setState({yAxisLabel: event.target.value});
+  }
+  onValuesTextChange(event) {
+    this.setState({valuesText: event.target.value, values: this.valuesFromText(event.target.value)});
   }
   onWidthChange(event) {
     this.setState({width: event.target.value});
@@ -168,10 +203,11 @@ class App extends Component {
         </div>
         
         <div>
-          title: <input type="text" value={this.state.title} onChange={this.onTitleChange.bind(this)} />
-          x-axis label: <input type="text" value={this.state.xAxisLabel} onChange={this.onXAxisLabelChange.bind(this)} />
-          y-axis label: <input type="text" value={this.state.yAxisLabel} onChange={this.onYAxisLabelChange.bind(this)} />
-          width: <input type="number" value={this.state.width} onChange={this.onWidthChange.bind(this)} />
+          title: <input type="text" value={this.state.title} onChange={this.onTitleChange.bind(this)} /><br />
+          x-axis label: <input type="text" value={this.state.xAxisLabel} onChange={this.onXAxisLabelChange.bind(this)} /><br />
+          y-axis label: <input type="text" value={this.state.yAxisLabel} onChange={this.onYAxisLabelChange.bind(this)} /><br />
+          values: <input type="text" value={this.state.valuesText} onChange={this.onValuesTextChange.bind(this)} /><br />
+          width: <input type="number" value={this.state.width} onChange={this.onWidthChange.bind(this)} /><br />
           height: <input type="number" value={this.state.height} onChange={this.onHeightChange.bind(this)} />
         </div>
         <BarChart
