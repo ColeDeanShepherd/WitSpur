@@ -1,6 +1,23 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import logo from './logo.svg';
 import './App.css';
+
+/*
+User-defined component
+======================
+* Prop info
+  * name (string)
+  * type
+  * default value
+* react component code
+*/
+
+const CustomPropTypes = {
+  Number: "Number",
+  String: "String",
+  Array: elementType => ({ name: "Array", elementType: elementType })
+};
 
 /**
  * Combines two arrays into an array of pairs.
@@ -10,9 +27,9 @@ import './App.css';
  * @return {Array} result
  */
 function zip(a, b) {
-  var result = new Array(Math.max(a.length, b.length));
+  let result = new Array(Math.max(a.length, b.length));
 
-  for(var i = 0; i < result.length; i++) {
+  for(let i = 0; i < result.length; i++) {
     const elementA = (i < a.length) ? a[i] : undefined;
     const elementB = (i < b.length) ? b[i] : undefined;
 
@@ -22,7 +39,37 @@ function zip(a, b) {
   return result;
 }
 
-const BarChart = ({values, title, xAxisLabel, yAxisLabel, width, height}) => {
+function parseTSV(str) {
+  const lines = str.split(/\r?\n/);
+  const nonEmptyLines = lines.filter(line => line.length > 0);
+
+  return nonEmptyLines.map(line => {
+    return line.split("\t");
+  });
+}
+
+function renderPropInput(prop) {
+  if(prop.type === CustomPropTypes.String) {
+    return <input type="text" />;
+  } else if(prop.type === CustomPropTypes.Number) {
+    return <input type="number" />;
+  } else if(typeof prop.type === "object") {
+    return null;
+  } else {
+    return null;
+  }
+}
+
+function renderPropEditors(userProps) {
+  return userProps.map(prop => (
+    <div>
+      {prop.name}
+      {renderPropInput(prop)}
+    </div>
+  ));
+}
+
+const BarChart = ({values, valueLabels, title, xAxisLabel, yAxisLabel, yAxisValueLabelInterval, yAxisMin, yAxisMax, width, height}) => {
   const titleRectWidth = width;
   const titleRectHeight = 30;
   const titleRectX = 0;
@@ -46,8 +93,8 @@ const BarChart = ({values, title, xAxisLabel, yAxisLabel, width, height}) => {
   const barsAreaWidth = width - yAxisRectWidth;
   const barsAreaHeight = height - titleRectHeight - xAxisRectHeight;
 
-  const yAxisMin = 0;
-  const yAxisMax = 5;
+  const xAxisValueLabelMarginTop = 5;
+
   const yAxisLabelLineWidth = 5;
   const yAxisLabelMarginRight = 10;
   const valueToHeight = value => barsAreaHeight * ((value - yAxisMin) / (yAxisMax - yAxisMin));
@@ -59,6 +106,8 @@ const BarChart = ({values, title, xAxisLabel, yAxisLabel, width, height}) => {
 
   const barValueLabelMarginTop = 5;
 
+  const getBarXRelativeToBarsArea = index => barsMarginLeft + (index * (barWidth + barMargin));
+
   function renderTitle() {
     return (
       <g transform={`translate(${titleRectX},${titleRectY})`}>
@@ -69,36 +118,45 @@ const BarChart = ({values, title, xAxisLabel, yAxisLabel, width, height}) => {
   function renderXAxis() {
     return (
     <g transform={`translate(${xAxisRectX},${xAxisRectY})`}>
-      <line x1={0} y1={0} x2={xAxisRectWidth} y2={0} strokeWidth="1" stroke="black" />
       <text textAnchor="middle" x={xAxisRectWidth / 2} y={xAxisRectHeight - xAxisLabelMarginBottom}>{xAxisLabel}</text>
+      <line x1={0} y1={0} x2={xAxisRectWidth} y2={0} strokeWidth="1" stroke="black" />
+      {valueLabels.map((label, index) => (
+        <text
+        x={getBarXRelativeToBarsArea(index) + (barWidth / 2)}
+        y={xAxisValueLabelMarginTop}
+        textAnchor="middle"
+        alignmentBaseline="hanging">
+          {label}
+        </text>
+      ))}
     </g>
     );
   }
   function renderYAxis() {
-    const labelInterval = 1;
-    
-    var valueForLabel = yAxisMin;
-    var labels = [];
-    var labelLines = [];
+    let valueForLabel = yAxisMin;
+    let labels = [];
+    let labelLines = [];
 
-    while(valueForLabel <= yAxisMax) {
-      const y = yAxisRectHeight - valueToHeight(valueForLabel);
+    if(yAxisValueLabelInterval > 0) {
+      while(valueForLabel <= yAxisMax) {
+        const y = yAxisRectHeight - valueToHeight(valueForLabel);
 
-      labels.push(
-        <text
-          x={yAxisRectX + yAxisRectWidth - yAxisLabelMarginRight}
-          y={y}
-          textAnchor="end"
-          alignmentBaseline="central">
-          {valueForLabel}
-        </text>
-      );
+        labels.push(
+          <text
+            x={yAxisRectX + yAxisRectWidth - yAxisLabelMarginRight}
+            y={y}
+            textAnchor="end"
+            alignmentBaseline="central">
+            {valueForLabel}
+          </text>
+        );
 
-      labelLines.push(
-        <line x1={yAxisRectWidth - yAxisLabelLineWidth} y1={y} x2={yAxisRectWidth} y2={y} strokeWidth="" stroke="black" />
-      );
+        labelLines.push(
+          <line x1={yAxisRectWidth - yAxisLabelLineWidth} y1={y} x2={yAxisRectWidth} y2={y} strokeWidth="" stroke="black" />
+        );
 
-      valueForLabel += labelInterval;
+        valueForLabel += yAxisValueLabelInterval;
+      }
     }
     
     return (
@@ -115,7 +173,7 @@ const BarChart = ({values, title, xAxisLabel, yAxisLabel, width, height}) => {
       <g transform={`translate(${barsAreaX}, ${barsAreaY})`}>
         {values.map((value, index) => {
           const barHeight = valueToHeight(value);
-          const x = barsMarginLeft + (index * (barWidth + barMargin));
+          const x = getBarXRelativeToBarsArea(index);
           const y = barsAreaHeight - barHeight;
 
           return (
@@ -138,42 +196,68 @@ const BarChart = ({values, title, xAxisLabel, yAxisLabel, width, height}) => {
     </svg>
   );
 };
+// TODO: .isRequired
+BarChart.propTypes = {
+  values: PropTypes.arrayOf(PropTypes.number),
+  valueLabels: PropTypes.arrayOf(PropTypes.string),
+  title: PropTypes.string,
+  xAxisLabel: PropTypes.string,
+  yAxisLabel: PropTypes.string,
+  yAxisValueLabelInterval: PropTypes.number,
+  yAxisMin: PropTypes.number,
+  yAxisMax: PropTypes.number,
+  width: PropTypes.number,
+  height: PropTypes.number,
+};
+BarChart.userProps = [
+  {name: "values", type: CustomPropTypes.Array(PropTypes.Number)},
+  {name: "valueLabels", type: CustomPropTypes.Array(PropTypes.String)},
+  {name: "title", type: CustomPropTypes.String},
+  {name: "xAxisLabel", type: CustomPropTypes.String},
+  {name: "yAxisLabel", type: CustomPropTypes.String},
+  {name: "yAxisValueLabelInterval", type: CustomPropTypes.Number},
+  {name: "yAxisMin", type: CustomPropTypes.Number},
+  {name: "yAxisMax", type: CustomPropTypes.Number},
+  {name: "width", type: CustomPropTypes.Number},
+  {name: "height", type: CustomPropTypes.Number}
+];
 
 class App extends Component {
   constructor() {
     super();
 
-    const values = [1, 2, 3, 4, 5];
+    const valuesText = "a\t1\nb\t2\nc\t3\nd\t4\ne\t5\n";
+    const data = this.parseBarChartData(valuesText);
 
     this.state = {
-      values: values,
-      valuesText: this.valuesToText(values),
+      values: data.values,
+      valueLabels: data.valueLabels,
+      valuesText: valuesText,
       title: "Bar Chart",
       xAxisLabel: "X Axis",
       yAxisLabel: "Y Axis",
+      yAxisValueLabelInterval: 1,
+      yAxisMin: 0,
+      yAxisMax: 5,
       width: 640,
-      height: 480};
+      height: 480
+    };
   }
 
-  valuesToText(values) {
-    var text = "";
+  parseBarChartData(text) {
+    const records = parseTSV(text);
 
-    for(var i = 0; i < values.length; i++) {
-      if(i > 0) {
-        text += ",";
-      }
+    const valueLabels = records.map(record => record[0]);
 
-      text += values[i];
-    }
-
-    return text;
-  }
-  valuesFromText(text) {
-    const valueStrings = text.split(",");
-
-    return valueStrings.map(function(valueString) {
+    const valueStrings = records.map(record => record[1]);
+    const values = valueStrings.map(function(valueString) {
       return parseFloat(valueString.trim());
     });
+
+    return {
+      valueLabels: valueLabels,
+      values: values
+    };
   }
 
   onTitleChange(event) {
@@ -185,8 +269,23 @@ class App extends Component {
   onYAxisLabelChange(event) {
     this.setState({yAxisLabel: event.target.value});
   }
+  onYAxisValueLabelIntervalChange(event) {
+    this.setState({yAxisValueLabelInterval: parseFloat(event.target.value)});
+  }
+  onYAxisMinChange(event) {
+    this.setState({yAxisMin: parseFloat(event.target.value)});
+  }
+  onYAxisMaxChange(event) {
+    this.setState({yAxisMax: parseFloat(event.target.value)});
+  }
   onValuesTextChange(event) {
-    this.setState({valuesText: event.target.value, values: this.valuesFromText(event.target.value)});
+    const data = this.parseBarChartData(event.target.value);
+
+    this.setState({
+      valuesText: event.target.value,
+      values: data.values,
+      valueLabels: data.valueLabels
+    });
   }
   onWidthChange(event) {
     this.setState({width: event.target.value});
@@ -197,27 +296,33 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
+        <div style={{position: "relative"}}>
+          <div style={{width: 300, height: "100%", backgroundColor: "gray", position: "absolute", left: 0, top: 0}}>
+            title: <input type="text" value={this.state.title} onChange={this.onTitleChange.bind(this)} /><br />
+            x-axis label: <input type="text" value={this.state.xAxisLabel} onChange={this.onXAxisLabelChange.bind(this)} /><br />
+            y-axis label: <input type="text" value={this.state.yAxisLabel} onChange={this.onYAxisLabelChange.bind(this)} /><br />
+            y-axis value label interval: <input type="text" value={this.state.yAxisValueLabelInterval} onChange={this.onYAxisValueLabelIntervalChange.bind(this)} /><br />
+            y-axis min: <input type="text" value={this.state.yAxisMin} onChange={this.onYAxisMinChange.bind(this)} /><br />
+            y-axis max: <input type="text" value={this.state.yAxisMax} onChange={this.onYAxisMaxChange.bind(this)} /><br />
+            values: <textarea value={this.state.valuesText} onChange={this.onValuesTextChange.bind(this)} /><br />
+            width: <input type="number" value={this.state.width} onChange={this.onWidthChange.bind(this)} /><br />
+            height: <input type="number" value={this.state.height} onChange={this.onHeightChange.bind(this)} />
+            <hr />
+            {renderPropEditors(BarChart.userProps)}
+          </div>
+          <BarChart
+            values={this.state.values}
+            valueLabels={this.state.valueLabels}
+            title={this.state.title}
+            xAxisLabel={this.state.xAxisLabel}
+            yAxisLabel={this.state.yAxisLabel}
+            yAxisValueLabelInterval={this.state.yAxisValueLabelInterval}
+            yAxisMin={this.state.yAxisMin}
+            yAxisMax={this.state.yAxisMax}
+            width={this.state.width}
+            height={this.state.height}
+          />
         </div>
-        
-        <div>
-          title: <input type="text" value={this.state.title} onChange={this.onTitleChange.bind(this)} /><br />
-          x-axis label: <input type="text" value={this.state.xAxisLabel} onChange={this.onXAxisLabelChange.bind(this)} /><br />
-          y-axis label: <input type="text" value={this.state.yAxisLabel} onChange={this.onYAxisLabelChange.bind(this)} /><br />
-          values: <input type="text" value={this.state.valuesText} onChange={this.onValuesTextChange.bind(this)} /><br />
-          width: <input type="number" value={this.state.width} onChange={this.onWidthChange.bind(this)} /><br />
-          height: <input type="number" value={this.state.height} onChange={this.onHeightChange.bind(this)} />
-        </div>
-        <BarChart
-          values={this.state.values}
-          title={this.state.title}
-          xAxisLabel={this.state.xAxisLabel}
-          yAxisLabel={this.state.yAxisLabel}
-          width={this.state.width}
-          height={this.state.height}
-        />
       </div>
     );
   }
