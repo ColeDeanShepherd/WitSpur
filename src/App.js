@@ -71,7 +71,7 @@ function renderPropInput(propType, value, onChange) {
   return null;
 }
 
-function getInitialValue(propType) {
+function getDefaultPropTypeValue(propType) {
   if(propType === CustomPropTypes.Number) {
     return 0;
   } else if(propType === CustomPropTypes.String) {
@@ -88,7 +88,7 @@ function getInitialValue(propType) {
 function userPropsToInitialState(userProps) {
   return userProps.reduce((previousInitialState, userProp) => {
     var propState = {};
-    propState[userProp.name] = getInitialValue(userProp.type);
+    propState[userProp.name] = (userProp.defaultValue === undefined) ? getDefaultPropTypeValue(userProp.type) : userProp.defaultValue;
 
     return Object.assign(previousInitialState, propState);
   }, {});
@@ -97,7 +97,7 @@ function userPropsToInitialState(userProps) {
 const ArrayPropEditor = ({elementType, value, onChange}) => {
   function onAddElementButtonClicked() {
     if(onChange) {
-      const newValue = value.concat(getInitialValue(elementType));
+      const newValue = value.concat(getDefaultPropTypeValue(elementType));
 
       onChange(newValue);
     }
@@ -302,16 +302,66 @@ BarChart.propTypes = {
   height: PropTypes.number,
 };
 BarChart.userProps = [
-  {name: "values", type: CustomPropTypes.Array(CustomPropTypes.Number)},
-  {name: "valueLabels", type: CustomPropTypes.Array(CustomPropTypes.String)},
-  {name: "title", type: CustomPropTypes.String},
-  {name: "xAxisLabel", type: CustomPropTypes.String},
-  {name: "yAxisLabel", type: CustomPropTypes.String},
-  {name: "yAxisValueLabelInterval", type: CustomPropTypes.Number},
-  {name: "yAxisMin", type: CustomPropTypes.Number},
-  {name: "yAxisMax", type: CustomPropTypes.Number},
-  {name: "width", type: CustomPropTypes.Number},
-  {name: "height", type: CustomPropTypes.Number}
+  {
+    name: "values",
+    type: CustomPropTypes.Array(CustomPropTypes.Number),
+    defaultValue: [1, 2, 3, 4, 5],
+    validate: null
+  },
+  {
+    name: "valueLabels",
+    type: CustomPropTypes.Array(CustomPropTypes.String),
+    defaultValue: ["a", "b", "c", "d", "e"],
+    validate: null
+  },
+  {
+    name: "title",
+    type: CustomPropTypes.String,
+    defaultValue: "Bar Chart",
+    validate: null
+  },
+  {
+    name: "xAxisLabel",
+    type: CustomPropTypes.String,
+    defaultValue: "X Axis",
+    validate: null
+  },
+  {
+    name: "yAxisLabel",
+    type: CustomPropTypes.String,
+    defaultValue: "Y Axis",
+    validate: null
+  },
+  {
+    name: "yAxisValueLabelInterval",
+    type: CustomPropTypes.Number,
+    defaultValue: 1,
+    validate: null
+  },
+  {
+    name: "yAxisMin",
+    type: CustomPropTypes.Number,
+    defaultValue: 0,
+    validate: null
+  },
+  {
+    name: "yAxisMax",
+    type: CustomPropTypes.Number,
+    defaultValue: 10,
+    validate: null
+  },
+  {
+    name: "width",
+    type: CustomPropTypes.Number,
+    defaultValue: 640,
+    validate: null
+  },
+  {
+    name: "height",
+    type: CustomPropTypes.Number,
+    defaultValue: 480,
+    validate: null
+  }
 ];
 
 class ComponentEditor extends React.Component {
