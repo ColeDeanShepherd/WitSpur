@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import {colorToString} from './Utils.js';
 import {CustomPropTypes, validateProps} from './ComponentEditor.js';
 
 export const BarChart = props => {
@@ -15,6 +16,9 @@ export const BarChart = props => {
     yAxisMax,
     width,
     height,
+    backgroundColor,
+    lineColor,
+    textColor,
     barFillColor,
     barValueTextColor,
     barMargin
@@ -53,31 +57,35 @@ export const BarChart = props => {
   const yAxisLabelMarginRight = 10;
   const valueToHeight = value => barsAreaHeight * ((value - yAxisMin) / (yAxisMax - yAxisMin));
 
-  const barWidth = 20;
+  const barWidth = 40;
   const barsMarginLeft = 5;
 
   const barValueLabelMarginTop = 5;
 
   const getBarXRelativeToBarsArea = index => barsMarginLeft + (index * (barWidth + barMargin));
 
+  function renderBackground() {
+    return <rect width="100%" height="100%" fill={colorToString(backgroundColor)} />;
+  }
   function renderTitle() {
     return (
       <g transform={`translate(${titleRectX},${titleRectY})`}>
-        <text textAnchor="middle" alignmentBaseline="central" x={titleRectWidth / 2} y={titleRectHeight / 2}>{title}</text>
+        <text fill={colorToString(textColor)} textAnchor="middle" alignmentBaseline="central" x={titleRectWidth / 2} y={titleRectHeight / 2}>{title}</text>
       </g>
     );
   }
   function renderXAxis() {
     return (
     <g transform={`translate(${xAxisRectX},${xAxisRectY})`}>
-      <text textAnchor="middle" x={xAxisRectWidth / 2} y={xAxisRectHeight - xAxisLabelMarginBottom}>{xAxisLabel}</text>
-      <line x1={0} y1={0} x2={xAxisRectWidth} y2={0} strokeWidth="1" stroke="black" />
+      <text fill={colorToString(textColor)} textAnchor="middle" x={xAxisRectWidth / 2} y={xAxisRectHeight - xAxisLabelMarginBottom}>{xAxisLabel}</text>
+      <line x1={0} y1={0} x2={xAxisRectWidth} y2={0} strokeWidth="1" stroke={colorToString(lineColor)} />
       {valueLabels.map((label, index) => (
         <text
-        x={getBarXRelativeToBarsArea(index) + (barWidth / 2)}
-        y={xAxisValueLabelMarginTop}
-        textAnchor="middle"
-        alignmentBaseline="hanging">
+          fill={colorToString(textColor)}
+          x={getBarXRelativeToBarsArea(index) + (barWidth / 2)}
+          y={xAxisValueLabelMarginTop}
+          textAnchor="middle"
+          alignmentBaseline="hanging">
           {label}
         </text>
       ))}
@@ -95,6 +103,7 @@ export const BarChart = props => {
 
         labels.push(
           <text
+            fill={colorToString(textColor)}
             x={yAxisRectX + yAxisRectWidth - yAxisLabelMarginRight}
             y={y}
             textAnchor="end"
@@ -104,7 +113,7 @@ export const BarChart = props => {
         );
 
         labelLines.push(
-          <line x1={yAxisRectWidth - yAxisLabelLineWidth} y1={y} x2={yAxisRectWidth} y2={y} strokeWidth="" stroke="black" />
+          <line x1={yAxisRectWidth - yAxisLabelLineWidth} y1={y} x2={yAxisRectWidth + barsAreaWidth} y2={y} strokeWidth="1" stroke={colorToString(lineColor)} />
         );
 
         valueForLabel += yAxisValueLabelInterval;
@@ -113,10 +122,10 @@ export const BarChart = props => {
     
     return (
     <g transform={`translate(${0},${yAxisRectY})`}>
-      <line x1={yAxisRectWidth} y1={yAxisRectX} x2={yAxisRectWidth} y2={yAxisRectHeight} strokeWidth="1" stroke="black" />
+      <line x1={yAxisRectWidth} y1={yAxisRectX} x2={yAxisRectWidth} y2={yAxisRectHeight} strokeWidth="1" stroke={colorToString(lineColor)} />
       {labelLines}
       {labels}
-      <text textAnchor="middle" alignmentBaseline="hanging" transform={`translate(${yAxisLabelMarginLeft},${yAxisRectHeight / 2}) rotate(-90)`}>{yAxisLabel}</text>
+      <text fill={colorToString(textColor)} textAnchor="middle" alignmentBaseline="hanging" transform={`translate(${yAxisLabelMarginLeft},${yAxisRectHeight / 2}) rotate(-90)`}>{yAxisLabel}</text>
     </g>
     );
   }
@@ -130,8 +139,8 @@ export const BarChart = props => {
 
           return (
             <g transform={`translate(${x},${y})`}>
-              <rect width={barWidth} height={barHeight} style={{fill: barFillColor}} />
-              <text fill={barValueTextColor} x={barWidth / 2} y={barValueLabelMarginTop} textAnchor="middle" alignmentBaseline="hanging">{value}</text>
+              <rect width={barWidth} height={barHeight} style={{fill: colorToString(barFillColor)}} />
+              <text fill={colorToString(barValueTextColor)} x={barWidth / 2} y={barValueLabelMarginTop} textAnchor="middle" alignmentBaseline="hanging">{value}</text>
             </g>
           );
         })}
@@ -141,6 +150,7 @@ export const BarChart = props => {
 
   return (
     <svg width={width} height={height}>
+      {renderBackground()}
       {renderTitle()}
       {renderXAxis()}
       {renderYAxis()}
@@ -211,15 +221,33 @@ BarChart.userProps = [
     validate: height => height > 0
   },
   {
+    name: "backgroundColor",
+    type: CustomPropTypes.Color,
+    defaultValue: "#FFF",
+    validate: null
+  },
+  {
+    name: "lineColor",
+    type: CustomPropTypes.Color,
+    defaultValue: "#000",
+    validate: null
+  },
+  {
+    name: "textColor",
+    type: CustomPropTypes.Color,
+    defaultValue: "#000",
+    validate: null
+  },
+  {
     name: "barFillColor",
     type: CustomPropTypes.Color,
-    defaultValue: "blue",
+    defaultValue: "steelblue",
     validate: null
   },
   {
     name: "barValueTextColor",
     type: CustomPropTypes.Color,
-    defaultValue: "white",
+    defaultValue: "#FFF",
     validate: null
   },
   {

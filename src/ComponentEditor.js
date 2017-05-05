@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { SketchPicker } from 'react-color';
+
+import { camelCaseToWords, capitalizeWord } from './Utils.js';
 
 /*
 User-defined component
@@ -25,7 +28,11 @@ function renderPropInput(propType, value, onChange) {
 
     return <input type="number" value={value} onChange={onNumberInputChange} />;
   } else if(propType === CustomPropTypes.Color) {
-    return <input type="text" value={value} onChange={(event) => onChange(event.target.value)} />;
+    function onColorInputChange(color, event) {
+      onChange(color.rgb);
+    }
+
+    return <SketchPicker color={value} onChange={onColorInputChange} />;
   } else if(typeof propType === "object") {
     if(propType.name === "Array") {
       return <ArrayPropEditor elementType={propType.elementType} value={value} onChange={onChange} />
@@ -123,18 +130,30 @@ export class ComponentEditor extends React.Component {
     this.setState({componentProps: Object.assign(this.state.componentProps, componentPropsDelta)});
   }
   renderPropEditors() {
-    return this.props.component.userProps.map((prop) => (
-      <div>
-        {prop.name}
-        {renderPropInput(prop.type, this.state.componentProps[prop.name], newValue => this.onComponentPropChange(prop.name, newValue))}
-      </div>
-    ));
+    return (
+      <table>
+        <tbody>
+          {this.props.component.userProps.map((prop) => (
+            <tr>
+              <td style={{textAlign: "right", verticalAlign: "top", paddingRight: "1em"}}>{camelCaseToWords(prop.name).map(capitalizeWord).join(" ")}</td>
+              <td>{renderPropInput(prop.type, this.state.componentProps[prop.name], newValue => this.onComponentPropChange(prop.name, newValue))}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
   }
   render() {
     return (
       <div>
-        {this.renderPropEditors()}
-        {React.createElement(this.props.component, this.state.componentProps)}
+        <div style={{boxSizing: "border-box", backgroundColor: "#313131", color: "#FFF", height: "100%", overflowY: "auto", position: "absolute", left: 0, top: 0}}>
+          <div style={{padding: "1em"}}>
+            {this.renderPropEditors()}
+          </div>
+        </div>
+        <div style={{padding: "1em"}}>
+          {validateProps(this.props.component.userProps, this.state.componentProps) ? React.createElement(this.props.component, this.state.componentProps) : <span>Invalid props.</span>}
+        </div>
       </div>
     );
   }
