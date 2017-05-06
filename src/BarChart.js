@@ -267,6 +267,40 @@ BarChart.userProps = [
   }
 ];
 
+function runInTmpCanvas(fn, canvasWidth, canvasHeight) {
+  if(!fn) { return; }
+
+  // Add an invisible canvas to <body>.
+  var tmpCanvas = document.createElement("canvas");
+  tmpCanvas.width = canvasWidth;
+  tmpCanvas.height = canvasHeight;
+  tmpCanvas.style.display = "none";
+  document.getElementsByTagName("body")[0].appendChild(tmpCanvas);
+
+  // Run the passed-in function.
+  fn(tmpCanvas, tmpCanvas.getContext("2d"));
+
+  // Remove the temporary canvas.
+  tmpCanvas.parentNode.removeChild(tmpCanvas);
+}
+function getSvgDataUri(svgString) {
+  const encodedSvgDocument = btoa(svgString);
+  return `data:image/svg+xml;base64,${encodedSvgDocument}`;
+}
+function exportSvgToFile(svgString) {
+  openNewTab(getSvgDataUri(svgString));
+}
+function exportSvgToRasterImage(svgString, imageWidth, imageHeight, imageFormat) {
+  runInTmpCanvas((canvas, context) => {
+    var image = new Image();
+    image.onload = () => {
+      context.drawImage(image, 0, 0);
+      openNewTab(canvas.toDataURL(`image/${imageFormat}`));
+    };
+    image.src = getSvgDataUri(svgString);
+  }, imageWidth, imageHeight);
+}
+
 export class BarChartEditor extends React.Component {
   constructor(props) {
     super(props);
@@ -285,22 +319,11 @@ export class BarChartEditor extends React.Component {
   canvasRefCallback(canvasNode) {
     this.canvasNode = canvasNode;
   }
-  getSvgDataUri() {
-    const encodedSvgDocument = btoa(this.barChartSvgNode.outerHTML);
-    return `data:image/svg+xml;base64,${encodedSvgDocument}`;
-  }
   exportToSvg() {
-    openNewTab(this.getSvgDataUri());
+    exportSvgToFile(this.barChartSvgNode.outerHTML);
   }
   exportToRasterImage(imageFormat) {
-    var context = this.canvasNode.getContext("2d");
-
-    var image = new Image();
-    image.onload = () => {
-      context.drawImage(image, 0, 0);
-      openNewTab(this.canvasNode.toDataURL(`image/${imageFormat}`));
-    };
-    image.src = this.getSvgDataUri();
+    exportSvgToRasterImage(this.barChartSvgNode.outerHTML, this.state.componentProps.width, this.state.componentProps.height, imageFormat);
   }
   
   onComponentPropChange(propName, newValue) {
@@ -354,8 +377,6 @@ export class BarChartEditor extends React.Component {
         </div>
         <div style={{padding: "1em"}}>
           {arePropsValid(this.state.componentProps, BarChart.userProps) ? React.createElement(BarChart, Object.assign(this.state.componentProps, {ref: this.barChartRefCallback.bind(this)})) : <span>Invalid props.</span>}
-          <br />
-          <canvas width={this.state.componentProps.width} height={this.state.componentProps.height} ref={this.canvasRefCallback.bind(this)} style={{display: "none"}} />
         </div>
       </div>
     );
