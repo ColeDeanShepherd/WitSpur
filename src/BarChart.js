@@ -31,6 +31,7 @@ export class BarChart extends React.Component {
       textColor,
       barFillColor,
       barValueTextColor,
+      barWidth,
       barMargin
     } = this.props;
 
@@ -68,7 +69,6 @@ export class BarChart extends React.Component {
     const yAxisLabelMarginRight = 10;
     const valueToHeight = value => barsAreaHeight * ((value - yAxisMin) / (yAxisMax - yAxisMin));
 
-    const barWidth = 40;
     const barsMarginLeft = 5;
 
     const barValueLabelMarginTop = 5;
@@ -79,6 +79,15 @@ export class BarChart extends React.Component {
 
     const getBarXRelativeToBarsArea = index => barsMarginLeft + (index * (barWidth + barMargin));
 
+    function renderDefs() {
+      return (
+        <defs>
+          <clipPath id="barsAreaClipPath">
+            <rect x={0} y={0} width={barsAreaWidth} height={barsAreaHeight} />
+          </clipPath>
+        </defs>
+      );
+    }
     function renderBackground() {
       return <rect width="100%" height="100%" fill={colorToString(backgroundColor)} />;
     }
@@ -90,10 +99,10 @@ export class BarChart extends React.Component {
       );
     }
     function renderXAxis() {
+      // <line x1={0} y1={0} x2={xAxisRectWidth} y2={0} strokeWidth="1" stroke={colorToString(lineColor)} />
       return (
       <g transform={`translate(${xAxisRectX},${xAxisRectY})`}>
         <text fontFamily={textFontFamily} fontSize={textSize} fill={colorToString(textColor)} textAnchor="middle" x={xAxisRectWidth / 2} y={xAxisRectHeight - xAxisLabelMarginBottom}>{xAxisLabel}</text>
-        <line x1={0} y1={0} x2={xAxisRectWidth} y2={0} strokeWidth="1" stroke={colorToString(lineColor)} />
         {valueLabels.map((label, index) => (
           <text
             fontFamily={textFontFamily}
@@ -150,7 +159,7 @@ export class BarChart extends React.Component {
     }
     function renderBarsArea() {
       return (
-        <g transform={`translate(${barsAreaX}, ${barsAreaY})`}>
+        <g transform={`translate(${barsAreaX}, ${barsAreaY})`} clipPath="url(#barsAreaClipPath)">
           {values.map((value, index) => {
             const barHeight = valueToHeight(value);
             const x = getBarXRelativeToBarsArea(index);
@@ -172,6 +181,7 @@ export class BarChart extends React.Component {
 
     return (
       <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width={width} height={height}>
+        {renderDefs()}
         {renderBackground()}
         {renderWaterMark()}
         {renderTitle()}
@@ -284,6 +294,12 @@ BarChart.userProps = [
     type: CustomPropTypes.Color,
     defaultValue: "#FFF",
     validate: null
+  },
+  {
+    name: "barWidth",
+    type: CustomPropTypes.Number,
+    defaultValue: 40,
+    validate: barWidth => barWidth > 0
   },
   {
     name: "barMargin",
