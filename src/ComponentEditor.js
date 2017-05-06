@@ -65,8 +65,11 @@ function userPropsToInitialState(userProps) {
   }, {});
 }
 
-export function validateProps(userProps, props) {
-  return userProps.every(userProp => !userProp.validate || userProp.validate(props[userProp.name], props));
+export function isPropValid(props, userProp) {
+  return !userProp.validate || userProp.validate(props[userProp.name], props);
+}
+export function arePropsValid(props, userProps) {
+  return userProps.every(userProp => isPropValid(props, userProp));
 }
 
 export const CustomPropTypes = {
@@ -129,16 +132,21 @@ export class ComponentEditor extends React.Component {
 
     this.setState({componentProps: Object.assign(this.state.componentProps, componentPropsDelta)});
   }
+  renderPropEditor(userProp) {
+    const isThisPropValid = isPropValid(this.state.componentProps, userProp);
+
+    return (
+      <tr style={{border: isThisPropValid ? "" : "1px solid red"}}>
+        <td style={{textAlign: "right", verticalAlign: "top", paddingRight: "1em"}}>{camelCaseToWords(userProp.name).map(capitalizeWord).join(" ")}</td>
+        <td>{renderPropInput(userProp.type, this.state.componentProps[userProp.name], newValue => this.onComponentPropChange(userProp.name, newValue))}</td>
+      </tr>
+    );
+  }
   renderPropEditors() {
     return (
-      <table>
+      <table style={{borderCollapse: "collapse"}}>
         <tbody>
-          {this.props.component.userProps.map((prop) => (
-            <tr>
-              <td style={{textAlign: "right", verticalAlign: "top", paddingRight: "1em"}}>{camelCaseToWords(prop.name).map(capitalizeWord).join(" ")}</td>
-              <td>{renderPropInput(prop.type, this.state.componentProps[prop.name], newValue => this.onComponentPropChange(prop.name, newValue))}</td>
-            </tr>
-          ))}
+          {this.props.component.userProps.map(this.renderPropEditor.bind(this))}
         </tbody>
       </table>
     );
@@ -152,7 +160,7 @@ export class ComponentEditor extends React.Component {
           </div>
         </div>
         <div style={{padding: "1em"}}>
-          {validateProps(this.props.component.userProps, this.state.componentProps) ? React.createElement(this.props.component, this.state.componentProps) : <span>Invalid props.</span>}
+          {arePropsValid(this.state.componentProps, this.props.component.userProps) ? React.createElement(this.props.component, this.state.componentProps) : <span>Invalid props.</span>}
         </div>
       </div>
     );

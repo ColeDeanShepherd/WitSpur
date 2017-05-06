@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import {colorToString} from './Utils.js';
-import {CustomPropTypes, validateProps} from './ComponentEditor.js';
+import {CustomPropTypes, arePropsValid} from './ComponentEditor.js';
 
 export const BarChart = props => {
   const {
@@ -24,7 +24,7 @@ export const BarChart = props => {
     barMargin
   } = props;
 
-  if(!validateProps(BarChart.userProps, props)) {
+  if(!arePropsValid(props, BarChart.userProps)) {
       return null;
   }
 
