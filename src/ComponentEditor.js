@@ -13,7 +13,7 @@ User-defined component
 * react component code
 */
 
-function renderPropInput(propType, value, onChange) {
+export function renderPropInput(propType, value, onChange) {
   if(propType === CustomPropTypes.String) {
     return <input type="text" value={value} onChange={(event) => onChange(event.target.value)} />;
   } else if(propType === CustomPropTypes.Number) {
@@ -42,7 +42,7 @@ function renderPropInput(propType, value, onChange) {
   return null;
 }
 
-function getDefaultPropTypeValue(propType) {
+export function getDefaultPropTypeValue(propType) {
   if(propType === CustomPropTypes.Number) {
     return 0;
   } else if(propType === CustomPropTypes.String) {
@@ -56,7 +56,7 @@ function getDefaultPropTypeValue(propType) {
   return null;
 }
 
-function userPropsToInitialState(userProps) {
+export function userPropsToInitialState(userProps) {
   return userProps.reduce((previousInitialState, userProp) => {
     var propState = {};
     propState[userProp.name] = (userProp.defaultValue === undefined) ? getDefaultPropTypeValue(userProp.type) : userProp.defaultValue;
@@ -116,53 +116,3 @@ export const ArrayPropEditor = ({elementType, value, onChange}) => {
     </div>
   );
 };
-
-export class ComponentEditor extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      componentProps: userPropsToInitialState(props.component.userProps)
-    };
-  }
-  
-  onComponentPropChange(propName, newValue) {
-    var componentPropsDelta = {};
-    componentPropsDelta[propName] = newValue;
-
-    this.setState({componentProps: Object.assign(this.state.componentProps, componentPropsDelta)});
-  }
-  renderPropEditor(userProp) {
-    const isThisPropValid = isPropValid(this.state.componentProps, userProp);
-
-    return (
-      <tr style={{border: isThisPropValid ? "" : "1px solid red"}}>
-        <td style={{textAlign: "right", verticalAlign: "top", paddingRight: "1em"}}>{camelCaseToWords(userProp.name).map(capitalizeWord).join(" ")}</td>
-        <td>{renderPropInput(userProp.type, this.state.componentProps[userProp.name], newValue => this.onComponentPropChange(userProp.name, newValue))}</td>
-      </tr>
-    );
-  }
-  renderPropEditors() {
-    return (
-      <table style={{borderCollapse: "collapse"}}>
-        <tbody>
-          {this.props.component.userProps.map(this.renderPropEditor.bind(this))}
-        </tbody>
-      </table>
-    );
-  }
-  render() {
-    return (
-      <div>
-        <div style={{boxSizing: "border-box", backgroundColor: "#313131", color: "#FFF", height: "100%", overflowY: "auto", position: "absolute", left: 0, top: 0}}>
-          <div style={{padding: "1em"}}>
-            {this.renderPropEditors()}
-          </div>
-        </div>
-        <div style={{padding: "1em"}}>
-          {arePropsValid(this.state.componentProps, this.props.component.userProps) ? React.createElement(this.props.component, this.state.componentProps) : <span>Invalid props.</span>}
-        </div>
-      </div>
-    );
-  }
-}

@@ -81,3 +81,7 @@ export function capitalizeWord(word) {
 
   return word.charAt(0).toUpperCase() + word.substring(1);
 }
+
+export function openNewTab(url) {
+  window.open(url, "_blank");
+}
