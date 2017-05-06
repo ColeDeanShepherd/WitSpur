@@ -26,6 +26,8 @@ export class BarChart extends React.Component {
       height,
       backgroundColor,
       lineColor,
+      textFontFamily,
+      textSize,
       textColor,
       barFillColor,
       barValueTextColor,
@@ -71,6 +73,10 @@ export class BarChart extends React.Component {
 
     const barValueLabelMarginTop = 5;
 
+    const waterMarkMargin = 10;
+    const waterMarkX = width - waterMarkMargin;
+    const waterMarkY = height - waterMarkMargin;
+
     const getBarXRelativeToBarsArea = index => barsMarginLeft + (index * (barWidth + barMargin));
 
     function renderBackground() {
@@ -79,17 +85,19 @@ export class BarChart extends React.Component {
     function renderTitle() {
       return (
         <g transform={`translate(${titleRectX},${titleRectY})`}>
-          <text fill={colorToString(textColor)} textAnchor="middle" dominantBaseline="central" x={titleRectWidth / 2} y={titleRectHeight / 2}>{title}</text>
+          <text fontFamily={textFontFamily} fontSize={textSize} fill={colorToString(textColor)} textAnchor="middle" dominantBaseline="central" x={titleRectWidth / 2} y={titleRectHeight / 2}>{title}</text>
         </g>
       );
     }
     function renderXAxis() {
       return (
       <g transform={`translate(${xAxisRectX},${xAxisRectY})`}>
-        <text fill={colorToString(textColor)} textAnchor="middle" x={xAxisRectWidth / 2} y={xAxisRectHeight - xAxisLabelMarginBottom}>{xAxisLabel}</text>
+        <text fontFamily={textFontFamily} fontSize={textSize} fill={colorToString(textColor)} textAnchor="middle" x={xAxisRectWidth / 2} y={xAxisRectHeight - xAxisLabelMarginBottom}>{xAxisLabel}</text>
         <line x1={0} y1={0} x2={xAxisRectWidth} y2={0} strokeWidth="1" stroke={colorToString(lineColor)} />
         {valueLabels.map((label, index) => (
           <text
+            fontFamily={textFontFamily}
+            fontSize={textSize}
             fill={colorToString(textColor)}
             x={getBarXRelativeToBarsArea(index) + (barWidth / 2)}
             y={xAxisValueLabelMarginTop}
@@ -112,6 +120,8 @@ export class BarChart extends React.Component {
 
           labels.push(
             <text
+              fontFamily={textFontFamily}
+              fontSize={textSize}
               fill={colorToString(textColor)}
               x={yAxisRectX + yAxisRectWidth - yAxisLabelMarginRight}
               y={y}
@@ -134,7 +144,7 @@ export class BarChart extends React.Component {
         <line x1={yAxisRectWidth} y1={yAxisRectX} x2={yAxisRectWidth} y2={yAxisRectHeight} strokeWidth="1" stroke={colorToString(lineColor)} />
         {labelLines}
         {labels}
-        <text fill={colorToString(textColor)} textAnchor="middle" dominantBaseline="hanging" transform={`translate(${yAxisLabelMarginLeft},${yAxisRectHeight / 2}) rotate(-90)`}>{yAxisLabel}</text>
+        <text fontFamily={textFontFamily} fontSize={textSize} fill={colorToString(textColor)} textAnchor="middle" dominantBaseline="hanging" transform={`translate(${yAxisLabelMarginLeft},${yAxisRectHeight / 2}) rotate(-90)`}>{yAxisLabel}</text>
       </g>
       );
     }
@@ -149,17 +159,21 @@ export class BarChart extends React.Component {
             return (
               <g transform={`translate(${x},${y})`}>
                 <rect width={barWidth} height={barHeight} style={{fill: colorToString(barFillColor)}} />
-                <text fill={colorToString(barValueTextColor)} x={barWidth / 2} y={barValueLabelMarginTop} textAnchor="middle" dominantBaseline="hanging">{value}</text>
+                <text fontFamily={textFontFamily} fontSize={textSize} fill={colorToString(barValueTextColor)} x={barWidth / 2} y={barValueLabelMarginTop} textAnchor="middle" dominantBaseline="hanging">{value}</text>
               </g>
             );
           })}
         </g>
       );
     }
+    function renderWaterMark() {
+      return <text fontFamily="sans-serif" fontSize="30px" fontWeight="bold" fill="#000" opacity="0.25" strokeWidth="1" stroke="#FFF" textAnchor="end" x={waterMarkX} y={waterMarkY}>witspur.com</text>;
+    }
 
     return (
       <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width={width} height={height}>
         {renderBackground()}
+        {renderWaterMark()}
         {renderTitle()}
         {renderXAxis()}
         {renderYAxis()}
@@ -239,6 +253,18 @@ BarChart.userProps = [
     name: "lineColor",
     type: CustomPropTypes.Color,
     defaultValue: "#000",
+    validate: null
+  },
+  {
+    name: "textFontFamily",
+    type: CustomPropTypes.String,
+    defaultValue: "sans-serif",
+    validate: null
+  },
+  {
+    name: "textSize",
+    type: CustomPropTypes.Number,
+    defaultValue: 16,
     validate: null
   },
   {
@@ -363,8 +389,8 @@ export class BarChartEditor extends React.Component {
   render() {
     return (
       <div>
-        <div style={{boxSizing: "border-box", backgroundColor: "#313131", color: "#FFF", height: "100%", overflowY: "auto", position: "fixed", left: 0, top: 0}}>
-          <div style={{padding: "1em"}}>
+        <div style={{boxSizing: "border-box", backgroundColor: "#313131", color: "#FFF", width: `${this.props.sideBarWidth}px`, height: "100%", overflowY: "auto", position: "fixed", left: 0, top: 0}}>
+          <div>
             <div>
               <h4>Export (popup may be blocked)</h4>
               <button onClick={this.exportToSvg.bind(this)}>Export To SVG</button>
@@ -375,8 +401,10 @@ export class BarChartEditor extends React.Component {
             <textarea value={JSON.stringify(this.state.componentProps)} onChange={this.onComponentPropsJSONChange.bind(this)} />
           </div>
         </div>
-        <div style={{padding: "1em"}}>
-          {arePropsValid(this.state.componentProps, BarChart.userProps) ? React.createElement(BarChart, Object.assign(this.state.componentProps, {ref: this.barChartRefCallback.bind(this)})) : <span>Invalid props.</span>}
+        <div style={{paddingLeft: `${this.props.sideBarWidth}px`}}>
+          <div style={{padding: "1em"}}>
+            {arePropsValid(this.state.componentProps, BarChart.userProps) ? React.createElement(BarChart, Object.assign(this.state.componentProps, {ref: this.barChartRefCallback.bind(this)})) : <span>Invalid props.</span>}
+          </div>
         </div>
       </div>
     );
