@@ -2,13 +2,21 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-import {colorToString, camelCaseToWords, capitalizeWord, openNewTab} from './Utils.js';
 import {
-  CustomPropTypes,
-  arePropsValid,
-  userPropsToInitialState,
-  isPropValid,
-  renderPropInput
+  colorToString,
+  camelCaseToWords,
+  capitalizeWord,
+  openNewTab,
+  exportSvgToFile,
+  exportSvgToRasterImage
+} from './Utils.js';
+import {
+  VisualPropTypes,
+  areVisualPropsValid,
+  getDefaultVisualProps,
+  isVisualPropValid,
+  renderVisualPropInput,
+  defaultMapVisualPropsToProps
 } from './ComponentEditor.js';
 
 export class BarChart extends React.Component {
@@ -34,10 +42,6 @@ export class BarChart extends React.Component {
       barWidth,
       barMargin
     } = this.props;
-
-    if(!arePropsValid(this.props, BarChart.userProps)) {
-        return null;
-    }
 
     const titleRectWidth = width;
     const titleRectHeight = 30;
@@ -192,156 +196,137 @@ export class BarChart extends React.Component {
     );
   }
 }
-BarChart.userProps = [
+BarChart.visualPropDefs = [
   {
     name: "values",
-    type: CustomPropTypes.Array(CustomPropTypes.Number),
+    type: VisualPropTypes.Array(VisualPropTypes.Number),
     defaultValue: [1, 2, 3, 4, 5],
     validate: (values, props) => (values.length > 0) && (values.length === props.valueLabels.length)
   },
   {
     name: "valueLabels",
-    type: CustomPropTypes.Array(CustomPropTypes.String),
+    type: VisualPropTypes.Array(VisualPropTypes.String),
     defaultValue: ["a", "b", "c", "d", "e"],
     validate: (valueLabels, props) => (valueLabels.length > 0) && (valueLabels.length === props.values.length)
   },
   {
     name: "title",
-    type: CustomPropTypes.String,
+    type: VisualPropTypes.String,
     defaultValue: "Bar Chart",
     validate: null
   },
   {
-    name: "xAxisLabel",
-    type: CustomPropTypes.String,
-    defaultValue: "X Axis",
-    validate: null
+    name: "X Axis",
+    type: VisualPropTypes.Group,
+    children: [
+      {
+        name: "xAxisLabel",
+        type: VisualPropTypes.String,
+        defaultValue: "X Axis",
+        validate: null
+      },
+    ]
   },
   {
-    name: "yAxisLabel",
-    type: CustomPropTypes.String,
-    defaultValue: "Y Axis",
-    validate: null
-  },
-  {
-    name: "yAxisValueLabelInterval",
-    type: CustomPropTypes.Number,
-    defaultValue: 1,
-    validate: yAxisValueLabelInterval => yAxisValueLabelInterval > 0
-  },
-  {
-    name: "yAxisMin",
-    type: CustomPropTypes.Number,
-    defaultValue: 0,
-    validate: (yAxisMin, props) => yAxisMin <= props.yAxisMax
-  },
-  {
-    name: "yAxisMax",
-    type: CustomPropTypes.Number,
-    defaultValue: 10,
-    validate: (yAxisMax, props) => yAxisMax >= props.yAxisMin
+    name: "Y Axis",
+    type: VisualPropTypes.Group,
+    children: [
+      {
+        name: "yAxisLabel",
+        type: VisualPropTypes.String,
+        defaultValue: "Y Axis",
+        validate: null
+      },
+      {
+        name: "yAxisValueLabelInterval",
+        type: VisualPropTypes.Number,
+        defaultValue: 1,
+        validate: yAxisValueLabelInterval => yAxisValueLabelInterval > 0
+      },
+      {
+        name: "yAxisMin",
+        type: VisualPropTypes.Number,
+        defaultValue: 0,
+        validate: (yAxisMin, props) => yAxisMin <= props.yAxisMax
+      },
+      {
+        name: "yAxisMax",
+        type: VisualPropTypes.Number,
+        defaultValue: 10,
+        validate: (yAxisMax, props) => yAxisMax >= props.yAxisMin
+      }
+    ]
   },
   {
     name: "width",
-    type: CustomPropTypes.Number,
+    type: VisualPropTypes.Number,
     defaultValue: 640,
     validate: width => width > 0
   },
   {
     name: "height",
-    type: CustomPropTypes.Number,
+    type: VisualPropTypes.Number,
     defaultValue: 480,
     validate: height => height > 0
   },
   {
     name: "backgroundColor",
-    type: CustomPropTypes.Color,
+    type: VisualPropTypes.Color,
     defaultValue: "#FFF",
     validate: null
   },
   {
     name: "lineColor",
-    type: CustomPropTypes.Color,
+    type: VisualPropTypes.Color,
     defaultValue: "#000",
     validate: null
   },
   {
     name: "textFontFamily",
-    type: CustomPropTypes.String,
+    type: VisualPropTypes.String,
     defaultValue: "sans-serif",
     validate: null
   },
   {
     name: "textSize",
-    type: CustomPropTypes.Number,
+    type: VisualPropTypes.Number,
     defaultValue: 16,
     validate: null
   },
   {
     name: "textColor",
-    type: CustomPropTypes.Color,
+    type: VisualPropTypes.Color,
     defaultValue: "#000",
     validate: null
   },
   {
     name: "barFillColor",
-    type: CustomPropTypes.Color,
+    type: VisualPropTypes.Color,
     defaultValue: "steelblue",
     validate: null
   },
   {
     name: "barValueTextColor",
-    type: CustomPropTypes.Color,
+    type: VisualPropTypes.Color,
     defaultValue: "#FFF",
     validate: null
   },
   {
     name: "barWidth",
-    type: CustomPropTypes.Number,
+    type: VisualPropTypes.Number,
     defaultValue: 40,
     validate: barWidth => barWidth > 0
   },
   {
     name: "barMargin",
-    type: CustomPropTypes.Number,
+    type: VisualPropTypes.Number,
     defaultValue: 10,
     validate: barMargin => barMargin >= 0
   }
 ];
-
-function runInTmpCanvas(fn, canvasWidth, canvasHeight) {
-  if(!fn) { return; }
-
-  // Add an invisible canvas to <body>.
-  var tmpCanvas = document.createElement("canvas");
-  tmpCanvas.width = canvasWidth;
-  tmpCanvas.height = canvasHeight;
-  tmpCanvas.style.display = "none";
-  document.getElementsByTagName("body")[0].appendChild(tmpCanvas);
-
-  // Run the passed-in function.
-  fn(tmpCanvas, tmpCanvas.getContext("2d"));
-
-  // Remove the temporary canvas.
-  tmpCanvas.parentNode.removeChild(tmpCanvas);
-}
-function getSvgDataUri(svgString) {
-  const encodedSvgDocument = btoa(svgString);
-  return `data:image/svg+xml;base64,${encodedSvgDocument}`;
-}
-function exportSvgToFile(svgString) {
-  openNewTab(getSvgDataUri(svgString));
-}
-function exportSvgToRasterImage(svgString, imageWidth, imageHeight, imageFormat) {
-  runInTmpCanvas((canvas, context) => {
-    var image = new Image();
-    image.onload = () => {
-      context.drawImage(image, 0, 0);
-      openNewTab(canvas.toDataURL(`image/${imageFormat}`));
-    };
-    image.src = getSvgDataUri(svgString);
-  }, imageWidth, imageHeight);
-}
+BarChart.mapVisualPropsToProps = function (visualPropDefs, visualProps) {
+  return defaultMapVisualPropsToProps(visualPropDefs, visualProps);
+};
 
 export class BarChartEditor extends React.Component {
   constructor(props) {
@@ -351,8 +336,35 @@ export class BarChartEditor extends React.Component {
     this.canvasNode = null;
 
     this.state = {
-      componentProps: userPropsToInitialState(BarChart.userProps)
+      visualProps: getDefaultVisualProps(BarChart.visualPropDefs),
+      isGroupExpandedArray: []
     };
+  }
+
+  isGroupExpanded(visualPropDef) {
+    const isGroupExpandedObject = this.state.isGroupExpandedArray.find(obj => obj.visualPropDef === visualPropDef);
+
+    return isGroupExpandedObject && isGroupExpandedObject.isExpanded;
+  }
+  toggleGroupExpanded(visualPropDef) {
+    const isGroupExpandedObjectIndex = this.state.isGroupExpandedArray.findIndex(obj => obj.visualPropDef === visualPropDef);
+
+    if(isGroupExpandedObjectIndex < 0) {
+      // Add an object for the group.
+      let isGroupExpandedObject = {visualPropDef: visualPropDef, isExpanded: true};
+      this.setState({isGroupExpandedArray: [...this.state.isGroupExpandedArray, isGroupExpandedObject]});
+    } else {
+      // Toggle the existing group's isExpanded.
+      let isGroupExpandedObject = this.state.isGroupExpandedArray[isGroupExpandedObjectIndex];
+
+      this.setState({
+        isGroupExpandedArray: [
+          ...this.state.isGroupExpandedArray.slice(0, isGroupExpandedObjectIndex),
+          {visualPropDef: visualPropDef, isExpanded: !isGroupExpandedObject.isExpanded},
+          ...this.state.isGroupExpandedArray.slice(isGroupExpandedObjectIndex + 1)
+        ]
+      });
+    }
   }
 
   barChartRefCallback(mountedBarChartComponent) {
@@ -365,39 +377,53 @@ export class BarChartEditor extends React.Component {
     exportSvgToFile(this.barChartSvgNode.outerHTML);
   }
   exportToRasterImage(imageFormat) {
-    exportSvgToRasterImage(this.barChartSvgNode.outerHTML, this.state.componentProps.width, this.state.componentProps.height, imageFormat);
+    exportSvgToRasterImage(this.barChartSvgNode.outerHTML, this.state.visualProps.width, this.state.visualProps.height, imageFormat);
   }
   
-  onComponentPropChange(propName, newValue) {
-    var componentPropsDelta = {};
-    componentPropsDelta[propName] = newValue;
+  onVisualPropChange(propName, newValue) {
+    var visualPropsDelta = {};
+    visualPropsDelta[propName] = newValue;
 
-    this.setState({componentProps: Object.assign(this.state.componentProps, componentPropsDelta)});
+    this.setState({visualProps: Object.assign(this.state.visualProps, visualPropsDelta)});
   }
-  onComponentPropsJSONChange(event) {
+
+  // TODO: do more validation
+  onVisualPropsJSONChange(event) {
     try {
-      const newComponentProps = JSON.parse(event.target.value);
+      const newVisualProps = JSON.parse(event.target.value);
 
-      this.setState({componentProps: newComponentProps});
-    } catch(e) {
+      this.setState({visualProps: newVisualProps});
+    } catch(e) {}
+  }
+  renderPropEditor(visualPropDef) {
+    if(visualPropDef.type !== VisualPropTypes.Group) {
+      const isThisPropValid = isVisualPropValid(this.state.visualProps, visualPropDef);
 
+      return (
+        <tr style={{border: isThisPropValid ? "" : "1px solid red"}}>
+          <td style={{textAlign: "right", verticalAlign: "top", paddingRight: "1em"}}>{camelCaseToWords(visualPropDef.name).map(capitalizeWord).join(" ")}</td>
+          <td>{renderVisualPropInput(visualPropDef.type, this.state.visualProps[visualPropDef.name], newValue => this.onVisualPropChange(visualPropDef.name, newValue))}</td>
+        </tr>
+      );
+    } else {
+      // Render a group of visual properties.
+      //{this.renderPropEditors(visualPropDef.children)}
+      return [
+        (<tr>
+          <td colSpan="2" style={{textAlign: "left"}}>
+            <span>{visualPropDef.name}</span>
+            <button onClick={this.toggleGroupExpanded.bind(this, visualPropDef)}>{!this.isGroupExpanded(visualPropDef) ? "+" : "-"}</button>
+          </td>
+        </tr>),
+        this.isGroupExpanded(visualPropDef) ? visualPropDef.children.map(childPropDef => this.renderPropEditor(childPropDef)) : null
+      ];
     }
   }
-  renderPropEditor(userProp) {
-    const isThisPropValid = isPropValid(this.state.componentProps, userProp);
-
-    return (
-      <tr style={{border: isThisPropValid ? "" : "1px solid red"}}>
-        <td style={{textAlign: "right", verticalAlign: "top", paddingRight: "1em"}}>{camelCaseToWords(userProp.name).map(capitalizeWord).join(" ")}</td>
-        <td>{renderPropInput(userProp.type, this.state.componentProps[userProp.name], newValue => this.onComponentPropChange(userProp.name, newValue))}</td>
-      </tr>
-    );
-  }
-  renderPropEditors() {
+  renderPropEditors(visualPropDefs) {
     return (
       <table style={{borderCollapse: "collapse"}}>
         <tbody>
-          {BarChart.userProps.map(this.renderPropEditor.bind(this))}
+          {visualPropDefs.map(this.renderPropEditor.bind(this))}
         </tbody>
       </table>
     );
@@ -413,13 +439,13 @@ export class BarChartEditor extends React.Component {
               <button onClick={this.exportToRasterImage.bind(this, "png")}>Export To PNG</button>
               <button onClick={this.exportToRasterImage.bind(this, "jpeg")}>Export To JPEG</button>
             </div>
-            {this.renderPropEditors()}
-            <textarea value={JSON.stringify(this.state.componentProps)} onChange={this.onComponentPropsJSONChange.bind(this)} />
+            {this.renderPropEditors(BarChart.visualPropDefs)}
+            <textarea value={JSON.stringify(this.state.visualProps, null, "  ")} onChange={this.onVisualPropsJSONChange.bind(this)} style={{width: "100%", height: "300px"}} />
           </div>
         </div>
         <div style={{paddingLeft: `${this.props.sideBarWidth}px`}}>
           <div style={{padding: "1em"}}>
-            {arePropsValid(this.state.componentProps, BarChart.userProps) ? React.createElement(BarChart, Object.assign(this.state.componentProps, {ref: this.barChartRefCallback.bind(this)})) : <span>Invalid props.</span>}
+            {areVisualPropsValid(this.state.visualProps, BarChart.visualPropDefs) ? React.createElement(BarChart, Object.assign(BarChart.mapVisualPropsToProps(BarChart.visualPropDefs, this.state.visualProps), {ref: this.barChartRefCallback.bind(this)})) : <span>Invalid props.</span>}
           </div>
         </div>
       </div>

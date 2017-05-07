@@ -85,3 +85,40 @@ export function capitalizeWord(word) {
 export function openNewTab(url) {
   window.open(url, "_blank");
 }
+
+export function runInTmpCanvas(fn, canvasWidth, canvasHeight) {
+  if(!fn) { return; }
+
+  // Add an invisible canvas to <body>.
+  var tmpCanvas = document.createElement("canvas");
+  tmpCanvas.width = canvasWidth;
+  tmpCanvas.height = canvasHeight;
+  tmpCanvas.style.display = "none";
+  document.getElementsByTagName("body")[0].appendChild(tmpCanvas);
+
+  // Run the passed-in function.
+  fn(tmpCanvas, tmpCanvas.getContext("2d"));
+
+  // Remove the temporary canvas.
+  tmpCanvas.parentNode.removeChild(tmpCanvas);
+}
+
+export function getSvgDataUri(svgString) {
+  const encodedSvgDocument = btoa(svgString);
+  return `data:image/svg+xml;base64,${encodedSvgDocument}`;
+}
+
+export function exportSvgToFile(svgString) {
+  openNewTab(getSvgDataUri(svgString));
+}
+
+export function exportSvgToRasterImage(svgString, imageWidth, imageHeight, imageFormat) {
+  runInTmpCanvas((canvas, context) => {
+    var image = new Image();
+    image.onload = () => {
+      context.drawImage(image, 0, 0);
+      openNewTab(canvas.toDataURL(`image/${imageFormat}`));
+    };
+    image.src = getSvgDataUri(svgString);
+  }, imageWidth, imageHeight);
+}

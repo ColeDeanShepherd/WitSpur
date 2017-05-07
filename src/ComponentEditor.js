@@ -3,20 +3,10 @@ import { SketchPicker } from 'react-color';
 
 import { camelCaseToWords, capitalizeWord } from './Utils.js';
 
-/*
-User-defined component
-======================
-* Prop info
-  * name (string)
-  * type
-  * default value
-* react component code
-*/
-
-export function renderPropInput(propType, value, onChange) {
-  if(propType === CustomPropTypes.String) {
+export function renderVisualPropInput(propType, value, onChange) {
+  if(propType === VisualPropTypes.String) {
     return <input type="text" value={value} onChange={(event) => onChange(event.target.value)} />;
-  } else if(propType === CustomPropTypes.Number) {
+  } else if(propType === VisualPropTypes.Number) {
     function onNumberInputChange(event) {
       const valueString = event.target.value;
       const value = parseFloat(valueString);
@@ -27,7 +17,7 @@ export function renderPropInput(propType, value, onChange) {
     }
 
     return <input type="number" value={value} onChange={onNumberInputChange} />;
-  } else if(propType === CustomPropTypes.Color) {
+  } else if(propType === VisualPropTypes.Color) {
     function onColorInputChange(color, event) {
       onChange(color.rgb);
     }
@@ -37,15 +27,18 @@ export function renderPropInput(propType, value, onChange) {
     if(propType.name === "Array") {
       return <ArrayPropEditor elementType={propType.elementType} value={value} onChange={onChange} />
     }
+  } else if(propType === VisualPropTypes.Group) {
+    return null;
   }
 
+  console.warn(`Unknown prop type: ${propType}`);
   return null;
 }
 
-export function getDefaultPropTypeValue(propType) {
-  if(propType === CustomPropTypes.Number) {
+export function getDefaultValueForNonGroupVisualPropType(propType) {
+  if(propType === VisualPropTypes.Number) {
     return 0;
-  } else if(propType === CustomPropTypes.String) {
+  } else if(propType === VisualPropTypes.String) {
     return "";
   } else if(typeof propType === "object") {
     if(propType.name === "Array") {
@@ -56,33 +49,60 @@ export function getDefaultPropTypeValue(propType) {
   return null;
 }
 
-export function userPropsToInitialState(userProps) {
-  return userProps.reduce((previousInitialState, userProp) => {
-    var propState = {};
-    propState[userProp.name] = (userProp.defaultValue === undefined) ? getDefaultPropTypeValue(userProp.type) : userProp.defaultValue;
+export function getDefaultVisualProps(visualPropDefs) {
+  return visualPropDefs.reduce((prevProps, propDef) => {
+    var visualPropsDelta;
 
-    return Object.assign(previousInitialState, propState);
+    if(propDef.type !== VisualPropTypes.Group) {
+      visualPropsDelta = {};
+      visualPropsDelta[propDef.name] = (propDef.defaultValue === undefined) ? getDefaultValueForNonGroupVisualPropType(propDef.type) : propDef.defaultValue;
+    } else {
+      visualPropsDelta = getDefaultVisualProps(propDef.children);
+    }
+
+    return Object.assign(prevProps, visualPropsDelta);
   }, {});
 }
 
-export function isPropValid(props, userProp) {
-  return !userProp.validate || userProp.validate(props[userProp.name], props);
+export function isVisualPropValid(allVisualProps, visualPropDef) {
+  if(visualPropDef.type !== "Group") {
+    const visualProp = allVisualProps[visualPropDef.name];
+    return !visualPropDef.validate || visualPropDef.validate(visualProp, allVisualProps);
+  } else {
+    return areVisualPropsValid(allVisualProps, visualPropDef.children);
+  }
 }
-export function arePropsValid(props, userProps) {
-  return userProps.every(userProp => isPropValid(props, userProp));
+export function areVisualPropsValid(visualProps, visualPropDefs) {
+  return visualPropDefs.every(propDef => isVisualPropValid(visualProps, propDef));
 }
 
-export const CustomPropTypes = {
+export function defaultMapVisualPropToProps(visualPropDef, visualProps) {
+  if(visualPropDef.type !== "Group") {
+    var props = {};
+    props[visualPropDef.name] = visualProps[visualPropDef.name];
+
+    return props;
+  } else {
+    return defaultMapVisualPropsToProps(visualPropDef.children, visualProps);
+  }
+}
+
+export function defaultMapVisualPropsToProps(visualPropDefs, visualProps) {
+  return visualPropDefs.reduce((props, visualPropDef) => Object.assign(props, defaultMapVisualPropToProps(visualPropDef, visualProps)), {});
+}
+
+export const VisualPropTypes = {
   Number: "Number",
   String: "String",
   Color: "Color",
-  Array: elementType => ({ name: "Array", elementType: elementType })
+  Array: elementType => ({ name: "Array", elementType: elementType }),
+  Group: "Group"
 };
 
 export const ArrayPropEditor = ({elementType, value, onChange}) => {
   function onAddElementButtonClicked() {
     if(onChange) {
-      const newValue = value.concat(getDefaultPropTypeValue(elementType));
+      const newValue = value.concat(getDefaultValueForNonGroupVisualPropType(elementType));
 
       onChange(newValue);
     }
@@ -108,7 +128,7 @@ export const ArrayPropEditor = ({elementType, value, onChange}) => {
     <div>
       {value.map((value, index) => (
         <div>
-          {renderPropInput(elementType, value, (newElementValue) => onElementChange(newElementValue, index))}
+          {renderVisualPropInput(elementType, value, (newElementValue) => onElementChange(newElementValue, index))}
           <button onClick={onRemoveElementButtonClicked.bind(this, index)}>x</button>
         </div>
       ))}
