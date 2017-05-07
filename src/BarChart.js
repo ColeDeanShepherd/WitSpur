@@ -430,8 +430,8 @@ export class BarChartEditor extends React.Component {
   render() {
     return (
       <div>
-        <div style={{boxSizing: "border-box", backgroundColor: "#313131", color: "#FFF", width: `${this.props.sideBarWidth}px`, height: "100%", overflowY: "auto", position: "fixed", left: 0, top: 0}}>
-          <div>
+        <div className="editor-sidebar" style={{width: `${this.props.sideBarWidth}px`}}>
+          <div style={{padding: "1em"}}>
             <div>
               <h4>Export (popup may be blocked)</h4>
               <button onClick={this.exportToSvg.bind(this)}>Export To SVG</button>
@@ -443,8 +443,10 @@ export class BarChartEditor extends React.Component {
           </div>
         </div>
         <div style={{paddingLeft: `${this.props.sideBarWidth}px`}}>
-          <div style={{padding: "1em"}}>
-            {areVisualPropsValid(this.state.visualProps, BarChart.visualPropDefs) ? React.createElement(BarChart, Object.assign(BarChart.mapVisualPropsToProps(BarChart.visualPropDefs, this.state.visualProps), {ref: this.barChartRefCallback.bind(this)})) : <span>Invalid props.</span>}
+          <div style={{padding: "1em", textAlign: "center"}}>
+            <div style={{display: "inline-block", boxShadow: "0px 0px 12px 0px rgba(0,0,0,0.2)"}}>
+              {areVisualPropsValid(this.state.visualProps, BarChart.visualPropDefs) ? React.createElement(BarChart, Object.assign(BarChart.mapVisualPropsToProps(BarChart.visualPropDefs, this.state.visualProps), {ref: this.barChartRefCallback.bind(this)})) : <span>Invalid props.</span>}
+            </div>
           </div>
         </div>
       </div>
