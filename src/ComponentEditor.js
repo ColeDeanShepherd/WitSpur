@@ -23,12 +23,14 @@ export function renderVisualPropInput(propType, value, onChange) {
     }
 
     return <SketchPicker color={value} onChange={onColorInputChange} />;
-  } else if(typeof propType === "object") {
-    if(propType.name === "Array") {
-      return <ArrayPropEditor elementType={propType.elementType} value={value} onChange={onChange} />
-    }
+  } else if(propType === VisualPropTypes.TextStyle) {
+    return <TextStyleInput value={value} onChange={onChange} />;
   } else if(propType === VisualPropTypes.Group) {
     return null;
+  } else if(typeof propType === "object") {
+    if(propType.name === "Array") {
+      return <ArrayPropInput elementType={propType.elementType} value={value} onChange={onChange} />
+    }
   }
 
   console.warn(`Unknown prop type: ${propType}`);
@@ -40,6 +42,13 @@ export function getDefaultValueForNonGroupVisualPropType(propType) {
     return 0;
   } else if(propType === VisualPropTypes.String) {
     return "";
+  } else if(propType === VisualPropTypes.TextStyle) {
+    return {
+      size: 16,
+      isBold: false,
+      isItalic: false,
+      color: "#FFF"
+    };
   } else if(typeof propType === "object") {
     if(propType.name === "Array") {
       return [];
@@ -95,11 +104,49 @@ export const VisualPropTypes = {
   Number: "Number",
   String: "String",
   Color: "Color",
+  TextStyle: "TextStyle",
   Array: elementType => ({ name: "Array", elementType: elementType }),
   Group: "Group"
 };
 
-export const ArrayPropEditor = ({elementType, value, onChange}) => {
+export const TextStyleInput = ({value, onChange}) => {
+  function onSizeChange(event) {
+    if(onChange) {
+      const newValue = Object.assign(value, {size: event.target.value});
+      onChange(newValue);
+    }
+  }
+  function onIsBoldToggle(event) {
+    if(onChange) {
+      const newValue = Object.assign(value, {isBold: !value.isBold});
+      onChange(newValue);
+    }
+  }
+  function onIsItalicToggle(event) {
+    if(onChange) {
+      const newValue = Object.assign(value, {isItalic: !value.isItalic});
+      onChange(newValue);
+    }
+  }
+  function onColorInputChange(color, event) {
+    if(onChange) {
+      const newValue = Object.assign(value, {color: color.rgb});
+      onChange(newValue);
+    }
+  }
+
+  return (
+    <div>
+      Size: <input type="number" value={value.size} onChange={onSizeChange} /><br />
+      Weight:
+      <span>B<input type="checkbox" value={value.isBold} onChange={onIsBoldToggle} /></span>
+      <span style={{paddingLeft: "0.5em"}}>I<input type="checkbox" value={value.isItalic} onChange={onIsItalicToggle} /><br /></span>
+      Color: <SketchPicker color={value.color} onChange={onColorInputChange} />
+    </div>
+  );
+};
+
+export const ArrayPropInput = ({elementType, value, onChange}) => {
   function onAddElementButtonClicked() {
     if(onChange) {
       const newValue = value.concat(getDefaultValueForNonGroupVisualPropType(elementType));

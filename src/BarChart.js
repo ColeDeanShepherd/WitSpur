@@ -38,7 +38,7 @@ export class BarChart extends React.Component {
       textSize,
       textColor,
       barFillColor,
-      barValueTextColor,
+      barValueTextStyle,
       barWidth,
       barMargin
     } = this.props;
@@ -172,7 +172,18 @@ export class BarChart extends React.Component {
             return (
               <g transform={`translate(${x},${y})`}>
                 <rect width={barWidth} height={barHeight} style={{fill: colorToString(barFillColor)}} />
-                <text fontFamily={textFontFamily} fontSize={textSize} fill={colorToString(barValueTextColor)} x={barWidth / 2} y={barValueLabelMarginTop} textAnchor="middle" dominantBaseline="hanging">{value}</text>
+                <text
+                  fontFamily={textFontFamily}
+                  fontSize={barValueTextStyle.size}
+                  fontWeight={!barValueTextStyle.isBold ? "normal" : "bold"}
+                  fontStyle={!barValueTextStyle.isItalic ? "normal" : "italic"}
+                  fill={colorToString(barValueTextStyle.color)}
+                  x={barWidth / 2}
+                  y={barValueLabelMarginTop}
+                  textAnchor="middle"
+                  dominantBaseline="hanging">
+                  {value}
+                </text>
               </g>
             );
           })}
@@ -182,7 +193,7 @@ export class BarChart extends React.Component {
     function renderWaterMark() {
       return <text fontFamily="sans-serif" fontSize="30px" fontWeight="bold" fill="#000" opacity="0.25" strokeWidth="1" stroke="#FFF" textAnchor="end" x={waterMarkX} y={waterMarkY}>witspur.com</text>;
     }
-
+    
     return (
       <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width={width} height={height}>
         {renderDefs()}
@@ -216,16 +227,10 @@ BarChart.visualPropDefs = [
     validate: null
   },
   {
-    name: "X Axis",
-    type: VisualPropTypes.Group,
-    children: [
-      {
-        name: "xAxisLabel",
-        type: VisualPropTypes.String,
-        defaultValue: "X Axis",
-        validate: null
-      },
-    ]
+    name: "xAxisLabel",
+    type: VisualPropTypes.String,
+    defaultValue: "X Axis",
+    validate: null
   },
   {
     name: "Y Axis",
@@ -300,29 +305,34 @@ BarChart.visualPropDefs = [
     validate: null
   },
   {
-    name: "barFillColor",
-    type: VisualPropTypes.Color,
-    defaultValue: "steelblue",
-    validate: null
+    name: "Bars",
+    type: VisualPropTypes.Group,
+    children: [
+      {
+        name: "barFillColor",
+        type: VisualPropTypes.Color,
+        defaultValue: "steelblue",
+        validate: null
+      },
+      {
+        name: "barValueTextStyle",
+        type: VisualPropTypes.TextStyle,
+        validate: null
+      },
+      {
+        name: "barWidth",
+        type: VisualPropTypes.Number,
+        defaultValue: 40,
+        validate: barWidth => barWidth > 0
+      },
+      {
+        name: "barMargin",
+        type: VisualPropTypes.Number,
+        defaultValue: 10,
+        validate: barMargin => barMargin >= 0
+      }
+    ]
   },
-  {
-    name: "barValueTextColor",
-    type: VisualPropTypes.Color,
-    defaultValue: "#FFF",
-    validate: null
-  },
-  {
-    name: "barWidth",
-    type: VisualPropTypes.Number,
-    defaultValue: 40,
-    validate: barWidth => barWidth > 0
-  },
-  {
-    name: "barMargin",
-    type: VisualPropTypes.Number,
-    defaultValue: 10,
-    validate: barMargin => barMargin >= 0
-  }
 ];
 BarChart.mapVisualPropsToProps = function (visualPropDefs, visualProps) {
   return defaultMapVisualPropsToProps(visualPropDefs, visualProps);
@@ -406,8 +416,6 @@ export class BarChartEditor extends React.Component {
         </tr>
       );
     } else {
-      // Render a group of visual properties.
-      //{this.renderPropEditors(visualPropDef.children)}
       return [
         (<tr>
           <td colSpan="2" style={{textAlign: "left"}}>

@@ -122,3 +122,18 @@ export function exportSvgToRasterImage(svgString, imageWidth, imageHeight, image
     image.src = getSvgDataUri(svgString);
   }, imageWidth, imageHeight);
 }
+
+export function genUniqueId() {
+  const dateValue = (new Date()).valueOf();
+
+  if(dateValue != genUniqueId.lastDateValue) {
+    genUniqueId.lastDateValue = dateValue;
+    genUniqueId.collisionCount = 0;
+  } else {
+    genUniqueId.collisionCount++;
+  }
+
+  return dateValue.toString() + genUniqueId.collisionCount.toString();
+}
+genUniqueId.lastDateValue = null;
+genUniqueId.collisionCount = 0;
