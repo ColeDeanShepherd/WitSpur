@@ -1,26 +1,88 @@
 body {
-  background-color: #F7F7F9;
+  background-color: #EAEFF8;
+  font-size: 14px;
 }
 
 svg {
   vertical-align: top;
 }
 
-.editor-sidebar {
-  box-sizing: border-box;
-  background-color: #4C505E;
-  border-right: 1px solid rgba(0, 0, 0, 0);
-  color: #FFF;
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  box-shadow: 0px 0px 17px 0px rgba(0, 0, 0, 0.4);
-  position: fixed;
-  left: 0;
-  top: 0;
+button,
+input[type=text],
+input[type=number],
+textarea {
+  background-color: #FFF;
+  color: #414C58;
+  padding: 0.5em;
+  border: 1px solid #D1D6E0;
+  border-radius: 3px;
 }
 
-.editor-sidebar::-webkit-scrollbar {
+button {
+  cursor: pointer;
+  /*background-color: #2F7BBD;*/
+  background-color: #55B369;
+  color: #FFF;
+  border: none;
+}
+
+button:hover {
+  background-color: #66C47A;
+}
+
+.input-group button {
+  background-color: #EAEFF8;
+  color: #414C58;
+  border: 1px solid #D1D6E0;
+}
+
+.input-group button.first,
+.input-group input[type=text].first,
+.input-group input[type=number].first {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.input-group button.last,
+.input-group input[type=text].last,
+.input-group input[type=number].last {
+  border-left: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.header {
+  background-color: #333C4E;
+  color: #FFF;
+  height: 40px;
+}
+.header .logo {
+  font-size: 2em;
+  color: #9BA3B3;
+  padding: 3px 0 0 0.25em;
+}
+
+.card {
+  background-color: #FCFDFD;
+  text-align: center;
+  padding: 1em;
+  border-radius: 5px;
+  border: 1px solid #D1D6E0;
+  box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.05);
+}
+
+.editor-sidebar {
+  color: #414C58;
+  border-radius: 0;
+  border-width: 0 1px 0 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: fixed;
+  left: 0px;
+  top: 40px;
+  bottom: 0px;
+}
+
+/*.editor-sidebar::-webkit-scrollbar {
   width: 13px;
 }
 .editor-sidebar::-webkit-scrollbar-track {
@@ -31,4 +93,4 @@ svg {
 }
 .editor-sidebar::-webkit-scrollbar-thumb:hover {
   background-color: #A8A8A8;
-}
+}*/

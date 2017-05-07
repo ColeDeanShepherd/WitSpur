@@ -3,9 +3,9 @@ import { SketchPicker } from 'react-color';
 
 import { camelCaseToWords, capitalizeWord } from './Utils.js';
 
-export function renderVisualPropInput(propType, value, onChange) {
+export function renderVisualPropInput(propType, value, onChange, className) {
   if(propType === VisualPropTypes.String) {
-    return <input type="text" value={value} onChange={(event) => onChange(event.target.value)} />;
+    return <input type="text" value={value} onChange={(event) => onChange(event.target.value)} className={className} />;
   } else if(propType === VisualPropTypes.Number) {
     function onNumberInputChange(event) {
       const valueString = event.target.value;
@@ -16,20 +16,20 @@ export function renderVisualPropInput(propType, value, onChange) {
       }
     }
 
-    return <input type="number" value={value} onChange={onNumberInputChange} />;
+    return <input type="number" value={value} onChange={onNumberInputChange} className={className} />;
   } else if(propType === VisualPropTypes.Color) {
     function onColorInputChange(color, event) {
       onChange(color.rgb);
     }
 
-    return <SketchPicker color={value} onChange={onColorInputChange} />;
+    return <SketchPicker color={value} onChange={onColorInputChange} className={className} />;
   } else if(propType === VisualPropTypes.TextStyle) {
-    return <TextStyleInput value={value} onChange={onChange} />;
+    return <TextStyleInput value={value} onChange={onChange} className={className} />;
   } else if(propType === VisualPropTypes.Group) {
     return null;
   } else if(typeof propType === "object") {
     if(propType.name === "Array") {
-      return <ArrayPropInput elementType={propType.elementType} value={value} onChange={onChange} />
+      return <ArrayPropInput elementType={propType.elementType} value={value} onChange={onChange} className={className} />
     }
   }
 
@@ -174,9 +174,9 @@ export const ArrayPropInput = ({elementType, value, onChange}) => {
   return (
     <div>
       {value.map((value, index) => (
-        <div>
-          {renderVisualPropInput(elementType, value, (newElementValue) => onElementChange(newElementValue, index))}
-          <button onClick={onRemoveElementButtonClicked.bind(this, index)}>x</button>
+        <div className="input-group">
+          {renderVisualPropInput(elementType, value, (newElementValue) => onElementChange(newElementValue, index), 'first')}
+          <button onClick={onRemoveElementButtonClicked.bind(this, index)} className="last">x</button>
         </div>
       ))}
       <button onClick={onAddElementButtonClicked}>+</button>

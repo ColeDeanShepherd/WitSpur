@@ -12,7 +12,12 @@ import {BarChartEditor} from './BarChart.js';
 class App extends Component {
   render() {
     return (
-      <div className="App">
+      <div className="app">
+        <div className="header">
+          <div className="logo">
+            witspur.com
+          </div>
+        </div>
         <BarChartEditor sideBarWidth={500} />
       </div>
     );
