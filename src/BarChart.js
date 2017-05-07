@@ -34,9 +34,7 @@ export class BarChart extends React.Component {
       height,
       backgroundColor,
       lineColor,
-      textFontFamily,
-      textSize,
-      textColor,
+      textStyle,
       barFillColor,
       barValueTextStyle,
       barWidth,
@@ -81,6 +79,8 @@ export class BarChart extends React.Component {
     const waterMarkX = width - waterMarkMargin;
     const waterMarkY = height - waterMarkMargin;
 
+    const textFontFamily = "sans-serif";
+
     const getBarXRelativeToBarsArea = index => barsMarginLeft + (index * (barWidth + barMargin));
 
     function renderDefs() {
@@ -98,7 +98,7 @@ export class BarChart extends React.Component {
     function renderTitle() {
       return (
         <g transform={`translate(${titleRectX},${titleRectY})`}>
-          <text fontFamily={textFontFamily} fontSize={textSize} fill={colorToString(textColor)} textAnchor="middle" dominantBaseline="central" x={titleRectWidth / 2} y={titleRectHeight / 2}>{title}</text>
+          <text fontFamily={textFontFamily} fontSize={textStyle.size} fontWeight={!textStyle.isBold ? "normal" : "bold"} fontStyle={!textStyle.isItalic ? "normal" : "italic"} fill={colorToString(textStyle.color)} textAnchor="middle" dominantBaseline="central" x={titleRectWidth / 2} y={titleRectHeight / 2}>{title}</text>
         </g>
       );
     }
@@ -106,12 +106,14 @@ export class BarChart extends React.Component {
       // <line x1={0} y1={0} x2={xAxisRectWidth} y2={0} strokeWidth="1" stroke={colorToString(lineColor)} />
       return (
       <g transform={`translate(${xAxisRectX},${xAxisRectY})`}>
-        <text fontFamily={textFontFamily} fontSize={textSize} fill={colorToString(textColor)} textAnchor="middle" x={xAxisRectWidth / 2} y={xAxisRectHeight - xAxisLabelMarginBottom}>{xAxisLabel}</text>
+        <text fontFamily={textFontFamily} fontSize={textStyle.size} fontWeight={!textStyle.isBold ? "normal" : "bold"} fontStyle={!textStyle.isItalic ? "normal" : "italic"} fill={colorToString(textStyle.color)} textAnchor="middle" x={xAxisRectWidth / 2} y={xAxisRectHeight - xAxisLabelMarginBottom}>{xAxisLabel}</text>
         {valueLabels.map((label, index) => (
           <text
             fontFamily={textFontFamily}
-            fontSize={textSize}
-            fill={colorToString(textColor)}
+            fontSize={textStyle.size}
+            fontWeight={!textStyle.isBold ? "normal" : "bold"}
+            fontStyle={!textStyle.isItalic ? "normal" : "italic"}
+            fill={colorToString(textStyle.color)}
             x={getBarXRelativeToBarsArea(index) + (barWidth / 2)}
             y={xAxisValueLabelMarginTop}
             textAnchor="middle"
@@ -134,8 +136,10 @@ export class BarChart extends React.Component {
           labels.push(
             <text
               fontFamily={textFontFamily}
-              fontSize={textSize}
-              fill={colorToString(textColor)}
+              fontSize={textStyle.size}
+              fontWeight={!textStyle.isBold ? "normal" : "bold"}
+              fontStyle={!textStyle.isItalic ? "normal" : "italic"}
+              fill={colorToString(textStyle.color)}
               x={yAxisRectX + yAxisRectWidth - yAxisLabelMarginRight}
               y={y}
               textAnchor="end"
@@ -157,7 +161,7 @@ export class BarChart extends React.Component {
         <line x1={yAxisRectWidth} y1={yAxisRectX} x2={yAxisRectWidth} y2={yAxisRectHeight} strokeWidth="1" stroke={colorToString(lineColor)} />
         {labelLines}
         {labels}
-        <text fontFamily={textFontFamily} fontSize={textSize} fill={colorToString(textColor)} textAnchor="middle" dominantBaseline="hanging" transform={`translate(${yAxisLabelMarginLeft},${yAxisRectHeight / 2}) rotate(-90)`}>{yAxisLabel}</text>
+        <text fontFamily={textFontFamily} fontSize={textStyle.size} fontWeight={!textStyle.isBold ? "normal" : "bold"} fontStyle={!textStyle.isItalic ? "normal" : "italic"} fill={colorToString(textStyle.color)} textAnchor="middle" dominantBaseline="hanging" transform={`translate(${yAxisLabelMarginLeft},${yAxisRectHeight / 2}) rotate(-90)`}>{yAxisLabel}</text>
       </g>
       );
     }
@@ -287,21 +291,8 @@ BarChart.visualPropDefs = [
     validate: null
   },
   {
-    name: "textFontFamily",
-    type: VisualPropTypes.String,
-    defaultValue: "sans-serif",
-    validate: null
-  },
-  {
-    name: "textSize",
-    type: VisualPropTypes.Number,
-    defaultValue: 16,
-    validate: null
-  },
-  {
-    name: "textColor",
-    type: VisualPropTypes.Color,
-    defaultValue: "#000",
+    name: "textStyle",
+    type: VisualPropTypes.TextStyle,
     validate: null
   },
   {

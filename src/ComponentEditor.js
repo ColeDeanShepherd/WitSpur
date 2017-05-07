@@ -47,7 +47,7 @@ export function getDefaultValueForNonGroupVisualPropType(propType) {
       size: 16,
       isBold: false,
       isItalic: false,
-      color: "#FFF"
+      color: "#000"
     };
   } else if(typeof propType === "object") {
     if(propType.name === "Array") {
