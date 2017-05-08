@@ -11,6 +11,7 @@ button,
 input[type=text],
 input[type=number],
 textarea {
+  box-sizing: border-box;
   background-color: #FFF;
   color: #414C58;
   padding: 0.5em 0.9em;
@@ -36,7 +37,7 @@ button:hover {
   border: 1px solid #D1D6E0;
 }
 .input-group button:hover {
-  background-color: #F7F9FC;
+  background-color: #F4F6FB;
 }
 
 .input-group button.first,
@@ -56,17 +57,17 @@ button:hover {
 .header {
   background-color: #333C4E;
   color: #FFF;
-  height: 40px;
+  padding: 0.5em;
 }
 .header .logo {
   font-size: 2em;
   color: #9BA3B3;
-  padding: 3px 0 0 0.25em;
 }
 
 .card {
   background-color: #FCFDFD;
   text-align: center;
+  color: #414C58;
   padding: 1em;
   border-radius: 5px;
   border: 1px solid #D1D6E0;
@@ -74,15 +75,17 @@ button:hover {
 }
 
 .editor-sidebar {
-  color: #414C58;
-  border-radius: 0;
-  border-width: 0 1px 0 0;
+  height: 100vh;
+  
+  margin: 1em;
+}
+
+.editor-sidebar-content {
+  box-sizing: border-box;
+  height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  position: fixed;
-  left: 0px;
-  top: 40px;
-  bottom: 0px;
+  padding: 0 1em;
 }
 
 /*.editor-sidebar::-webkit-scrollbar {

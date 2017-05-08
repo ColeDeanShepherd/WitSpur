@@ -429,11 +429,11 @@ export class BarChartEditor extends React.Component {
   }
   render() {
     return (
-      <div>
+      <div style={{display: "flex", flexDirection: "row"}}>
         <div className="editor-sidebar card" style={{width: `${this.props.sideBarWidth}px`}}>
-          <div style={{padding: "1em"}}>
-            <div>
-              <h4>Export (popup may be blocked)</h4>
+          <div className="editor-sidebar-content">
+            <h4>Export (popup may be blocked)</h4>
+            <div style={{marginBottom: "2em"}}>
               <button onClick={this.exportToSvg.bind(this)} style={{marginRight: "1em"}}>Export To SVG</button>
               <button onClick={this.exportToRasterImage.bind(this, "png")} style={{marginRight: "1em"}}>Export To PNG</button>
               <button onClick={this.exportToRasterImage.bind(this, "jpeg")}>Export To JPEG</button>
@@ -442,7 +442,7 @@ export class BarChartEditor extends React.Component {
             <textarea value={JSON.stringify(this.state.visualProps, null, "  ")} onChange={this.onVisualPropsJSONChange.bind(this)} style={{width: "100%", height: "300px"}} />
           </div>
         </div>
-        <div style={{paddingLeft: `${this.props.sideBarWidth}px`}}>
+        <div style={{flexGrow: 1}}>
           <div style={{padding: "1em", textAlign: "center"}}>
             <div className="card" style={{display: "inline-block"}}>
               {areVisualPropsValid(this.state.visualProps, BarChart.visualPropDefs) ? React.createElement(BarChart, Object.assign(BarChart.mapVisualPropsToProps(BarChart.visualPropDefs, this.state.visualProps), {ref: this.barChartRefCallback.bind(this)})) : <span>Invalid props.</span>}

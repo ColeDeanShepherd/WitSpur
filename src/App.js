@@ -4,6 +4,7 @@ import './App.css';
 
 import React, { Component } from 'react';
 
+import * as polyfill from './polyfill.js';
 import * as Utils from './Utils.js';
 import {BarChartEditor} from './BarChart.js';
 
