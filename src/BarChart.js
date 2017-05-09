@@ -8,7 +8,9 @@ import {
   capitalizeWord,
   openNewTab,
   exportSvgToFile,
-  exportSvgToRasterImage
+  exportSvgToRasterImage,
+  parseCSV,
+  unzip
 } from './Utils.js';
 import {
   VisualPropTypes,
@@ -16,7 +18,7 @@ import {
   getDefaultVisualProps,
   isVisualPropValid,
   renderVisualPropInput,
-  defaultMapVisualPropsToProps
+  defaultMapVisualPropToProps
 } from './ComponentEditor.js';
 
 export class BarChart extends React.Component {
@@ -38,11 +40,13 @@ export class BarChart extends React.Component {
       barFillColor,
       barValueTextStyle,
       barWidth,
-      barMargin
+      barMargin,
+      titleStyle,
+      axisLabelStyle
     } = this.props;
 
     const titleRectWidth = width;
-    const titleRectHeight = 30;
+    const titleRectHeight = 2 * titleStyle.size;
     const titleRectX = 0;
     const titleRectY = 0;
 
@@ -71,7 +75,7 @@ export class BarChart extends React.Component {
     const yAxisLabelMarginRight = 10;
     const valueToHeight = value => barsAreaHeight * ((value - yAxisMin) / (yAxisMax - yAxisMin));
 
-    const barsMarginLeft = 5;
+    const barsMarginLeft = barMargin / 2;
 
     const barValueLabelMarginTop = 5;
 
@@ -98,7 +102,7 @@ export class BarChart extends React.Component {
     function renderTitle() {
       return (
         <g transform={`translate(${titleRectX},${titleRectY})`}>
-          <text fontFamily={textFontFamily} fontSize={textStyle.size} fontWeight={!textStyle.isBold ? "normal" : "bold"} fontStyle={!textStyle.isItalic ? "normal" : "italic"} fill={colorToString(textStyle.color)} textAnchor="middle" dominantBaseline="central" x={titleRectWidth / 2} y={titleRectHeight / 2}>{title}</text>
+          <text fontFamily={textFontFamily} fontSize={titleStyle.size} fontWeight={!titleStyle.isBold ? "normal" : "bold"} fontStyle={!titleStyle.isItalic ? "normal" : "italic"} fill={colorToString(titleStyle.color)} textAnchor="middle" dominantBaseline="central" x={titleRectWidth / 2} y={titleRectHeight / 2}>{title}</text>
         </g>
       );
     }
@@ -106,7 +110,7 @@ export class BarChart extends React.Component {
       // <line x1={0} y1={0} x2={xAxisRectWidth} y2={0} strokeWidth="1" stroke={colorToString(lineColor)} />
       return (
       <g transform={`translate(${xAxisRectX},${xAxisRectY})`}>
-        <text fontFamily={textFontFamily} fontSize={textStyle.size} fontWeight={!textStyle.isBold ? "normal" : "bold"} fontStyle={!textStyle.isItalic ? "normal" : "italic"} fill={colorToString(textStyle.color)} textAnchor="middle" x={xAxisRectWidth / 2} y={xAxisRectHeight - xAxisLabelMarginBottom}>{xAxisLabel}</text>
+        <text fontFamily={textFontFamily} fontSize={axisLabelStyle.size} fontWeight={!axisLabelStyle.isBold ? "normal" : "bold"} fontStyle={!axisLabelStyle.isItalic ? "normal" : "italic"} fill={colorToString(axisLabelStyle.color)} textAnchor="middle" x={xAxisRectWidth / 2} y={xAxisRectHeight - xAxisLabelMarginBottom}>{xAxisLabel}</text>
         {valueLabels.map((label, index) => (
           <text
             fontFamily={textFontFamily}
@@ -161,7 +165,7 @@ export class BarChart extends React.Component {
         <line x1={yAxisRectWidth} y1={yAxisRectX} x2={yAxisRectWidth} y2={yAxisRectHeight} strokeWidth="1" stroke={colorToString(lineColor)} />
         {labelLines}
         {labels}
-        <text fontFamily={textFontFamily} fontSize={textStyle.size} fontWeight={!textStyle.isBold ? "normal" : "bold"} fontStyle={!textStyle.isItalic ? "normal" : "italic"} fill={colorToString(textStyle.color)} textAnchor="middle" dominantBaseline="hanging" transform={`translate(${yAxisLabelMarginLeft},${yAxisRectHeight / 2}) rotate(-90)`}>{yAxisLabel}</text>
+        <text fontFamily={textFontFamily} fontSize={axisLabelStyle.size} fontWeight={!axisLabelStyle.isBold ? "normal" : "bold"} fontStyle={!axisLabelStyle.isItalic ? "normal" : "italic"} fill={colorToString(axisLabelStyle.color)} textAnchor="middle" dominantBaseline="hanging" transform={`translate(${yAxisLabelMarginLeft},${yAxisRectHeight / 2}) rotate(-90)`}>{yAxisLabel}</text>
       </g>
       );
     }
@@ -213,58 +217,10 @@ export class BarChart extends React.Component {
 }
 BarChart.visualPropDefs = [
   {
-    name: "values",
-    type: VisualPropTypes.Array(VisualPropTypes.Number),
-    defaultValue: [1, 2, 3, 4, 5],
-    validate: (values, props) => (values.length > 0) && (values.length === props.valueLabels.length)
-  },
-  {
-    name: "valueLabels",
-    type: VisualPropTypes.Array(VisualPropTypes.String),
-    defaultValue: ["a", "b", "c", "d", "e"],
-    validate: (valueLabels, props) => (valueLabels.length > 0) && (valueLabels.length === props.values.length)
-  },
-  {
-    name: "title",
-    type: VisualPropTypes.String,
-    defaultValue: "Bar Chart",
+    name: "data",
+    type: VisualPropTypes.MultiLineString,
+    defaultValue: "a,1\nb,2\nc,3\nd,4\ne,5",
     validate: null
-  },
-  {
-    name: "xAxisLabel",
-    type: VisualPropTypes.String,
-    defaultValue: "X Axis",
-    validate: null
-  },
-  {
-    name: "Y Axis",
-    type: VisualPropTypes.Group,
-    children: [
-      {
-        name: "yAxisLabel",
-        type: VisualPropTypes.String,
-        defaultValue: "Y Axis",
-        validate: null
-      },
-      {
-        name: "yAxisValueLabelInterval",
-        type: VisualPropTypes.Number,
-        defaultValue: 1,
-        validate: yAxisValueLabelInterval => yAxisValueLabelInterval > 0
-      },
-      {
-        name: "yAxisMin",
-        type: VisualPropTypes.Number,
-        defaultValue: 0,
-        validate: (yAxisMin, props) => yAxisMin <= props.yAxisMax
-      },
-      {
-        name: "yAxisMax",
-        type: VisualPropTypes.Number,
-        defaultValue: 10,
-        validate: (yAxisMax, props) => yAxisMax >= props.yAxisMin
-      }
-    ]
   },
   {
     name: "width",
@@ -279,37 +235,45 @@ BarChart.visualPropDefs = [
     validate: height => height > 0
   },
   {
-    name: "backgroundColor",
-    type: VisualPropTypes.Color,
-    defaultValue: "#FFF",
+    name: "title",
+    type: VisualPropTypes.String,
+    defaultValue: "Bar Chart",
     validate: null
   },
   {
-    name: "lineColor",
-    type: VisualPropTypes.Color,
-    defaultValue: "#000",
+    name: "xAxisLabel",
+    type: VisualPropTypes.String,
+    defaultValue: "X Axis",
     validate: null
   },
   {
-    name: "textStyle",
-    type: VisualPropTypes.TextStyle,
+    name: "yAxisLabel",
+    type: VisualPropTypes.String,
+    defaultValue: "Y Axis",
     validate: null
   },
   {
-    name: "Bars",
+    name: "yAxisValueLabelInterval",
+    type: VisualPropTypes.Number,
+    defaultValue: 1,
+    validate: yAxisValueLabelInterval => yAxisValueLabelInterval > 0
+  },
+  {
+    name: "yAxisMin",
+    type: VisualPropTypes.Number,
+    defaultValue: 0,
+    validate: (yAxisMin, props) => yAxisMin <= props.yAxisMax
+  },
+  {
+    name: "yAxisMax",
+    type: VisualPropTypes.Number,
+    defaultValue: 10,
+    validate: (yAxisMax, props) => yAxisMax >= props.yAxisMin
+  },
+  {
+    name: "barStyle",
     type: VisualPropTypes.Group,
     children: [
-      {
-        name: "barFillColor",
-        type: VisualPropTypes.Color,
-        defaultValue: "steelblue",
-        validate: null
-      },
-      {
-        name: "barValueTextStyle",
-        type: VisualPropTypes.TextStyle,
-        validate: null
-      },
       {
         name: "barWidth",
         type: VisualPropTypes.Number,
@@ -324,9 +288,84 @@ BarChart.visualPropDefs = [
       }
     ]
   },
+  {
+    name: "textStyles",
+    type: VisualPropTypes.Group,
+    children: [
+      {
+        name: "titleStyle",
+        type: VisualPropTypes.TextStyle,
+        validate: null
+      },
+      {
+        name: "axisLabelStyle",
+        type: VisualPropTypes.TextStyle,
+        validate: null
+      },
+      {
+        name: "barValueTextStyle",
+        type: VisualPropTypes.TextStyle,
+        validate: null
+      },
+      {
+        name: "textStyle",
+        type: VisualPropTypes.TextStyle,
+        validate: null
+      }
+    ]
+  },
+  {
+    name: "colors",
+    type: VisualPropTypes.Group,
+    children: [
+      {
+        name: "backgroundColor",
+        type: VisualPropTypes.Color,
+        defaultValue: "#FFF",
+        validate: null
+      },
+      {
+        name: "lineColor",
+        type: VisualPropTypes.Color,
+        defaultValue: "#000",
+        validate: null
+      },
+      {
+        name: "barFillColor",
+        type: VisualPropTypes.Color,
+        defaultValue: "steelblue",
+        validate: null
+      }
+    ]
+  }
 ];
 BarChart.mapVisualPropsToProps = function (visualPropDefs, visualProps) {
-  return defaultMapVisualPropsToProps(visualPropDefs, visualProps);
+  return visualPropDefs.reduce((props, visualPropDef) => {
+    let propsDelta;
+
+    if(visualPropDef.name !== "data") {
+      propsDelta = defaultMapVisualPropToProps(visualPropDef, visualProps);
+      return Object.assign(props, propsDelta);
+    } else {
+      const dataStr = visualProps[visualPropDef.name];
+      const parsedData = parseCSV(dataStr);
+      const unzippedData = unzip(parsedData);
+
+      try {
+        propsDelta = {
+          values: unzippedData[1],
+          valueLabels: unzippedData[0]
+        };
+      } catch (error) {
+        propsDelta = {
+          values: [],
+          valueLabels: []
+        }
+      }
+    }
+
+    return Object.assign(props, propsDelta);
+  }, {});
 };
 
 export class BarChartEditor extends React.Component {
@@ -410,7 +449,7 @@ export class BarChartEditor extends React.Component {
       return [
         (<tr>
           <td colSpan="2" style={{textAlign: "left"}}>
-            <span>{visualPropDef.name}</span>
+            <span>{camelCaseToWords(visualPropDef.name).map(capitalizeWord).join(" ")}</span>
             <button onClick={this.toggleGroupExpanded.bind(this, visualPropDef)}>{!this.isGroupExpanded(visualPropDef) ? "+" : "-"}</button>
           </td>
         </tr>),
@@ -428,6 +467,8 @@ export class BarChartEditor extends React.Component {
     );
   }
   render() {
+    // <textarea value={JSON.stringify(this.state.visualProps, null, "  ")} onChange={this.onVisualPropsJSONChange.bind(this)} style={{width: "100%", height: "300px"}} />
+
     return (
       <div style={{display: "flex", flexDirection: "row"}}>
         <div className="editor-sidebar card" style={{width: `${this.props.sideBarWidth}px`}}>
@@ -439,7 +480,6 @@ export class BarChartEditor extends React.Component {
               <button onClick={this.exportToRasterImage.bind(this, "jpeg")}>Export To JPEG</button>
             </div>
             {this.renderPropEditors(BarChart.visualPropDefs)}
-            <textarea value={JSON.stringify(this.state.visualProps, null, "  ")} onChange={this.onVisualPropsJSONChange.bind(this)} style={{width: "100%", height: "300px"}} />
           </div>
         </div>
         <div style={{flexGrow: 1}}>

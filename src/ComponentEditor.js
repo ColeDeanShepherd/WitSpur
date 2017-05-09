@@ -5,7 +5,9 @@ import { camelCaseToWords, capitalizeWord } from './Utils.js';
 
 export function renderVisualPropInput(propType, value, onChange, className) {
   if(propType === VisualPropTypes.String) {
-    return <input type="text" value={value} onChange={(event) => onChange(event.target.value)} className={className} />;
+    return <input type="text" value={value} onChange={event => onChange(event.target.value)} className={className} />;
+  } else if(propType === VisualPropTypes.MultiLineString) {
+    return <textarea value={value} onChange={event => onChange(event.target.value)} className={className} />;
   } else if(propType === VisualPropTypes.Number) {
     function onNumberInputChange(event) {
       const valueString = event.target.value;
@@ -103,6 +105,7 @@ export function defaultMapVisualPropsToProps(visualPropDefs, visualProps) {
 export const VisualPropTypes = {
   Number: "Number",
   String: "String",
+  MultiLineString: "MultiLineString",
   Color: "Color",
   TextStyle: "TextStyle",
   Array: elementType => ({ name: "Array", elementType: elementType }),

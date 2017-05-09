@@ -1,3 +1,11 @@
+div,
+button,
+input[type=text],
+input[type=number],
+textarea {
+  box-sizing: border-box;
+}
+
 body {
   background-color: #EAEFF8;
   font-size: 14px;
@@ -11,7 +19,6 @@ button,
 input[type=text],
 input[type=number],
 textarea {
-  box-sizing: border-box;
   background-color: #FFF;
   color: #414C58;
   padding: 0.5em 0.9em;
@@ -55,9 +62,11 @@ button:hover {
 }
 
 .header {
+  display: flex;
+  align-items: center;
   background-color: #333C4E;
   color: #FFF;
-  padding: 0.5em;
+  height: 40px;
 }
 .header .logo {
   font-size: 2em;
@@ -75,13 +84,11 @@ button:hover {
 }
 
 .editor-sidebar {
-  height: 100vh;
-  
+  height: calc(100vh - 40px - 2em); /* screen height - header height - top & bottom margin */
   margin: 1em;
 }
 
 .editor-sidebar-content {
-  box-sizing: border-box;
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;

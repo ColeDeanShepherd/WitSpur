@@ -19,17 +19,56 @@ export function zip(a, b) {
 }
 
 /**
+ * Reverses the zip operation, splitting an array of tuples into an ordered array of arrays of values.
+ * @param {Array} array
+ * @return {Array} result
+ */
+export function unzip(zippedArray) {
+  if(zippedArray.length === 0) {
+    return zippedArray;
+  }
+
+  const tupleSize = zippedArray[0].length;
+  let unzippedArray = new Array(tupleSize);
+
+  for(let i = 0; i < unzippedArray.length; i++) {
+    unzippedArray[i] = zippedArray.map(tuple => tuple[i]);
+  }
+
+  return unzippedArray;
+}
+
+/**
+ * Parses a string of records separated by newlines, which have fields separated by an arbitrary one-line string.
+ * @param {String} str
+ * @param {String} x
+ * @return {String[][]}
+ */
+export function parseXSV(x, str) {
+  const lines = str.split(/\r?\n/);
+  const nonEmptyLines = lines.filter(line => line.length > 0);
+
+  return nonEmptyLines.map(line => {
+    return line.split(x);
+  });
+}
+
+/**
+ * Parses a comma-separated value string.
+ * @param {String} str
+ * @return {String[][]}
+ */
+export function parseCSV(str) {
+  return parseXSV(",", str);
+}
+
+/**
  * Parses a tab-separated value string.
  * @param {String} str
  * @return {String[][]}
  */
 export function parseTSV(str) {
-  const lines = str.split(/\r?\n/);
-  const nonEmptyLines = lines.filter(line => line.length > 0);
-
-  return nonEmptyLines.map(line => {
-    return line.split("\t");
-  });
+  return parseXSV("\t", str);
 }
 
 export function colorToString(color) {
