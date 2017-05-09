@@ -71,6 +71,7 @@ button:hover {
 .header .logo {
   font-size: 2em;
   color: #9BA3B3;
+  padding-left: 0.25em;
 }
 
 .card {

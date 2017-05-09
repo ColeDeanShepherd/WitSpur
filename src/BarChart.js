@@ -10,6 +10,7 @@ import {
   exportSvgToFile,
   exportSvgToRasterImage,
   parseCSV,
+  parseTSV,
   unzip
 } from './Utils.js';
 import {
@@ -199,7 +200,7 @@ export class BarChart extends React.Component {
       );
     }
     function renderWaterMark() {
-      return <text fontFamily="sans-serif" fontSize="30px" fontWeight="bold" fill="#000" opacity="0.25" strokeWidth="1" stroke="#FFF" textAnchor="end" x={waterMarkX} y={waterMarkY}>witspur.com</text>;
+      return <text fontFamily="sans-serif" fontSize="30px" fontWeight="bold" fill="#000" opacity="0.1" strokeWidth="1" stroke="#FFF" textAnchor="end" x={waterMarkX} y={waterMarkY}>witspur.com</text>;
     }
     
     return (
@@ -348,10 +349,11 @@ BarChart.mapVisualPropsToProps = function (visualPropDefs, visualProps) {
       return Object.assign(props, propsDelta);
     } else {
       const dataStr = visualProps[visualPropDef.name];
-      const parsedData = parseCSV(dataStr);
-      const unzippedData = unzip(parsedData);
 
       try {
+        const parsedData = dataStr.includes("\t") ? parseTSV(dataStr) : parseCSV(dataStr);
+        const unzippedData = unzip(parsedData);
+
         propsDelta = {
           values: unzippedData[1],
           valueLabels: unzippedData[0]
