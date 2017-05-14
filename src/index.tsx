@@ -1,9 +1,8 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { Hello } from "./Hello";
+import { TextAnalyzer } from "./TextAnalyzer";
 
-/*ReactDOM.render(
-  <Hello compiler="TypeScript" framework="React" />,
-  document.getElementById("example")
-);*/
+export function renderTextAnalysis(element: HTMLElement) {
+  ReactDOM.render(<TextAnalyzer />, element);
+}

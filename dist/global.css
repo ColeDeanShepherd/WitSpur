@@ -1,3 +1,8 @@
+div,
+img {
+  box-sizing: border-box;
+}
+
 body {
   background-color: #F4F4F4;
   font-family: sans-serif;
@@ -11,6 +16,7 @@ body {
 
 .card {
   background-color: #FFF;
+  padding: 1em;
   border-radius: 4px;
 }
 
@@ -48,4 +54,25 @@ body {
   text-decoration: none;
 }
 .header.front-page .logo a:hover {
+}
+
+.centered-content-container {
+  max-width: 1140px;
+  padding: 0 1em;
+  margin: 0 auto;
+}
+
+.tool-card {
+  width: 300px;
+  height: 300px;
+  text-align: center;
+}
+.tool-card .thumbnail {
+  display: block;
+}
+.tool-card .thumbnail img {
+  display: block;
+  width: 100%;
+  height: 230px;
+  border: 1px solid #CCC;
 }

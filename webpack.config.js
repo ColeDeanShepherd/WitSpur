@@ -1,6 +1,7 @@
 module.exports = {
   entry: "./src/index.tsx",
   output: {
+    library: "WitSpur",
     filename: "bundle.js",
     path: __dirname + "/dist"
   },

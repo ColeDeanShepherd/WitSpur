@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Home",
+    "contentsFileName": "home",
+    "outputFileName": "index"
+  },
+  {
+    "name": "Text Analysis",
+    "contentsFileName": "text-analysis",
+    "outputFileName": "text-analysis"
+  }
+]

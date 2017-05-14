@@ -3,17 +3,13 @@
   "version": "0.1.0",
   "description": "",
   "scripts": {
-    "clean": "node_modules/.bin/ts-node build/clean.ts",
-    "build:css": "node_modules/.bin/ts-node build/build-css.ts",
-    "build:html": "node_modules/.bin/ts-node build/build-html.ts",
-    "build:js": "webpack",
-    "build": "npm run clean && npm run build:html && npm run build:css && npm run build:js",
-    "build:watch": "node_modules/.bin/watch \"npm run build\" src",
+    "rebuild": "node_modules/.bin/ts-node build/rebuild.ts && webpack",
+    "build:watch": "node_modules/.bin/watch \"npm run rebuild\" src",
 
     "test": "echo \"Error: no test specified\" && exit 1",
 
-    "reload": "node_modules/.bin/browser-sync reload",
-    "buildReload:watch": "node_modules/.bin/watch \"npm run build && npm run reload\" src",
+    "buildReload": "npm run rebuild && \"node_modules/.bin/browser-sync\" reload",
+    "buildReload:watch": "node_modules/.bin/watch \"npm run buildReload\" src",
     "browser:watch": "node_modules/.bin/browser-sync start --config bs-config.js"
   },
   "repository": {
