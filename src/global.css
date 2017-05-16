@@ -5,6 +5,8 @@ textarea {
 }
 
 textarea {
+  padding: 0.5em;
+  border: 1px solid #CCC;
   border-radius: 4px;
 }
 
@@ -43,12 +45,16 @@ body {
   color: #AAA;
 }
 
+.sub-header {
+  display: none;
+}
+
 .header.front-page {
   display: block;
   background-color: transparent;
   font-size: 2em;
   text-align: center;
-  padding: 1em 0;
+  padding: 1em 0 0.5em 0;
   box-shadow: none;
   height: auto;
 }
@@ -61,6 +67,13 @@ body {
 .header.front-page .logo a:hover {
 }
 
+.sub-header.front-page {
+  display: block;
+  font-size: 1.5em;
+  text-align: center;
+  padding-bottom: 2em;
+}
+
 .centered-content-container {
   max-width: 1140px;
   padding: 0 1em;
@@ -68,16 +81,23 @@ body {
 }
 
 .tool-card {
-  width: 300px;
-  height: 300px;
+  display: inline-block;
   text-align: center;
+  padding-bottom: 0;
 }
-.tool-card .thumbnail {
-  display: block;
+.tool-card a {
+  display: flex;
+  flex-direction: column;
+  color: #000;
+  font-size: 1.2em;
+  text-decoration: none;
 }
-.tool-card .thumbnail img {
+.tool-card a .thumbnail {
   display: block;
-  width: 100%;
-  height: 230px;
+  width: 320px;
+  height: 180px;
   border: 1px solid #CCC;
+}
+.tool-card .tool-name {
+  padding: 1em 0;
 }

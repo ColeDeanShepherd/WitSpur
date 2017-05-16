@@ -42,12 +42,13 @@ export function isCharADigit(char: string) {
   return digitRegex.test(char);
 }
 
+// TODO: handle quoted strings? handle words starting with hyphens?
 export function forEachWord(iteratee: (startIndex: number, length: number) => void, str: string) {
   const wordPunctuationRegex = /['-]/;
   const wordCharRegex = new RegExp(`${letterRegex.source}|${digitRegex.source}|${wordPunctuationRegex.source}`);
   
-  function skipNonWordCharacters() {
-    while((charIndex < str.length) && !wordCharRegex.test(str.charAt(charIndex))) {
+  function skipNonWordStartCharacters() {
+    while((charIndex < str.length) && (str.charAt(charIndex) != '-') && !wordCharRegex.test(str.charAt(charIndex))) {
       charIndex++;
     }
   }
@@ -71,7 +72,7 @@ export function forEachWord(iteratee: (startIndex: number, length: number) => vo
   let charIndex = 0;
 
   // Skip to the first word or the end of the string.
-  skipNonWordCharacters();
+  skipNonWordStartCharacters();
   
   // While at the start of a word and not the end of the string:
   while(charIndex < str.length) {
@@ -86,7 +87,7 @@ export function forEachWord(iteratee: (startIndex: number, length: number) => vo
     }
 
     // Skip to the next word.
-    skipNonWordCharacters();
+    skipNonWordStartCharacters();
   }
 }
 
@@ -103,7 +104,6 @@ export function nonUniqueWordsInString(str: string): string[] {
 }
 
 /** Transforms words to lowerCase. */
-// TODO: handle quoted strings? handle words starting with hyphens?
 export function wordCounts(str: string): { [word: string]: number } {
   let wordCounts: { [word: string]: number } = {};
 
