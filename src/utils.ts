@@ -42,6 +42,34 @@ export function isCharADigit(char: string) {
   return digitRegex.test(char);
 }
 
+export function charCountExcludingNewLines(str: string) {
+  let charCount = 0;
+
+  for(let i = 0; i < str.length; i++) {
+    const char = str.charAt(i);
+
+    if((char !== '\n') && (char !== '\r')) {
+      charCount++;
+    }
+  }
+
+  return charCount;
+}
+export function charCountExcludingWhiteSpace(str: string) {
+  const whiteSpaceRegex = /\s/;
+  let charCount = 0;
+
+  for(let i = 0; i < str.length; i++) {
+    const char = str.charAt(i);
+
+    if(!whiteSpaceRegex.test(char)) {
+      charCount++;
+    }
+  }
+
+  return charCount;
+}
+
 // TODO: handle quoted strings? handle words starting with hyphens?
 export function forEachWord(iteratee: (startIndex: number, length: number) => void, str: string) {
   const wordPunctuationRegex = /['-]/;
@@ -103,7 +131,7 @@ export function nonUniqueWordsInString(str: string): string[] {
   return words;
 }
 
-/** Transforms words to lowerCase. */
+/** Transforms words to lower-case. */
 export function wordCounts(str: string): { [word: string]: number } {
   let wordCounts: { [word: string]: number } = {};
 
@@ -118,4 +146,21 @@ export function wordCounts(str: string): { [word: string]: number } {
   }, str);
 
   return wordCounts;
+}
+
+/** Transforms characters to lower-case. */
+export function charCounts(str: string): { [char: string]: number } {
+  let charCounts: { [char: string]: number } = {};
+
+  for(let i = 0; i < str.length; i++) {
+    const lowerCaseChar = str.charAt(i).toLowerCase();
+
+    if(lowerCaseChar in charCounts) {
+      charCounts[lowerCaseChar]++;
+    } else {
+      charCounts[lowerCaseChar] = 1;
+    }
+  }
+
+  return charCounts;
 }

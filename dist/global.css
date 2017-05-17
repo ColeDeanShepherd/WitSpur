@@ -1,13 +1,25 @@
 div,
 img,
+table,
 textarea {
   box-sizing: border-box;
 }
 
+table {
+  background-color: #FFF;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table,
+textarea {
+  border-radius: 4px;
+}
+
+table td,
 textarea {
   padding: 0.5em;
   border: 1px solid #CCC;
-  border-radius: 4px;
 }
 
 body {
@@ -100,4 +112,18 @@ body {
 }
 .tool-card .tool-name {
   padding: 1em 0;
+}
+
+@media (min-width: 720px) {
+  .row {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .column {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    padding: 0 0.75rem;
+  }
 }
