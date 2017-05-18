@@ -42,6 +42,40 @@ export function isCharADigit(char: string) {
   return digitRegex.test(char);
 }
 
+export function getCharRegex(includePunctuation: boolean, includeWhiteSpace: boolean): RegExp {
+  let regex: RegExp;
+
+  if(!includePunctuation) {
+    if(!includeWhiteSpace) {
+      regex = new RegExp(letterRegex.source + "|" + digitRegex.source);
+    } else {
+      regex = new RegExp(letterRegex.source + "|" + digitRegex.source + "|" + (/\s/).source);
+    }
+  } else {
+    if(!includeWhiteSpace) {
+      regex = /[^\s]/;
+    } else {
+      regex = new RegExp("");
+    }
+  }
+
+  return regex;
+}
+
+export const englishPunctuationRegex = /[\.,!\?:;"'\-\(\)\[\]\u2013\u2014]/;
+export function charCount(str: string, includePunctuation: boolean, includeWhiteSpace: boolean) {
+  const regex = getCharRegex(includePunctuation, includeWhiteSpace);
+  let charCount = 0;
+
+  for(let i = 0; i < str.length; i++) {
+    const char = str.charAt(i);
+
+    if(regex.test(char)) {
+      charCount++;
+    }
+  }
+  return charCount;
+}
 export function charCountExcludingNewLines(str: string) {
   let charCount = 0;
 
@@ -63,6 +97,19 @@ export function charCountExcludingWhiteSpace(str: string) {
     const char = str.charAt(i);
 
     if(!whiteSpaceRegex.test(char)) {
+      charCount++;
+    }
+  }
+
+  return charCount;
+}
+export function charCountExcludingWhiteSpaceAndPunctuation(str: string) {
+  let charCount = 0;
+
+  for(let i = 0; i < str.length; i++) {
+    const char = str.charAt(i);
+
+    if(letterRegex.test(char) || digitRegex.test(char)) {
       charCount++;
     }
   }

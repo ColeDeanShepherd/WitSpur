@@ -5,6 +5,11 @@ textarea {
   box-sizing: border-box;
 }
 
+a {
+  color: #72BBDD;
+  text-decoration: none;
+}
+
 table {
   background-color: #FFF;
   border-collapse: collapse;
@@ -84,6 +89,10 @@ body {
   font-size: 1.5em;
   text-align: center;
   padding-bottom: 2em;
+}
+
+.footer {
+  margin-top: 1em;
 }
 
 .centered-content-container {

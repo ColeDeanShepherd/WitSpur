@@ -11,9 +11,10 @@ function generateHtmlDocument(title: string, contents: string): string {
   const logoTag = `<div class="logo"><a href="/">WitSpur</a></div>`;
   const headerTag = `<div class="header${(title === "Home") ? " front-page" : ""}">${logoTag}</div>`;
   const subHeaderTag = `<div class="sub-header${(title === "Home") ? " front-page" : ""}">Interactive tools and media to inspire your mind.</div>`;
-  
+  const footerTag = `<div class="footer"></div>`;
+
   const scriptTags = `<script src="./bundle.js"></script>`;
-  const bodyTag = `<body>${headerTag}${subHeaderTag}${contents}${scriptTags}</body>`;
+  const bodyTag = `<body>${headerTag}${subHeaderTag}${contents}${footerTag}${scriptTags}</body>`;
 
   const htmlTag = `<html>${headTag}${bodyTag}</html>`;
 

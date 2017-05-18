@@ -4,18 +4,39 @@ import * as Utils from "./utils";
 
 export interface TextAnalyzerProps {}
 export interface TextAnalyzerState {
-  text: string
+  text: string,
+  showingAllWordCountRows: boolean,
+  includeWhiteSpaceInCharCount: boolean,
+  includePunctuationInCharCount: boolean
 }
 
 export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyzerState> {
   constructor(props: TextAnalyzerProps) {
     super(props);
 
-    this.state = { text: "" };
+    this.state = {
+      text: "",
+      showingAllWordCountRows: false,
+      includeWhiteSpaceInCharCount: false,
+      includePunctuationInCharCount: false
+    };
   }
   onTextChange(event: any) {
     this.setState({ text: event.target.value });
   }
+  toggleShowAllWordCountRows(event: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    this.setState({ showingAllWordCountRows: !this.state.showingAllWordCountRows });
+  }
+  toggleIncludePunctuationCharCount(event: any) {
+    this.setState({ includePunctuationInCharCount: !this.state.includePunctuationInCharCount });
+  }
+  toggleIncludeWhiteSpaceInCharCount(event: any) {
+    this.setState({ includeWhiteSpaceInCharCount: !this.state.includeWhiteSpaceInCharCount });
+  }
+  
   charToVisibleString(char: string): string {
     Utils.assert(char.length === 1);
 
@@ -36,18 +57,22 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
   render(): JSX.Element {
     const characterCount = this.state.text.length;
     const characterCountExcludingNewLines = Utils.charCountExcludingNewLines(this.state.text);
-    const characterCountExcludingWhiteSpace = Utils.charCountExcludingWhiteSpace(this.state.text);
+    const characterCountExcludingWhiteSpace = Utils.charCount(this.state.text, true, false);
+    const characterCountExcludingPunctuationAndWhiteSpace = Utils.charCount(this.state.text, false, false);
+    const characterRegex = Utils.getCharRegex(this.state.includePunctuationInCharCount, this.state.includeWhiteSpaceInCharCount);
 
     const wordCount = Utils.wordCount(this.state.text);
     const lineCount = 1 + Utils.charOccurrenceCount("\n", this.state.text);
 
+    const visibleWordCountRowCount = 100;
     const wordCounts = Utils.wordCounts(this.state.text);
     const wordCountPairs = Utils.reduceObjectPropertyNames((acc: [string, number][], propertyName: string) => {
       acc.push([propertyName, wordCounts[propertyName]]);
       return acc;
     }, wordCounts, []);
     const orderedWordCountPairs = wordCountPairs.sort((a: [string, number], b: [string, number]) => b[1] - a[1]);
-    const wordCountTrs = orderedWordCountPairs.map(wordCountPair => (
+    const orderedWordCountPairsToDisplay = !this.state.showingAllWordCountRows ? orderedWordCountPairs.slice(0, visibleWordCountRowCount) : orderedWordCountPairs;
+    const wordCountTrs = orderedWordCountPairsToDisplay.map(wordCountPair => (
       <tr>
         <td style={{width: "50%"}}>{wordCountPair[0]}</td>
         <td style={{width: "50%"}}>{wordCountPair[1]} ({(100 * (wordCountPair[1] / wordCount)).toFixed(2)}%)</td>
@@ -60,10 +85,12 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
       return acc;
     }, charCounts, []);
     const orderedCharCountPairs = charCountPairs.sort((a: [string, number], b: [string, number]) => b[1] - a[1]);
-    const charCountTrs = orderedCharCountPairs.map(charCountPair => (
+    const orderedCharCountPairsToDisplay = orderedCharCountPairs.filter(charCountPair => characterRegex.test(charCountPair[0]));
+    const charsToDisplayCount = orderedCharCountPairsToDisplay.reduce((acc, charCountPair) => acc + charCountPair[1], 0);
+    const charCountTrs = orderedCharCountPairsToDisplay.map(charCountPair => (
       <tr>
         <td style={{width: "50%"}}>{this.charToVisibleString(charCountPair[0])}</td>
-        <td style={{width: "50%"}}>{charCountPair[1]} ({(100 * (charCountPair[1] / characterCountExcludingWhiteSpace)).toFixed(2)}%)</td>
+        <td style={{width: "50%"}}>{charCountPair[1]} ({(100 * (charCountPair[1] / charsToDisplayCount)).toFixed(2)}%)</td>
       </tr>
     ));
 
@@ -90,6 +117,10 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
                 <td>{characterCountExcludingWhiteSpace}</td>
               </tr>
               <tr>
+                <td style={{width: "50%"}}>Characters (no punctuation or white-space)</td>
+                <td>{characterCountExcludingPunctuationAndWhiteSpace}</td>
+              </tr>
+              <tr>
                 <td style={{width: "50%"}}>Words</td>
                 <td>{wordCount}</td>
               </tr>
@@ -102,10 +133,19 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
           </div>
 
           <div className="column">
+            <h4>Words</h4>
             <table style={{margin: "1em 0"}}><tbody>{wordCountTrs}</tbody></table>
+            {(orderedWordCountPairs.length > visibleWordCountRowCount) ? <a href="" onClick={this.toggleShowAllWordCountRows.bind(this)}>{!this.state.showingAllWordCountRows ? "Show More" : "Show Less"}</a> : null}
           </div>
 
           <div className="column">
+            <h4>Characters</h4>
+            {(charCountTrs.length > 0) ? (
+              <span>
+                <input type="checkbox" checked={this.state.includePunctuationInCharCount} onClick={this.toggleIncludePunctuationCharCount.bind(this)} /> Include Punctuation<br /><br />
+                <input type="checkbox" checked={this.state.includeWhiteSpaceInCharCount} onClick={this.toggleIncludeWhiteSpaceInCharCount.bind(this)} /> Include White-space
+              </span>
+            ) : null}
             <table style={{margin: "1em 0"}}><tbody>{charCountTrs}</tbody></table>
           </div>
         </div>
