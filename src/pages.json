@@ -5,7 +5,7 @@
     "outputFileName": "index"
   },
   {
-    "name": "Text Analysis",
+    "name": "Character Counter, Word Counter, & Line Counter",
     "contentsFileName": "text-analysis",
     "outputFileName": "character-word-line-counter"
   }
