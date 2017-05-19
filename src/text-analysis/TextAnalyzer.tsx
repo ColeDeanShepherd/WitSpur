@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import * as Utils from "./utils";
+import * as Utils from "../utils";
 
 export interface TextAnalyzerProps {}
 export interface TextAnalyzerState {
@@ -133,12 +133,6 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
           </div>
 
           <div className="column">
-            <h4>Words</h4>
-            <table style={{margin: "1em 0"}}><tbody>{wordCountTrs}</tbody></table>
-            {(orderedWordCountPairs.length > visibleWordCountRowCount) ? <a href="" onClick={this.toggleShowAllWordCountRows.bind(this)}>{!this.state.showingAllWordCountRows ? "Show More" : "Show Less"}</a> : null}
-          </div>
-
-          <div className="column">
             <h4>Characters</h4>
             {(charCountTrs.length > 0) ? (
               <span>
@@ -147,6 +141,12 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
               </span>
             ) : null}
             <table style={{margin: "1em 0"}}><tbody>{charCountTrs}</tbody></table>
+          </div>
+
+          <div className="column">
+            <h4>Words</h4>
+            <table style={{margin: "1em 0"}}><tbody>{wordCountTrs}</tbody></table>
+            {(orderedWordCountPairs.length > visibleWordCountRowCount) ? <a href="" onClick={this.toggleShowAllWordCountRows.bind(this)}>{!this.state.showingAllWordCountRows ? "Show More" : "Show Less"}</a> : null}
           </div>
         </div>
       </div>

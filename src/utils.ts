@@ -4,6 +4,28 @@ export function assert(condition: boolean) {
   }
 }
 
+export class Complex {
+  public re: number;
+  public im: number;
+
+  constructor(re: number, im: number) {
+    this.re = re;
+    this.im = im;
+  }
+}
+function add(a: Complex, b: Complex): Complex {
+  return new Complex(a.re + b.re, a.im + b.im);
+}
+function subtract(a: Complex, b: Complex): Complex {
+  return new Complex(a.re - b.re, a.im - b.im);
+}
+function multiply(a: Complex, b: Complex): Complex {
+  return new Complex((a.re * b.re) - (a.im * b.im), (a.re * b.im) + (a.im * b.re));
+}
+function abs(x: Complex): number {
+  return Math.sqrt((x.re * x.re) + (x.im * x.im));
+}
+
 export function reduceObjectPropertyNames<T>(iteratee: (accumulator: T, propertyName: string) => T, obj: object, initialValue: T): T {
   let accumulator = initialValue;
   

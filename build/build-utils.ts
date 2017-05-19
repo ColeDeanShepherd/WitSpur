@@ -46,7 +46,7 @@ export function buildHTML() {
   const pages: any[] = fs.readJsonSync("src/pages.json");
 
   pages.forEach(page => {
-    const contents = fs.readFileSync(`src/${page.contentsFileName}.html`);
+    const contents = fs.readFileSync(`src/${page.contentsFilePath}`);
     const pageHtml = generateHtmlDocument(page, contents);
     fs.writeFileSync(`dist/${page.outputFileName}.html`, pageHtml);
   });

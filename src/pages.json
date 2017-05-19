@@ -1,12 +1,17 @@
 [
   {
     "name": "Home",
-    "contentsFileName": "home",
+    "contentsFilePath": "home.html",
     "outputFileName": "index"
   },
   {
     "name": "Character Counter, Word Counter, & Line Counter",
-    "contentsFileName": "text-analysis",
+    "contentsFilePath": "text-analysis/text-analysis.html",
     "outputFileName": "character-word-line-counter"
+  },
+  {
+    "name": "Interactive Mandelbrot Set Renderer",
+    "contentsFilePath": "mandelbrot/mandelbrot.html",
+    "outputFileName": "interactive-mandelbrot-set"
   }
 ]
