@@ -10,6 +10,10 @@ a {
   text-decoration: none;
 }
 
+a > img {
+  vertical-align: middle;
+}
+
 table {
   background-color: #FFF;
   border-collapse: collapse;
@@ -71,11 +75,12 @@ body {
   background-color: transparent;
   font-size: 2em;
   text-align: center;
-  padding: 1em 0 0.5em 0;
+  padding: 1em 0 2em 0;
   box-shadow: none;
   height: auto;
 }
 .header.front-page .logo {
+  margin-bottom: 0.25em;
 }
 .header.front-page .logo a {
   color: #000;
@@ -86,9 +91,26 @@ body {
 
 .sub-header.front-page {
   display: block;
-  font-size: 1.5em;
+  font-size: 1.5rem;
   text-align: center;
-  padding-bottom: 2em;
+  margin-bottom: 0.5em;
+}
+
+.social-sharing-icons {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 0 1em;
+}
+.social-sharing-icons li {
+  display: inline;
+  margin-left: 1rem;
+}
+.header.front-page .social-sharing-icons li:first-child {
+  margin-left: 0;
+}
+.social-sharing-icons li a img {
+  width: 30px;
+  height: 30px;
 }
 
 .footer {

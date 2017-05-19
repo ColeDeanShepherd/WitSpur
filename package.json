@@ -3,11 +3,9 @@
   "version": "0.1.0",
   "description": "",
   "scripts": {
-    "rebuild": "node_modules/.bin/ts-node build/rebuild.ts && webpack",
+    "rebuild": "node_modules/.bin/ts-node build/rebuild.ts",
     "build:watch": "node_modules/.bin/watch \"npm run rebuild\" src",
-
     "test": "echo \"Error: no test specified\" && exit 1",
-
     "buildReload": "npm run rebuild && \"node_modules/.bin/browser-sync\" reload",
     "buildReload:watch": "node_modules/.bin/watch \"npm run buildReload\" src",
     "browser:watch": "node_modules/.bin/browser-sync start --config bs-config.js"
@@ -27,6 +25,7 @@
     "source-map-loader": "^0.2.1",
     "ts-node": "^3.0.4",
     "typescript": "^2.3.2",
+    "uglify-js": "^3.0.8",
     "watch": "^1.0.2",
     "webpack": "^2.5.1"
   },
