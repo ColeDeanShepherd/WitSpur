@@ -98,7 +98,7 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
       <div>
         <p>* Character count includes line breaks. Word count includes numbers and may not work with non-English languages.</p>
         
-        <textarea value={this.state.text} onChange={this.onTextChange.bind(this)} style={{margin: "1em 0", width: "100%", height: "200px"}} />
+        <textarea value={this.state.text} onChange={this.onTextChange.bind(this)} placeholder="Enter text here." style={{margin: "1em 0", width: "100%", height: "200px"}} />
 
         <div className="row">
           <div className="column">
