@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { Complex } from "./utils";
 import { TextAnalyzer } from "./text-analysis/TextAnalyzer";
 import { MandelbrotSetRendererEditor } from "./mandelbrot/MandelbrotSetRenderer";
 

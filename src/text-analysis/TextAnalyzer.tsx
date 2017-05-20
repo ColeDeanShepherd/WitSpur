@@ -1,6 +1,7 @@
 import * as React from "react";
 
-import * as Utils from "../utils";
+import * as Utils from "../Utils";
+import * as Text from "../Text";
 
 export interface TextAnalyzerProps {}
 export interface TextAnalyzerState {
@@ -56,16 +57,16 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
 
   render(): JSX.Element {
     const characterCount = this.state.text.length;
-    const characterCountExcludingNewLines = Utils.charCountExcludingNewLines(this.state.text);
-    const characterCountExcludingWhiteSpace = Utils.charCount(this.state.text, true, false);
-    const characterCountExcludingPunctuationAndWhiteSpace = Utils.charCount(this.state.text, false, false);
-    const characterRegex = Utils.getCharRegex(this.state.includePunctuationInCharCount, this.state.includeWhiteSpaceInCharCount);
+    const characterCountExcludingNewLines = Text.charCountExcludingNewLines(this.state.text);
+    const characterCountExcludingWhiteSpace = Text.charCount(this.state.text, true, false);
+    const characterCountExcludingPunctuationAndWhiteSpace = Text.charCount(this.state.text, false, false);
+    const characterRegex = Text.getCharRegex(this.state.includePunctuationInCharCount, this.state.includeWhiteSpaceInCharCount);
 
-    const wordCount = Utils.wordCount(this.state.text);
-    const lineCount = 1 + Utils.charOccurrenceCount("\n", this.state.text);
+    const wordCount = Text.wordCount(this.state.text);
+    const lineCount = 1 + Text.charOccurrenceCount("\n", this.state.text);
 
     const visibleWordCountRowCount = 100;
-    const wordCounts = Utils.wordCounts(this.state.text);
+    const wordCounts = Text.wordCounts(this.state.text);
     const wordCountPairs = Utils.reduceObjectPropertyNames((acc: [string, number][], propertyName: string) => {
       acc.push([propertyName, wordCounts[propertyName]]);
       return acc;
@@ -79,7 +80,7 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
       </tr>
     ));
 
-    const charCounts = Utils.charCounts(this.state.text);
+    const charCounts = Text.charCounts(this.state.text);
     const charCountPairs = Utils.reduceObjectPropertyNames((acc: [string, number][], propertyName: string) => {
       acc.push([propertyName, charCounts[propertyName]]);
       return acc;
