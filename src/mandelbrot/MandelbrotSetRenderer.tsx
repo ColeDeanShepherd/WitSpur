@@ -14,7 +14,6 @@ export interface MandelbrotSetRendererState {}
 /*
 Next Steps
 ==========
--reverse y coord (im unit)
 -Color tint
 -Controls
 */
@@ -31,15 +30,15 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     const widthOfPixelInUnits = widthInUnits / widthInPixels;
     const heightOfPixelInUnits = heightInUnits / heightInPixels;
     
-    const topLeftPosition = Utils.subtract(centerPosition, new Utils.Complex(widthInUnits / 2, heightInUnits / 2));
-    const topLeftPixelCenterPosition = Utils.add(topLeftPosition, new Utils.Complex(widthOfPixelInUnits / 2, heightOfPixelInUnits / 2));
+    const topLeftPosition = Utils.add(centerPosition, new Utils.Complex(-(widthInUnits / 2), heightInUnits / 2));
+    const topLeftPixelCenterPosition = Utils.add(topLeftPosition, new Utils.Complex(widthOfPixelInUnits / 2, -(heightOfPixelInUnits / 2)));
 
     let imageDataObject = context.createImageData(widthInPixels, heightInPixels);
     let imageData = imageDataObject.data;
 
     for(let x = 0; x < widthInPixels; x++) {
       for(let y = 0; y < heightInPixels; y++) {
-        const pixelCenterPosition = Utils.add(topLeftPixelCenterPosition, new Utils.Complex(x * widthOfPixelInUnits, y * heightOfPixelInUnits));
+        const pixelCenterPosition = Utils.add(topLeftPixelCenterPosition, new Utils.Complex(x * widthOfPixelInUnits, -(y * heightOfPixelInUnits)));
 
         const z0 = new Utils.Complex(0, 0);
         const c = pixelCenterPosition;
