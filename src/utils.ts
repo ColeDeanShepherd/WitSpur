@@ -13,16 +13,16 @@ export class Complex {
     this.im = im;
   }
 }
-function add(a: Complex, b: Complex): Complex {
+export function add(a: Complex, b: Complex): Complex {
   return new Complex(a.re + b.re, a.im + b.im);
 }
-function subtract(a: Complex, b: Complex): Complex {
+export function subtract(a: Complex, b: Complex): Complex {
   return new Complex(a.re - b.re, a.im - b.im);
 }
-function multiply(a: Complex, b: Complex): Complex {
+export function multiply(a: Complex, b: Complex): Complex {
   return new Complex((a.re * b.re) - (a.im * b.im), (a.re * b.im) + (a.im * b.re));
 }
-function abs(x: Complex): number {
+export function abs(x: Complex): number {
   return Math.sqrt((x.re * x.re) + (x.im * x.im));
 }
 

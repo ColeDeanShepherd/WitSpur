@@ -4,4 +4,6 @@ clean();
 buildHTML();
 buildCSS();
 buildImages();
-buildJS(true);
+
+const uglify = false;
+buildJS(uglify);
