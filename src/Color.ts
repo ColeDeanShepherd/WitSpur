@@ -10,6 +10,12 @@
  * @return  Array           The HSL representation
  */
 export function rgbToHsl(r: number, g: number, b: number): number[] {
+  let hsl = new Array(3);
+  rgbToHslRef(r, g, b, hsl);
+
+  return hsl;
+}
+export function rgbToHslRef(r: number, g: number, b: number, outHsl: number[]) {
   r /= 255, g /= 255, b /= 255;
 
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -31,7 +37,9 @@ export function rgbToHsl(r: number, g: number, b: number): number[] {
     h /= 6;
   }
 
-  return [ h, s, l ];
+  outHsl[0] = h;
+  outHsl[1] = s;
+  outHsl[2] = l;
 }
 
 /**
@@ -46,6 +54,12 @@ export function rgbToHsl(r: number, g: number, b: number): number[] {
  * @return  Array           The RGB representation
  */
 export function hslToRgb(h: number, s: number, l: number): number[] {
+  let rgb = new Array(3);
+  hslToRgbRef(h, s, l, rgb);
+
+  return rgb;
+}
+export function hslToRgbRef(h: number, s: number, l: number, outRgb: number[]) {
   let r: number, g: number, b: number;
 
   if (s == 0) {
@@ -67,8 +81,10 @@ export function hslToRgb(h: number, s: number, l: number): number[] {
     g = hue2rgb(p, q, h);
     b = hue2rgb(p, q, h - 1/3);
   }
-
-  return [ r * 255, g * 255, b * 255 ];
+  
+  outRgb[0] = r * 255;
+  outRgb[1] = g * 255;
+  outRgb[2] = b * 255;
 }
 
 /**
@@ -83,6 +99,13 @@ export function hslToRgb(h: number, s: number, l: number): number[] {
  * @return  Array           The HSV representation
  */
 export function rgbToHsv(r: number, g: number, b: number): number[] {
+  let hsv = new Array(3);
+  rgbToHsvRef(r, g, b, hsv);
+
+  return hsv;
+}
+
+export function rgbToHsvRef(r: number, g: number, b: number, outHsv: number[]) {
   r /= 255, g /= 255, b /= 255;
 
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -103,8 +126,10 @@ export function rgbToHsv(r: number, g: number, b: number): number[] {
 
     h /= 6;
   }
-
-  return [ h, s, v ];
+  
+  outHsv[0] = h;
+  outHsv[1] = s;
+  outHsv[2] = v;
 }
 
 /**
@@ -119,6 +144,13 @@ export function rgbToHsv(r: number, g: number, b: number): number[] {
  * @return  Array           The RGB representation
  */
 export function hsvToRgb(h: number, s: number, v: number): number[] {
+  let rgb = new Array(3);
+  hsvToRgbRef(h, s, v, rgb);
+
+  return rgb;
+}
+
+export function hsvToRgbRef(h: number, s: number, v: number, outRgb: number[]) {
   let r = 0, g = 0, b = 0;
 
   const i = Math.floor(h * 6);
@@ -136,5 +168,7 @@ export function hsvToRgb(h: number, s: number, v: number): number[] {
     case 5: r = v, g = p, b = q; break;
   }
 
-  return [ r * 255, g * 255, b * 255 ];
+  outRgb[0] = r * 255;
+  outRgb[1] = g * 255;
+  outRgb[2] = b * 255;
 }

@@ -1,25 +1,28 @@
 import * as React from "react";
 
+import * as Utils from "../Utils";
 import { Complex, add, subtract, multiply, abs } from "../Complex";
 import * as Color from "../Color";
 
-export function createMandelbrotSetImageData(context: CanvasRenderingContext2D, widthInPixels: number, heightInPixels: number, widthInUnits: number, heightInUnits: number, centerPosition: Complex, maxIterationCount: number, hue: number, saturation: number): ImageData {
+function createMandelbrotSetImageDataPart(widthInPixels: number, heightInPixels: number, widthInUnits: number, heightInUnits: number, centerPosition: Complex, maxIterationCount: number, hue: number, saturation: number, startRowIndex: number, rowCount: number): Uint8ClampedArray {
   const widthOfPixelInUnits = widthInUnits / widthInPixels;
   const heightOfPixelInUnits = heightInUnits / heightInPixels;
   
   const topLeftPosition = add(centerPosition, new Complex(-(widthInUnits / 2), heightInUnits / 2));
   const topLeftPixelCenterPosition = add(topLeftPosition, new Complex(widthOfPixelInUnits / 2, -(heightOfPixelInUnits / 2)));
 
-  let imageDataObject = context.createImageData(widthInPixels, heightInPixels);
-  let imageData = imageDataObject.data;
+  let imageData = new Uint8ClampedArray(4 * widthInPixels * rowCount);
+  
+  const startPixelY = startRowIndex;
+  const endPixelY = startPixelY + rowCount;
+  let pixelRgb = new Array(3);
 
-  for(let x = 0; x < widthInPixels; x++) {
-    for(let y = 0; y < heightInPixels; y++) {
-      const pixelCenterPosition = add(topLeftPixelCenterPosition, new Complex(x * widthOfPixelInUnits, -(y * heightOfPixelInUnits)));
-
-      const z0 = new Complex(0, 0);
-      const c = pixelCenterPosition;
-      let zn = z0;
+  for(let y = startPixelY; y < endPixelY; y++) {
+    for(let x = 0; x < widthInPixels; x++) {
+      const cRe = topLeftPixelCenterPosition.re + (x * widthOfPixelInUnits);
+      const cIm = topLeftPixelCenterPosition.im - (y * heightOfPixelInUnits);
+      let znRe = 0;
+      let znIm = 0;
       let n = 1;
 
       /*
@@ -29,12 +32,12 @@ export function createMandelbrotSetImageData(context: CanvasRenderingContext2D, 
       */
       for(n = 1; n <= maxIterationCount; n++) {
         // z(n + 1) = (zn * zn) + c
-        const reSquared = zn.re * zn.re;
-        const imSquared = zn.im * zn.im;
-        const newRe = (reSquared - imSquared) + c.re;
-        const newIm = ((zn.re * zn.im) + (zn.im * zn.re)) + c.im;
-        zn.re = newRe;
-        zn.im = newIm;
+        const reSquared = znRe * znRe;
+        const imSquared = znIm * znIm;
+        const newRe = (reSquared - imSquared) + cRe;
+        const newIm = (2 * (znRe * znIm)) + cIm;
+        znRe = newRe;
+        znIm = newIm;
 
         // if absSquared(zn) > (2 * 2)
         if((reSquared + imSquared) > 4) {
@@ -43,11 +46,11 @@ export function createMandelbrotSetImageData(context: CanvasRenderingContext2D, 
       }
       
       const colorI = n - 1; // [0, maxIterationCount]
-      const pixelL = (colorI === maxIterationCount) ? 0 : (colorI / (maxIterationCount - 1));
-      const pixelRgb = Color.hslToRgb(hue, saturation, pixelL);
+      const lightness = (colorI === maxIterationCount) ? 0 : (colorI / (maxIterationCount - 1));
+      Color.hslToRgbRef(hue, saturation, lightness, pixelRgb);
 
       // set pixel of image
-      const pixelIndex = (widthInPixels * y) + x;
+      const pixelIndex = (widthInPixels * (y - startRowIndex)) + x;
       const pixelRByteIndex = 4 * pixelIndex;
 
       imageData[pixelRByteIndex] = pixelRgb[0];
@@ -56,8 +59,8 @@ export function createMandelbrotSetImageData(context: CanvasRenderingContext2D, 
       imageData[pixelRByteIndex + 3] = 255;
     }
   }
-  
-  return imageDataObject;
+
+  return imageData;
 }
 
 export interface MandelbrotSetRendererProps {
@@ -97,10 +100,33 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
 
     const hue = this.props.hue;
     const saturation = this.props.saturation;
+    
+    // test webworkers
+    const threadCount = 8;
+    const threadRowRanges = Utils.splitRangeIntoSubRanges(new Utils.IntRange(0, heightOfCanvasInPixels), threadCount);
 
-    const imageData = createMandelbrotSetImageData(this.canvasContext, widthOfCanvasInPixels, heightOfCanvasInPixels, widthOfCanvasInUnits, heightOfCanvasInUnits, centerPosition, maxIterationCount, hue, saturation);
+    for(let threadIndex = 0; threadIndex < threadCount; threadIndex++) {
+      const rowStartIndex = threadRowRanges[threadIndex].start;
+      const rowCount = threadRowRanges[threadIndex].count;
 
-    this.canvasContext.putImageData(imageData, 0, 0);
+      Utils.runInBackgroundThread(createMandelbrotSetImageDataPart, [
+        widthOfCanvasInPixels,
+        heightOfCanvasInPixels,
+        widthOfCanvasInUnits,
+        heightOfCanvasInUnits,
+        centerPosition,
+        maxIterationCount,
+        hue,
+        saturation,
+        threadRowRanges[threadIndex].start,
+        rowCount
+      ], (pixels: Uint8ClampedArray) => {
+        let imageData = this.canvasContext.createImageData(widthOfCanvasInPixels, rowCount);
+        imageData.data.set(pixels);
+
+        this.canvasContext.putImageData(imageData, 0, rowStartIndex);
+      });
+    }
   }
 
   componentDidMount() {
