@@ -36,6 +36,10 @@ body {
   font-family: sans-serif;
 }
 
+p {
+  text-align: left;
+}
+
 .light-above,
 .header,
 .card {
@@ -44,6 +48,7 @@ body {
 
 .card {
   background-color: #FFF;
+  text-align: left;
   padding: 1em;
   border-radius: 4px;
 }
