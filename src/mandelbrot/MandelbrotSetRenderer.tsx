@@ -11,8 +11,16 @@ export interface MandelbrotSetRendererProps {
 }
 export interface MandelbrotSetRendererState {}
 
+/*
+Next Steps
+==========
+-reverse y coord (im unit)
+-Color tint
+-Controls
+*/
 export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRendererProps, MandelbrotSetRendererState> {
   canvasDomElement: HTMLCanvasElement;
+  canvasContext: CanvasRenderingContext2D;
 
   constructor(props: MandelbrotSetRendererProps) {
     super(props);
@@ -68,16 +76,8 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     
     return imageDataObject;
   }
-  componentDidMount() {
-    /*
-    Next Steps
-    ==========
-    -Color tint
-    -Controls
-    */
-    const context = this.canvasDomElement.getContext("2d");
-
-    if(!context) { return; }
+  reRenderMandelbrotSet() {
+    if(!this.canvasContext) { return; }
 
     const widthOfCanvasInPixels = this.props.width;
     const heightOfCanvasInPixels = this.props.height;
@@ -91,15 +91,90 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     
     const maxIterationCount = this.props.maxIterationCount;
 
-    const imageData = this.renderImage(context, widthOfCanvasInPixels, heightOfCanvasInPixels, widthOfCanvasInUnits, heightOfCanvasInUnits, centerPosition, maxIterationCount);
+    const imageData = this.renderImage(this.canvasContext, widthOfCanvasInPixels, heightOfCanvasInPixels, widthOfCanvasInUnits, heightOfCanvasInUnits, centerPosition, maxIterationCount);
 
-    context.putImageData(imageData, 0, 0);
+    this.canvasContext.putImageData(imageData, 0, 0);
   }
+
+  componentDidMount() {
+    const context = this.canvasDomElement.getContext("2d");
+    if(!context) { return; }
+
+    this.canvasContext = context;
+    this.reRenderMandelbrotSet();
+  }
+  componentDidUpdate() {
+    this.reRenderMandelbrotSet();
+  }
+
   render() {
     return (
       <canvas ref={canvas => this.canvasDomElement = canvas} width={this.props.width} height={this.props.height}>
         Your browser does not support the canvas tag. Please upgrade your browser.
       </canvas>
+    );
+  }
+}
+
+export interface MandelbrotSetRendererEditorProps {
+}
+export interface MandelbrotSetRendererEditorState {
+  componentProps: MandelbrotSetRendererProps
+}
+
+export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRendererEditorProps, MandelbrotSetRendererEditorState> {
+  constructor(props: MandelbrotSetRendererEditorProps) {
+    super(props);
+
+    this.state = {
+      componentProps: {
+        width: 640,
+        height: 480,
+        heightInUnits: 2,
+        centerPosition: new Utils.Complex(0, 0),
+        maxIterationCount: 50
+      }
+    };
+  }
+  onWidthChange(event: any) {
+    const newComponentProps = Object.assign(this.state.componentProps, { width: parseFloat(event.target.value) });
+    this.setState({ componentProps: newComponentProps });
+  }
+  onHeightChange(event: any) {
+    const newComponentProps = Object.assign(this.state.componentProps, { height: parseFloat(event.target.value) });
+    this.setState({ componentProps: newComponentProps });
+  }
+  onHeightInUnitsChange(event: any) {
+    const newComponentProps = Object.assign(this.state.componentProps, { heightInUnits: parseFloat(event.target.value) });
+    this.setState({ componentProps: newComponentProps });
+  }
+  onCenterPositionXChange(event: any) {
+    const newCenterPosition = new Utils.Complex(parseFloat(event.target.value), this.state.componentProps.centerPosition.im);
+    const newComponentProps = Object.assign(this.state.componentProps, { centerPosition: newCenterPosition });
+    this.setState({ componentProps: newComponentProps });
+  }
+  onCenterPositionYChange(event: any) {
+    const newCenterPosition = new Utils.Complex(this.state.componentProps.centerPosition.re, parseFloat(event.target.value));
+    const newComponentProps = Object.assign(this.state.componentProps, { centerPosition: newCenterPosition });
+    this.setState({ componentProps: newComponentProps });
+  }
+  onMaxIterationCountChange(event: any) {
+    const newComponentProps = Object.assign(this.state.componentProps, { maxIterationCount: parseInt(event.target.value) });
+    this.setState({ componentProps: newComponentProps });
+  }
+
+  render() {
+    return (
+      <div>
+        Width: <input type="number" value={this.state.componentProps.width} onChange={this.onWidthChange.bind(this)} /><br />
+        Height: <input type="number" value={this.state.componentProps.height} onChange={this.onHeightChange.bind(this)} /><br />
+        Height In Units: <input type="number" value={this.state.componentProps.heightInUnits} onChange={this.onHeightInUnitsChange.bind(this)} /><br />
+        x (real coordinate): <input type="number" value={this.state.componentProps.centerPosition.re} onChange={this.onCenterPositionXChange.bind(this)} /><br />
+        y (imaginary coordinate): <input type="number" value={this.state.componentProps.centerPosition.im} onChange={this.onCenterPositionYChange.bind(this)} /><br />
+        Max. Iteration Count: <input type="number" value={this.state.componentProps.maxIterationCount} onChange={this.onMaxIterationCountChange.bind(this)} /><br />
+
+        {React.createElement(MandelbrotSetRenderer, this.state.componentProps)}
+      </div>
     );
   }
 }
