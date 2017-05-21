@@ -1,5 +1,11 @@
 import { assert } from './Utils';
 
+/**
+ * Counts the number of times a character occurs in a string.
+ * @param {string} char The character to search for (a string of length 1).
+ * @param {string} str The string to search for the character in.
+ * @returns {Number} The number of occurrences of char in str.
+ */
 export function charOccurrenceCount(char: string, str: string): number {
   assert(char.length === 1);
 
@@ -14,49 +20,88 @@ export function charOccurrenceCount(char: string, str: string): number {
   return charOccurrenceCount;
 }
 
-export const letterRegex = /[a-zA-Z]/;
-export function isCharALetter(char: string) {
+export const letterRangeRegexPart = `a-zA-Z`;
+export const letterRegex = new RegExp(`[${letterRangeRegexPart}]`);
+
+export const digitRangeRegexPart = `0-9`;
+export const digitRegex = new RegExp(`[${digitRangeRegexPart}]`);
+
+export const englishPunctuationCharListRegexPart = `\.,!\?:;"'\-\(\)\[\]\u2013\u2014`;
+export const englishPunctuationRegex = new RegExp(`[${englishPunctuationCharListRegexPart}]`);
+
+/**
+ * Tests if a character is a letter or not.
+ * @param {string} char The character to test (a string of length 1).
+ * @returns {boolean} true if the character is a letter, false otherwise
+ */
+export function isCharALetter(char: string): boolean {
   assert(char.length === 1);
 
   return letterRegex.test(char);
 }
 
-export const digitRegex = /[0-9]/;
+/**
+ * Tests if a character is a digit or not.
+ * @param {string} char The character to test (a string of length 1).
+ * @returns {boolean} true if the character is a digit, false otherwise
+ */
 export function isCharADigit(char: string) {
   assert(char.length === 1);
 
   return digitRegex.test(char);
 }
 
-export function getCharRegex(includePunctuation: boolean, includeWhiteSpace: boolean): RegExp {
-  let regex: RegExp;
+/**
+ * Get a RegExp filtering characters based on option parameters.
+ * @param {boolean} includeLetters
+ * @param {boolean} includeNumbers
+ * @param {boolean} includeWhiteSpace
+ * @param {boolean} includeOthers
+ * @returns {RegExp} The filtering RegExp.
+ */
+export function charFilteringRegex(includeLetters: boolean, includeNumbers: boolean, includeWhiteSpace: boolean, includeOthers: boolean): RegExp {
+  if(!includeOthers) {
+    let regexParts = [];
 
-  if(!includePunctuation) {
-    if(!includeWhiteSpace) {
-      regex = new RegExp(letterRegex.source + "|" + digitRegex.source);
-    } else {
-      regex = new RegExp(letterRegex.source + "|" + digitRegex.source + "|" + (/\s/).source);
+    if(includeLetters) {
+      regexParts.push(letterRangeRegexPart);
     }
+
+    if(includeNumbers) {
+      regexParts.push(digitRangeRegexPart);
+    }
+
+    if(includeWhiteSpace) {
+      regexParts.push("\\s");
+    }
+
+    return new RegExp(`[${regexParts.join("")}]`);
   } else {
-    if(!includeWhiteSpace) {
-      regex = /[^\s]/;
-    } else {
-      regex = new RegExp("");
-    }
-  }
+    let regexParts = [];
 
-  return regex;
+    if(!includeLetters) {
+      regexParts.push(letterRangeRegexPart);
+    }
+
+    if(!includeNumbers) {
+      regexParts.push(digitRangeRegexPart);
+    }
+
+    if(!includeWhiteSpace) {
+      regexParts.push("\\s");
+    }
+
+    return new RegExp(`[^${regexParts.join("")}]`);
+  }
 }
 
-export const englishPunctuationRegex = /[\.,!\?:;"'\-\(\)\[\]\u2013\u2014]/;
-export function charCount(str: string, includePunctuation: boolean, includeWhiteSpace: boolean) {
-  const regex = getCharRegex(includePunctuation, includeWhiteSpace);
+export function charCount(str: string, regex: RegExp) {
   let charCount = 0;
 
   for(let i = 0; i < str.length; i++) {
     const char = str.charAt(i);
 
-    if(regex.test(char)) {
+    if(!regex || regex.test(char)) {
       charCount++;
     }
   }
@@ -69,33 +114,6 @@ export function charCountExcludingNewLines(str: string) {
     const char = str.charAt(i);
 
     if((char !== '\n') && (char !== '\r')) {
-      charCount++;
-    }
-  }
-
-  return charCount;
-}
-export function charCountExcludingWhiteSpace(str: string) {
-  const whiteSpaceRegex = /\s/;
-  let charCount = 0;
-
-  for(let i = 0; i < str.length; i++) {
-    const char = str.charAt(i);
-
-    if(!whiteSpaceRegex.test(char)) {
-      charCount++;
-    }
-  }
-
-  return charCount;
-}
-export function charCountExcludingWhiteSpaceAndPunctuation(str: string) {
-  let charCount = 0;
-
-  for(let i = 0; i < str.length; i++) {
-    const char = str.charAt(i);
-
-    if(letterRegex.test(char) || digitRegex.test(char)) {
       charCount++;
     }
   }
