@@ -172,37 +172,37 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
     };
   }
   onWidthChange(event: any) {
-    const newComponentProps = Object.assign(this.state.componentProps, { width: parseFloat(event.target.value) });
+    const newComponentProps = { ...this.state.componentProps, width: parseFloat(event.target.value) };
     this.setState({ componentProps: newComponentProps });
   }
   onHeightChange(event: any) {
-    const newComponentProps = Object.assign(this.state.componentProps, { height: parseFloat(event.target.value) });
+    const newComponentProps = { ...this.state.componentProps, height: parseFloat(event.target.value) };
     this.setState({ componentProps: newComponentProps });
   }
   onHeightInUnitsChange(event: any) {
-    const newComponentProps = Object.assign(this.state.componentProps, { heightInUnits: parseFloat(event.target.value) });
+    const newComponentProps = { ...this.state.componentProps, heightInUnits: parseFloat(event.target.value) };
     this.setState({ componentProps: newComponentProps });
   }
   onCenterPositionXChange(event: any) {
     const newCenterPosition = new Complex(parseFloat(event.target.value), this.state.componentProps.centerPosition.im);
-    const newComponentProps = Object.assign(this.state.componentProps, { centerPosition: newCenterPosition });
+    const newComponentProps = { ...this.state.componentProps, centerPosition: newCenterPosition };
     this.setState({ componentProps: newComponentProps });
   }
   onCenterPositionYChange(event: any) {
     const newCenterPosition = new Complex(this.state.componentProps.centerPosition.re, parseFloat(event.target.value));
-    const newComponentProps = Object.assign(this.state.componentProps, { centerPosition: newCenterPosition });
+    const newComponentProps = { ...this.state.componentProps, centerPosition: newCenterPosition };
     this.setState({ componentProps: newComponentProps });
   }
   onMaxIterationCountChange(event: any) {
-    const newComponentProps = Object.assign(this.state.componentProps, { maxIterationCount: parseInt(event.target.value) });
+    const newComponentProps = { ...this.state.componentProps, maxIterationCount: parseInt(event.target.value) };
     this.setState({ componentProps: newComponentProps });
   }
   onHueChange(event: any) {
-    const newComponentProps = Object.assign(this.state.componentProps, { hue: parseFloat(event.target.value) });
+    const newComponentProps = { ...this.state.componentProps, hue: parseFloat(event.target.value) };
     this.setState({ componentProps: newComponentProps });
   }
   onSaturationChange(event: any) {
-    const newComponentProps = Object.assign(this.state.componentProps, { saturation: parseFloat(event.target.value) });
+    const newComponentProps = { ...this.state.componentProps, saturation: parseFloat(event.target.value) };
     this.setState({ componentProps: newComponentProps });
   }
 

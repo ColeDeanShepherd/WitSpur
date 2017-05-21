@@ -1,6 +1,6 @@
 declare function require(name: string): any;
-const fs = require('fs-extra');
-const execSync = require('child_process').execSync;
+const fs = require("fs-extra");
+const execSync = require("child_process").execSync;
 
 function generateHtmlDocument(page: any, contents: string): string {
   const metaTags = `<meta charset="UTF-8" />`;
@@ -11,7 +11,7 @@ function generateHtmlDocument(page: any, contents: string): string {
 
   const logoTag = `<div class="logo"><a href="/">WitSpur</a></div>`;
 
-  const absolutePageUrl = `http://witspur.com${(page.outputFileName !== 'index') ? `/${page.outputFileName}.html` : ""}`;
+  const absolutePageUrl = `http://witspur.com${(page.outputFileName !== "index") ? `/${page.outputFileName}.html` : ""}`;
   
   const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURI(absolutePageUrl)}`;
   const facebookShareLi = `<li><a href="${facebookShareUrl}" target="_blank"><img src="img/facebook.svg" alt="Share on Facebook" /></a></li>`;
@@ -33,35 +33,34 @@ function generateHtmlDocument(page: any, contents: string): string {
   return `<!DOCTYPE html>${htmlTag}`;
 }
 
-export function clean() {
-  fs.emptyDirSync('dist');
+export function clean(outputDir: string) {
+  fs.emptyDirSync(outputDir);
 }
 
-export function buildCSS() {
-  fs.copySync('vendor/normalize.css', 'dist/normalize.css');
-  fs.copySync('src/global.css', 'dist/global.css');
-}
-
-export function buildHTML() {
+export function buildHTML(outputDir: string) {
   const pages: any[] = fs.readJsonSync("src/pages.json");
 
   pages.forEach(page => {
     const contents = fs.readFileSync(`src/${page.contentsFilePath}`);
     const pageHtml = generateHtmlDocument(page, contents);
-    fs.writeFileSync(`dist/${page.outputFileName}.html`, pageHtml);
+    fs.writeFileSync(`${outputDir}/${page.outputFileName}.html`, pageHtml);
   });
 }
 
-export function buildImages() {
-  fs.copySync('img', 'dist/img');
+export function buildCSS(outputDir: string) {
+  fs.copySync("vendor/normalize.css", `${outputDir}/normalize.css`);
+  fs.copySync("src/global.css", `${outputDir}/global.css`);
 }
 
-export function buildJS(uglify: boolean) {
-  execSync('webpack');
+export function buildImages(outputDir: string) {
+  fs.copySync("img", `${outputDir}/img`);
+}
+
+export function buildJS(outputDir: string, uglify: boolean) {
+  execSync("webpack");
 
   if(uglify) {
-    fs.removeSync('dist/bundle.js.map');
-    execSync('uglifyjs dist/bundle.js --output dist/bundle.js');
-    //execSync('uglifyjs dist/bundle.js --source-map --output dist/bundle.js');
+    fs.removeSync(`${outputDir}/bundle.js.map`);
+    execSync(`uglifyjs ${outputDir}/bundle.js --output ${outputDir}/bundle.js`);
   }
 }

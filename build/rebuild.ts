@@ -1,9 +1,12 @@
+declare let process: any;
 import { clean, buildHTML, buildCSS, buildImages, buildJS } from "./build-utils";
 
-clean();
-buildHTML();
-buildCSS();
-buildImages();
+const isDevBuild = process.argv.indexOf("--target=prod") < 0;
+const outputDir = 'dist';
 
-const uglify = false;
-buildJS(uglify);
+clean(outputDir);
+buildHTML(outputDir);
+buildCSS(outputDir);
+buildImages(outputDir);
+
+buildJS(outputDir, !isDevBuild);

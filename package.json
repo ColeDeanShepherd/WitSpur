@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "rebuild": "node_modules/.bin/ts-node build/rebuild.ts",
+    "rebuild:production": "node_modules/.bin/ts-node build/rebuild.ts --target=prod",
     "build:watch": "node_modules/.bin/watch \"npm run rebuild\" src",
     "test": "echo \"Error: no test specified\" && exit 1",
     "buildReload": "npm run rebuild && \"node_modules/.bin/browser-sync\" reload",
