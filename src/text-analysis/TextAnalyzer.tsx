@@ -74,9 +74,10 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
     const orderedWordCountPairs = wordCountPairs.sort((a: [string, number], b: [string, number]) => b[1] - a[1]);
     const orderedWordCountPairsToDisplay = !this.state.showingAllWordCountRows ? orderedWordCountPairs.slice(0, visibleWordCountRowCount) : orderedWordCountPairs;
     const wordCountTrs = orderedWordCountPairsToDisplay.map(wordCountPair => (
-      <tr>
+      <tr key={wordCountPair[0]}>
         <td style={{width: "50%"}}>{wordCountPair[0]}</td>
-        <td style={{width: "50%"}}>{wordCountPair[1]} ({(100 * (wordCountPair[1] / wordCount)).toFixed(2)}%)</td>
+        <td style={{width: "50%"}}>{wordCountPair[1]}</td>
+        <td style={{width: "50%"}}>{(100 * (wordCountPair[1] / wordCount)).toFixed(2)}%</td>
       </tr>
     ));
 
@@ -89,20 +90,20 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
     const orderedCharCountPairsToDisplay = orderedCharCountPairs.filter(charCountPair => characterRegex.test(charCountPair[0]));
     const charsToDisplayCount = orderedCharCountPairsToDisplay.reduce((acc, charCountPair) => acc + charCountPair[1], 0);
     const charCountTrs = orderedCharCountPairsToDisplay.map(charCountPair => (
-      <tr>
+      <tr key={charCountPair[0]}>
         <td style={{width: "50%"}}>{this.charToVisibleString(charCountPair[0])}</td>
-        <td style={{width: "50%"}}>{charCountPair[1]} ({(100 * (charCountPair[1] / charsToDisplayCount)).toFixed(2)}%)</td>
+        <td style={{width: "50%"}}>{charCountPair[1]}</td>
+        <td style={{width: "50%"}}>{(100 * (charCountPair[1] / charsToDisplayCount)).toFixed(2)}%</td>
       </tr>
     ));
 
     return (
       <div>
-        <p>* Character count includes line breaks. Word count includes numbers and may not work with non-English languages.</p>
-        
         <textarea value={this.state.text} onChange={this.onTextChange.bind(this)} placeholder="Enter text here." style={{margin: "1em 0", width: "100%", height: "200px"}} />
 
         <div className="row">
           <div className="column">
+            <h4>Overall Character &amp; Word Counts</h4>
             <table style={{margin: "1em 0"}}>
             <tbody>
               <tr>
@@ -134,18 +135,16 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
           </div>
 
           <div className="column">
-            <h4>Characters</h4>
-            {(charCountTrs.length > 0) ? (
-              <span>
-                <input type="checkbox" checked={this.state.includePunctuationInCharCount} onClick={this.toggleIncludePunctuationCharCount.bind(this)} /> Include Punctuation<br /><br />
-                <input type="checkbox" checked={this.state.includeWhiteSpaceInCharCount} onClick={this.toggleIncludeWhiteSpaceInCharCount.bind(this)} /> Include White-space
-              </span>
-            ) : null}
+            <h4>Character Counts &amp; Frequencies</h4>
+            <span>
+              <input type="checkbox" checked={this.state.includePunctuationInCharCount} onClick={this.toggleIncludePunctuationCharCount.bind(this)} /> Include Punctuation<br /><br />
+              <input type="checkbox" checked={this.state.includeWhiteSpaceInCharCount} onClick={this.toggleIncludeWhiteSpaceInCharCount.bind(this)} /> Include White-space
+            </span>
             <table style={{margin: "1em 0"}}><tbody>{charCountTrs}</tbody></table>
           </div>
 
           <div className="column">
-            <h4>Words</h4>
+            <h4>Word Counts &amp; Frequencies</h4>
             <table style={{margin: "1em 0"}}><tbody>{wordCountTrs}</tbody></table>
             {(orderedWordCountPairs.length > visibleWordCountRowCount) ? <a href="" onClick={this.toggleShowAllWordCountRows.bind(this)}>{!this.state.showingAllWordCountRows ? "Show More" : "Show Less"}</a> : null}
           </div>

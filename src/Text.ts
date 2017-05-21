@@ -106,10 +106,11 @@ export function charCountExcludingWhiteSpaceAndPunctuation(str: string) {
 // TODO: handle quoted strings? handle words starting with hyphens?
 export function forEachWord(iteratee: (startIndex: number, length: number) => void, str: string) {
   const wordPunctuationRegex = /['-]/;
+  const wordFirstCharRegex = new RegExp(`${letterRegex.source}|${wordPunctuationRegex.source}`);
   const wordCharRegex = new RegExp(`${letterRegex.source}|${digitRegex.source}|${wordPunctuationRegex.source}`);
   
   function skipNonWordStartCharacters() {
-    while((charIndex < str.length) && (str.charAt(charIndex) != '-') && !wordCharRegex.test(str.charAt(charIndex))) {
+    while((charIndex < str.length) && (str.charAt(charIndex) != '-') && !wordFirstCharRegex.test(str.charAt(charIndex))) {
       charIndex++;
     }
   }
