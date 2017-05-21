@@ -247,7 +247,7 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
       <div>
         <textarea value={this.state.text} onChange={this.onTextChange.bind(this)} placeholder="Enter text here." style={{margin: "1em 0", width: "100%", height: "200px"}} />
 
-        <div>View As Spreadsheet Text <input type="checkbox" checked={this.state.showTablesAsTextAreas} onClick={this.toggleShowTablesAsTextAreas.bind(this)} /></div>
+        <div>View As Copyable Spreadsheet Text <input type="checkbox" checked={this.state.showTablesAsTextAreas} onClick={this.toggleShowTablesAsTextAreas.bind(this)} /></div>
 
         <div className="row">
           {renderOverallCountsColumn()}

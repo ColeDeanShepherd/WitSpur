@@ -1,3 +1,8 @@
+# Character Counter Possible Features
+
+* better support for international text
+* performance improvements with large amounts of text
+
 # Character Counter Competition
 
 * lettercount.com

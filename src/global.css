@@ -138,11 +138,12 @@ body {
 }
 .tool-card a .thumbnail {
   display: block;
-  width: 320px;
-  height: 180px;
+  width: 100%;
+  height: auto;
   border: 1px solid #CCC;
 }
 .tool-card .tool-name {
+  width: 100%;
   padding: 1em 0;
 }
 
@@ -157,5 +158,9 @@ body {
     flex-shrink: 1;
     flex-basis: 0;
     padding: 0 0.75rem;
+  }
+
+  .tool-card {
+    width: 33%;
   }
 }
