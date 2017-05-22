@@ -3,8 +3,8 @@ import * as React from "react";
 import * as Utils from "../Utils";
 import * as Text from "../Text";
 
-export interface TextAnalyzerProps {}
-export interface TextAnalyzerState {
+export interface CharWordLineCounterProps {}
+export interface CharWordLineCounterState {
   text: string,
   showTablesAsTextAreas: boolean,
   includeNumbersInCharCount: boolean,
@@ -13,8 +13,8 @@ export interface TextAnalyzerState {
   showingAllWordCountRows: boolean
 }
 
-export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyzerState> {
-  constructor(props: TextAnalyzerProps) {
+export class CharWordLineCounter extends React.Component<CharWordLineCounterProps, CharWordLineCounterState> {
+  constructor(props: CharWordLineCounterProps) {
     super(props);
 
     this.state = {
@@ -202,7 +202,7 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
             style={columnTextAreaStyle} />;
 
       return (
-        <div className="column">
+        <div className="col-1-3">
           <h4>Overall Character &amp; Word Counts</h4>
           {countsElement}
         </div>
@@ -216,7 +216,7 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
         <textarea value={this.getCharCountTsv(orderedCharCountPairs)} style={countsElementStyle} />;
 
       return (
-        <div className="column">
+        <div className="col-1-3">
           <h4>Character Counts &amp; Frequencies</h4>
           <span>
             Include Numbers <input type="checkbox" checked={this.state.includeNumbersInCharCount} onClick={this.toggleIncludeNumbersInCharCount.bind(this)} /><br />
@@ -235,7 +235,7 @@ export class TextAnalyzer extends React.Component<TextAnalyzerProps, TextAnalyze
       const showMoreOrLessLink = (orderedWordCountPairs.length > visibleWordCountRowCount) ? <a href="" onClick={this.toggleShowAllWordCountRows.bind(this)}>{!this.state.showingAllWordCountRows ? "Show More" : "Show Less"}</a> : null;
         
       return (
-        <div className="column">
+        <div className="col-1-3">
           <h4>Word Counts &amp; Frequencies</h4>
           {countsElement}
           {!this.state.showTablesAsTextAreas ? showMoreOrLessLink : null}

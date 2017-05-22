@@ -1,12 +1,12 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { TextAnalyzer } from "./text-analysis/TextAnalyzer";
+import { CharWordLineCounter } from "./char-word-line-counter/CharWordLineCounter";
 import { CssBoxShadowGenerator } from "./box-shadow-generator/BoxShadowGenerator";
 import { MandelbrotSetRendererEditor } from "./mandelbrot/MandelbrotSetRenderer";
 
 export function renderTextAnalysis(element: HTMLElement) {
-  ReactDOM.render(<TextAnalyzer />, element);
+  ReactDOM.render(<CharWordLineCounter />, element);
 }
 
 export function renderCssBoxShadowGenerator(element: HTMLElement) {

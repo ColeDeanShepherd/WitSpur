@@ -6,13 +6,13 @@
   },
   {
     "name": "Character Counter, Word Counter, & Line Counter",
-    "contentsFilePath": "text-analysis/text-analysis.html",
+    "contentsFilePath": "char-word-line-counter/char-word-line-counter.html",
     "outputFileName": "character-word-line-counter"
   },
   {
     "name": "CSS Box Shadow Generator",
     "contentsFilePath": "box-shadow-generator/box-shadow-generator.html",
-    "outputFileName": "box-shadow-generator"
+    "outputFileName": "css-box-shadow-generator"
   },
   {
     "name": "Interactive Mandelbrot Set Renderer",
