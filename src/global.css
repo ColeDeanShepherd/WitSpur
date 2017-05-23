@@ -21,18 +21,36 @@ table {
   width: 100%;
 }
 
+table td {
+  border-radius: 0;
+}
+
 table td,
 input[type="text"],
 input[type="number"],
 textarea {
-  width: 100%;
+  background-color: #FFF;
   padding: 0.5em;
   border: 1px solid #CCC;
   border-radius: 4px;
 }
 
-table td {
-  border-radius: 0;
+input[type="text"],
+input[type="number"],
+textarea {
+  width: 100%;
+}
+
+button {
+  background-color: #0095FF;
+  padding: 0.5em;
+  border: 1px solid #07C;
+  border-radius: 4px;
+  color: #FFF;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #07C;
 }
 
 body {

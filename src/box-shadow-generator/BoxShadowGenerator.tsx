@@ -13,6 +13,40 @@ function removeElementImmutable<T>(arr: T[], elementIndex: number): T[] {
   return [...arr.slice(0, elementIndex), ...arr.slice(elementIndex + 1)]
 }
 
+export interface NumberInputProps {
+  value: number,
+  onChange: (newValue: number | null, newValueString: string) => void
+}
+export interface NumberInputState {
+  valueString: string
+}
+export class NumberInput extends React.Component<NumberInputProps, NumberInputState> {
+  constructor(props: NumberInputProps) {
+    super(props);
+
+    this.state = { valueString: (props.value != null) ? props.value.toString() : "" };
+  }
+  onValueStringChange(event: any) {
+    const newValueString = event.target.value;
+    this.setState({ valueString: newValueString });
+
+    if(this.props.onChange) {
+      this.props.onChange(this.tryParseValue(newValueString), newValueString);
+    }
+  }
+  tryParseValue(valueString: string): number {
+    return parseInt(valueString);
+  }
+  // on props updated update valuestring
+
+  render() {
+    const style = isNaN(this.tryParseValue(this.state.valueString)) ? { borderColor: "red" } : {};
+    //const style = isNaN(this.tryParseValue(this.state.valueString)) ? { backgroundColor: "#FFB3B3" } : {};
+
+    return <input type="number" value={this.state.valueString} onChange={this.onValueStringChange.bind(this)} style={style} />;
+  }
+}
+
 export interface CssBoxShadowProps {
   color: string;
   offsetX: number;
@@ -27,7 +61,6 @@ export interface CssBoxShadowGeneratorState {
   shadows: CssBoxShadowProps[],
   areShadowEditorsExpanded: boolean[]
 }
-
 export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGeneratorProps, CssBoxShadowGeneratorState> {
   constructor(props: CssBoxShadowGeneratorProps) {
     super(props);
@@ -51,24 +84,32 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
     const newShadow = { ...oldShadow, color: event.target.value };
     this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
-  onShadowOffsetXChange(shadowIndex: number, event: any) {
+  onShadowOffsetXChange(shadowIndex: number, newValue: number, newValueString: string) {
+    if(isNaN(newValue)) { return; }
+
     const oldShadow = this.state.shadows[shadowIndex];
-    const newShadow = { ...oldShadow, offsetX: parseInt(event.target.value) };
+    const newShadow = { ...oldShadow, offsetX: newValue };
     this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
-  onShadowOffsetYChange(shadowIndex: number, event: any) {
+  onShadowOffsetYChange(shadowIndex: number, newValue: number, newValueString: string) {
+    if(isNaN(newValue)) { return; }
+    
     const oldShadow = this.state.shadows[shadowIndex];
-    const newShadow = { ...oldShadow, offsetY: parseInt(event.target.value) };
+    const newShadow = { ...oldShadow, offsetY: newValue };
     this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
-  onShadowBlurRadiusChange(shadowIndex: number, event: any) {
+  onShadowBlurRadiusChange(shadowIndex: number, newValue: number, newValueString: string) {
+    if(isNaN(newValue)) { return; }
+    
     const oldShadow = this.state.shadows[shadowIndex];
-    const newShadow = { ...oldShadow, blurRadius: parseInt(event.target.value) };
+    const newShadow = { ...oldShadow, blurRadius: newValue };
     this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
-  onShadowSpreadRadiusChange(shadowIndex: number, event: any) {
+  onShadowSpreadRadiusChange(shadowIndex: number, newValue: number, newValueString: string) {
+    if(isNaN(newValue)) { return; }
+    
     const oldShadow = this.state.shadows[shadowIndex];
-    const newShadow = { ...oldShadow, spreadRadius: parseInt(event.target.value) };
+    const newShadow = { ...oldShadow, spreadRadius: newValue };
     this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
   toggleIsShadowInset(shadowIndex: number) {
@@ -111,44 +152,48 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
       MozBoxShadow: boxShadowValue,
       boxShadow: boxShadowValue
     };
-
+    
+    const shadowEditorHeaderStyle = { width: "100%", height: "auto", backgroundColor: "#CCC",  padding: "0.5em", cursor: "pointer" };
+    const shadowEditorInputContainerStyle = { padding: "0.5em" };
+    const shadowEditorInputRowStyle = { marginBottom: "0.5em" };
+    //const shadowEditorInputNameStyle = { alignSelf: "center" };
     const shadowEditors = this.state.shadows.map((shadow: CssBoxShadowProps, index: number) => {
       const inputRows = (
-        <div>
-          <div className="row no-padding">
+        <div style={shadowEditorInputContainerStyle}>
+          <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Color:</div>
             <div className="col-1-2"><input type="text" value={shadow.color} onChange={this.onShadowColorChange.bind(this, index)} /></div>
           </div>
-          <div className="row no-padding">
+          <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Horizontal Offset:</div>
-            <div className="col-1-2"><input type="number" value={shadow.offsetX} onChange={this.onShadowOffsetXChange.bind(this, index)} /></div>
+            <div className="col-1-2"><NumberInput value={shadow.offsetX} onChange={this.onShadowOffsetXChange.bind(this, index)} /></div>
           </div>
-          <div className="row no-padding">
+          <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Vertical Offset:</div>
-            <div className="col-1-2"><input type="number" value={shadow.offsetY} onChange={this.onShadowOffsetYChange.bind(this, index)} /></div>
+            <div className="col-1-2"><NumberInput value={shadow.offsetY} onChange={this.onShadowOffsetYChange.bind(this, index)} /></div>
           </div>
-          <div className="row no-padding">
+          <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Blur Radius:</div>
-            <div className="col-1-2"><input type="number" value={shadow.blurRadius} onChange={this.onShadowBlurRadiusChange.bind(this, index)} /></div>
+            <div className="col-1-2"><NumberInput value={shadow.blurRadius} onChange={this.onShadowBlurRadiusChange.bind(this, index)} /></div>
           </div>
-          <div className="row no-padding">
+          <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Spread Radius:</div>
-            <div className="col-1-2"><input type="number" value={shadow.spreadRadius} onChange={this.onShadowSpreadRadiusChange.bind(this)} /></div>
+            <div className="col-1-2"><NumberInput value={shadow.spreadRadius} onChange={this.onShadowSpreadRadiusChange.bind(this)} /></div>
           </div>
-          <div className="row no-padding">
+          <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Is Inset:</div>
             <div className="col-1-2"><input type="checkbox" checked={shadow.isInset} onClick={this.toggleIsShadowInset.bind(this, index)} style={{margin: "0.5em 0.5em 0.5em 0"}} /></div>
           </div>
 
-          <button onClick={this.removeShadow.bind(this, index)}>-</button>
+          <button onClick={this.removeShadow.bind(this, index)}>Remove</button>
         </div>
       );
 
       return (
-        <div>
-          <div>
-            <span style={{paddingRight: "1em"}}>Shadow {index + 1}</span>
-            <span onClick={this.toggleShadowEditorExpanded.bind(this, index)} style={{cursor: "pointer"}}><div className={`arrow-head ${this.state.areShadowEditorsExpanded[index] ? "up" : "down"}`}></div></span>
+        <div style={{border: "1px solid #CCC", marginBottom: "1em"}}>
+          <div onClick={this.toggleShadowEditorExpanded.bind(this, index)} style={shadowEditorHeaderStyle}>
+            <span>Shadow {index + 1}</span>
+            <span><div className={`arrow-head ${this.state.areShadowEditorsExpanded[index] ? "up" : "down"}`} style={{float: "right"}}></div></span>
           </div>
           {this.state.areShadowEditorsExpanded[index] ? inputRows : null}
         </div>
@@ -159,7 +204,7 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
       <div style={{display: "flex"}}>
         <div className="card" style={{minWidth: "360px"}}>
           {shadowEditors}
-          <button onClick={this.addShadow.bind(this)}>+</button>
+          <button onClick={this.addShadow.bind(this)}>Add</button>
         </div>
 
         <div style={{paddingLeft: "1em", flexGrow: 1}}>
