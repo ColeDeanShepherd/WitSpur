@@ -1,6 +1,7 @@
 div,
 img,
 table,
+input,
 textarea {
   box-sizing: border-box;
 }
@@ -20,11 +21,11 @@ table {
   width: 100%;
 }
 
-
 table td,
 input[type="text"],
 input[type="number"],
 textarea {
+  width: 100%;
   padding: 0.5em;
   border: 1px solid #CCC;
   border-radius: 4px;
@@ -148,15 +149,50 @@ body {
   padding: 1em 0;
 }
 
+.arrow-head {
+  border: solid black;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 3px;
+}
+.arrow-head.right {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}
+.arrow-head.left {
+  transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+}
+.arrow-head.up {
+  transform: rotate(-135deg);
+  -webkit-transform: rotate(-135deg);
+}
+.arrow-head.down {
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+}
+
 @media (min-width: 720px) {
   .row {
     display: flex;
     flex-direction: row;
   }
 
+  .col-1-2,
+  .col-1-3 {
+    padding: 0 0.75rem;
+  }
+
+  .row.no-padding .col-1-2,
+  .row.no-padding .col-1-3 {
+    padding: 0;
+  }
+
+  .col-1-2 {
+    width: 50%;
+  }
   .col-1-3 {
     width: 33.33%;
-    padding: 0 0.75rem;
   }
 
   .tool-card {
