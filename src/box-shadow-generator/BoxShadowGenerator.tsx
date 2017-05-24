@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import { SketchPicker } from 'react-color';
+
 import * as Utils from "../Utils";
 import * as Text from "../Text";
 
@@ -47,8 +49,59 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
   }
 }
 
+export class Color {
+  r: number; // [0, 255]
+  g: number; // [0, 255]
+  b: number; // [0, 255]
+  a: number; // [0, 1]
+
+  constructor(r: number, g: number, b: number, a: number) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
+  }
+  toString() {
+    return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
+  }
+}
+
+export interface ColorInputProps {
+  value: Color,
+  onChange: (newValue: Color) => void
+}
+export interface ColorInputState {
+  isExpanded: boolean
+}
+export class ColorInput extends React.Component<ColorInputProps, ColorInputState> {
+  constructor(props: ColorInputProps) {
+    super(props);
+
+    this.state = { isExpanded: false };
+  }
+  onChange(newValue: any, event: any) {
+    if(this.props.onChange) {
+      this.props.onChange(new Color(newValue.rgb.r, newValue.rgb.g, newValue.rgb.b, newValue.rgb.a));
+    }
+  }
+  toggleIsExpanded() {
+    this.setState({ isExpanded: !this.state.isExpanded });
+  }
+
+  render() {
+    return (
+      <div style={{display: "inline-block", width: "30px", height: "30px", padding: "3px", border: "1px solid #CCC", borderRadius: "4px", position: "relative"}}>
+        <div onClick={this.toggleIsExpanded.bind(this)} style={{width: "100%", height: "100%", backgroundColor: this.props.value.toString(), borderRadius: "4px", cursor: "pointer"}} />
+        <div style={{paddingTop: "5px", position: "absolute", left: 0, top: "100%", zIndex: 999}}>
+          {this.state.isExpanded ? <div style={{}}><SketchPicker color={this.props.value} onChange={this.onChange.bind(this)} /></div> : null}
+        </div>
+      </div>
+    );
+  }
+}
+
 export interface CssBoxShadowProps {
-  color: string;
+  color: Color;
   offsetX: number;
   offsetY: number;
   blurRadius: number;
@@ -58,6 +111,7 @@ export interface CssBoxShadowProps {
 
 export interface CssBoxShadowGeneratorProps {}
 export interface CssBoxShadowGeneratorState {
+  backgroundColor: Color,
   shadows: CssBoxShadowProps[],
   areShadowEditorsExpanded: boolean[]
 }
@@ -66,22 +120,28 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
     super(props);
 
     this.state = {
-      shadows: [
-        {
-          color: "rgba(109, 150, 150, 0.25)",
-          offsetX: 5,
-          offsetY: 3,
-          blurRadius: 5,
-          spreadRadius: 0,
-          isInset: false
-        }
-      ],
+      backgroundColor: new Color(255, 255, 255, 1),
+      shadows: [this.getDefaultShadow()],
       areShadowEditorsExpanded: [true]
     };
   }
-  onShadowColorChange(shadowIndex: number, event: any) {
+  getDefaultShadow(): CssBoxShadowProps {
+    return {
+      color: new Color(102, 102, 102, 0.75),
+      offsetX: 5,
+      offsetY: 5,
+      blurRadius: 5,
+      spreadRadius: 0,
+      isInset: false
+    };
+  }
+
+  onBackgroundColorChange(newValue: Color) {
+    this.setState({ backgroundColor: newValue });
+  }
+  onShadowColorChange(shadowIndex: number, newValue: Color) {
     const oldShadow = this.state.shadows[shadowIndex];
-    const newShadow = { ...oldShadow, color: event.target.value };
+    const newShadow = { ...oldShadow, color: newValue };
     this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
   onShadowOffsetXChange(shadowIndex: number, newValue: number, newValueString: string) {
@@ -118,14 +178,7 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
     this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
   addShadow() {
-    const newShadow = {
-      color: "rgba(109, 150, 150, 0.25)",
-      offsetX: -5,
-      offsetY: -3,
-      blurRadius: 5,
-      spreadRadius: 0,
-      isInset: false
-    };
+    const newShadow = this.getDefaultShadow();
 
     this.setState({
       shadows: [...this.state.shadows, newShadow],
@@ -144,16 +197,16 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
   }
 
   render(): JSX.Element {
-    const boxShadowValue = this.state.shadows.map(shadow => `${shadow.color} ${shadow.offsetX}px ${shadow.offsetY}px ${shadow.blurRadius}px ${shadow.spreadRadius}px${shadow.isInset ? " inset" : ""}`).join(", ");
+    const boxShadowValue = this.state.shadows.map(shadow => `${shadow.color.toString()} ${shadow.offsetX}px ${shadow.offsetY}px ${shadow.blurRadius}px ${shadow.spreadRadius}px${shadow.isInset ? " inset" : ""}`).join(", ");
     const boxShadowRuleNames = ["-webkit-box-shadow", "-moz-box-shadow", "box-shadow"];
-    const boxShadowRulesText = boxShadowRuleNames.map(ruleName => `${ruleName}: ${boxShadowValue};`).join("\n");
+    const boxShadowRulesText = boxShadowValue ? boxShadowRuleNames.map(ruleName => `${ruleName}: ${boxShadowValue};`).join("\n") : "";
     const boxShadowStyle = {
       WebkitBoxShadow: boxShadowValue,
       MozBoxShadow: boxShadowValue,
       boxShadow: boxShadowValue
     };
     
-    const shadowEditorHeaderStyle = { width: "100%", height: "auto", backgroundColor: "#CCC",  padding: "0.5em", cursor: "pointer" };
+    const shadowEditorHeaderStyle = { width: "100%", height: "auto", backgroundColor: "#2F2F2F", color: "#FFF", padding: "0.5em", cursor: "pointer" };
     const shadowEditorInputContainerStyle = { padding: "0.5em" };
     const shadowEditorInputRowStyle = { marginBottom: "0.5em" };
     //const shadowEditorInputNameStyle = { alignSelf: "center" };
@@ -162,7 +215,7 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
         <div style={shadowEditorInputContainerStyle}>
           <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Color:</div>
-            <div className="col-1-2"><input type="text" value={shadow.color} onChange={this.onShadowColorChange.bind(this, index)} /></div>
+            <div className="col-1-2"><ColorInput value={shadow.color} onChange={this.onShadowColorChange.bind(this, index)} /></div>
           </div>
           <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Horizontal Offset:</div>
@@ -178,7 +231,7 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
           </div>
           <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Spread Radius:</div>
-            <div className="col-1-2"><NumberInput value={shadow.spreadRadius} onChange={this.onShadowSpreadRadiusChange.bind(this)} /></div>
+            <div className="col-1-2"><NumberInput value={shadow.spreadRadius} onChange={this.onShadowSpreadRadiusChange.bind(this, index)} /></div>
           </div>
           <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Is Inset:</div>
@@ -190,10 +243,10 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
       );
 
       return (
-        <div style={{border: "1px solid #CCC", marginBottom: "1em"}}>
+        <div style={{border: "1px solid #2F2F2F", borderRadius: "4px", marginBottom: "1em"}}>
           <div onClick={this.toggleShadowEditorExpanded.bind(this, index)} style={shadowEditorHeaderStyle}>
             <span>Shadow {index + 1}</span>
-            <span><div className={`arrow-head ${this.state.areShadowEditorsExpanded[index] ? "up" : "down"}`} style={{float: "right"}}></div></span>
+            <span style={{float: "right"}}><div className={`arrow-head ${this.state.areShadowEditorsExpanded[index] ? "up" : "down"}`} style={{borderColor: "#FFF", verticalAlign: "middle"}}></div></span>
           </div>
           {this.state.areShadowEditorsExpanded[index] ? inputRows : null}
         </div>
@@ -202,14 +255,15 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
 
     return (
       <div style={{display: "flex"}}>
-        <div className="card" style={{minWidth: "360px"}}>
+        <div className="card" style={{width: "360px"}}>
+          Background Color: <ColorInput value={this.state.backgroundColor} onChange={this.onBackgroundColorChange.bind(this)} />
           {shadowEditors}
           <button onClick={this.addShadow.bind(this)}>Add</button>
         </div>
 
         <div style={{paddingLeft: "1em", flexGrow: 1}}>
-          <div className="card" style={{padding: "5em 1em"}}>
-            <div style={{width: "256px", height: "256px", backgroundColor: "#00F", margin: "0 auto", borderRadius: "4px", ...boxShadowStyle}} />
+          <div className="card" style={{backgroundColor: this.state.backgroundColor, padding: "5em 1em"}}>
+            <div style={{width: "200px", height: "200px", backgroundColor: "#BBB", margin: "0 auto", borderRadius: "4px", ...boxShadowStyle}} />
           </div>
           <textarea value={boxShadowRulesText} readOnly style={{width: "100%", height: "150px", marginTop: "1em"}} />
         </div>

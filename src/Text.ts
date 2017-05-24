@@ -61,7 +61,7 @@ export function isCharADigit(char: string) {
  */
 export function charFilteringRegex(includeLetters: boolean, includeNumbers: boolean, includeWhiteSpace: boolean, includeOthers: boolean): RegExp {
   if(!includeOthers) {
-    let regexParts = [];
+    let regexParts: string[] = [];
 
     if(includeLetters) {
       regexParts.push(letterRangeRegexPart);
@@ -77,7 +77,7 @@ export function charFilteringRegex(includeLetters: boolean, includeNumbers: bool
 
     return new RegExp(`[${regexParts.join("")}]`);
   } else {
-    let regexParts = [];
+    let regexParts: string[] = [];
 
     if(!includeLetters) {
       regexParts.push(letterRangeRegexPart);
