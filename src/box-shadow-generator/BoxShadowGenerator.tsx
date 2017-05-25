@@ -254,14 +254,19 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
     });
 
     return (
-      <div style={{display: "flex"}}>
-        <div className="card" style={{width: "360px"}}>
-          Background Color: <ColorInput value={this.state.backgroundColor} onChange={this.onBackgroundColorChange.bind(this)} />
-          {shadowEditors}
-          <button onClick={this.addShadow.bind(this)}>Add</button>
+      <div className="row">
+        <div className="col css-box-shadow-editor-col" style={{padding: 0}}>
+          <div className="card">
+            <div className="row no-padding" style={{marginBottom: "0.5em"}}>
+              <div className="col-1-2" style={{alignSelf: "center"}}>Background Color:</div>
+              <div className="col-1-2"><ColorInput value={this.state.backgroundColor} onChange={this.onBackgroundColorChange.bind(this)} /></div>
+            </div>
+            {shadowEditors}
+            <button onClick={this.addShadow.bind(this)}>Add</button>
+          </div>
         </div>
 
-        <div style={{paddingLeft: "1em", flexGrow: 1}}>
+        <div className="col" style={{flexGrow: 1}}>
           <div className="card" style={{backgroundColor: this.state.backgroundColor, padding: "5em 1em"}}>
             <div style={{width: "200px", height: "200px", backgroundColor: "#BBB", margin: "0 auto", borderRadius: "4px", ...boxShadowStyle}} />
           </div>

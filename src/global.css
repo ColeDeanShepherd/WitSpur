@@ -148,6 +148,7 @@ body {
   display: inline-block;
   text-align: center;
   padding-bottom: 0;
+  margin-bottom: 1em;
 }
 .tool-card a {
   display: flex;
@@ -190,12 +191,17 @@ body {
   -webkit-transform: rotate(45deg);
 }
 
+.css-box-shadow-editor-col {
+  margin-bottom: 1em;
+}
+
 @media (min-width: 720px) {
   .row {
     display: flex;
     flex-direction: row;
   }
 
+  .col,
   .col-1-2,
   .col-1-3 {
     padding: 0 0.75rem;
@@ -215,5 +221,10 @@ body {
 
   .tool-card {
     width: 33%;
+  }
+
+  .css-box-shadow-editor-col {
+    width: 360px;
+    margin: 0;
   }
 }
