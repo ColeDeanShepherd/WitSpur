@@ -1,0 +1,25 @@
+<div class="centered-content-container">
+  <h1 style="text-align: center;">Pomodoro Timer</h1>
+
+  <div id="pomodoro-timer"></div>
+
+  <div class="card" style="margin-top: 1em;">
+    <h2>About WitSpur's Pomodoro Timer</h2>
+  </div>
+
+  <div style="text-align: center; margin-top: 4em;">
+    <h2>More Tools</h2>
+    <div class="card tool-card">
+      <a href="character-word-line-counter.html">
+        <img src="img/character-counter-thumbnail.png" alt="Character Counter, Word Counter, &amp; Line Counter" class="thumbnail" />
+        <div class="tool-name">Character, Word, &amp; Line Counter</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function (event) {
+  WitSpur.renderPomodoroTimer(document.getElementById("pomodoro-timer"));
+});
+</script>

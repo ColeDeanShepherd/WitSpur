@@ -160,6 +160,7 @@ body {
 .tool-card a .thumbnail {
   display: block;
   width: 100%;
+  min-height: 1px; /* Thanks IE! */
   height: auto;
   border: 1px solid #CCC;
 }

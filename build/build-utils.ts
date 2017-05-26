@@ -58,6 +58,10 @@ export function buildImages(outputDir: string) {
   fs.copySync("favicon", outputDir);
 }
 
+export function buildSounds(outputDir: string) {
+  fs.copySync("sound", `${outputDir}/sound`)
+}
+
 export function buildJS(outputDir: string, uglify: boolean) {
   execSync("webpack");
 

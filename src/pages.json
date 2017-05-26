@@ -15,6 +15,11 @@
     "outputFileName": "css-box-shadow-generator"
   },
   {
+    "name": "Pomodoro Timer",
+    "contentsFilePath": "pomodoro-timer/pomodoro-timer.html",
+    "outputFileName": "pomodoro-timer"
+  },
+  {
     "name": "Interactive Mandelbrot Set Renderer",
     "contentsFilePath": "mandelbrot/mandelbrot.html",
     "outputFileName": "interactive-mandelbrot-set"
