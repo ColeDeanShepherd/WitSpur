@@ -1,35 +1,11 @@
 import * as React from "react";
 
-import { assert } from "../Utils";
-
-const secondsInMinute = 60;
-const millisecondsInSecond = 1000;
-
-export function repeatString(repeatCount: number, str: string): string {
-  assert(repeatCount >= 0);
-
-  let result = "";
-
-  for(let i = 0; i < repeatCount; i++) {
-    result += str;
-  }
-
-  return result;
-}
-
-export function zeroPadIntegerString(minDigitCount: number, integerString: string): string {
-  assert(minDigitCount >= 0);
-
-  const digitCount = integerString.length;
-  const paddingZeroCount = Math.max(minDigitCount - digitCount, 0);
-  const paddingStr = repeatString(paddingZeroCount, "0");
-
-  return paddingStr + integerString;
-}
+import { assert, millisecondsInSecond, secondsInMinute, zeroPadIntegerString } from "../Utils";
 
 export interface PomodoroTimerProps {}
 export interface PomodoroTimerState {
-  secondsLeft: number
+  secondsLeft: number,
+  isRunning: boolean
 }
 export class PomodoroTimer extends React.Component<PomodoroTimerProps, PomodoroTimerState> {
   intervalHandle: number;
@@ -39,9 +15,20 @@ export class PomodoroTimer extends React.Component<PomodoroTimerProps, PomodoroT
     super(props);
 
     this.state = {
-      secondsLeft: 6
+      secondsLeft: 6,
+      isRunning: false
     };
   }
+  startTimer() {
+
+  }
+  stopTimer() {
+
+  }
+  resetTimer() {
+
+  }
+
   playAlarmSound() {
     this.audioTag.play();
   }

@@ -1,3 +1,20 @@
+export class Color {
+  r: number; // [0, 255]
+  g: number; // [0, 255]
+  b: number; // [0, 255]
+  a: number; // [0, 1]
+
+  constructor(r: number, g: number, b: number, a: number) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
+  }
+  toString() {
+    return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
+  }
+}
+
 /**
  * Converts an RGB color value to HSL. Conversion formula
  * adapted from http://en.wikipedia.org/wiki/HSL_color_space.

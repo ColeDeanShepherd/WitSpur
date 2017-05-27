@@ -1,3 +1,6 @@
+export const secondsInMinute = 60;
+export const millisecondsInSecond = 1000;
+
 export function assert(condition: boolean) {
   if(!condition) {
     throw new Error("Failed assertion.");
@@ -36,6 +39,38 @@ export function splitRangeIntoSubRanges(range: IntRange, subRangeCount: number):
   }
 
   return subRanges;
+}
+
+export function repeatString(repeatCount: number, str: string): string {
+  assert(repeatCount >= 0);
+
+  let result = "";
+
+  for(let i = 0; i < repeatCount; i++) {
+    result += str;
+  }
+
+  return result;
+}
+
+export function zeroPadIntegerString(minDigitCount: number, integerString: string): string {
+  assert(minDigitCount >= 0);
+
+  const digitCount = integerString.length;
+  const paddingZeroCount = Math.max(minDigitCount - digitCount, 0);
+  const paddingStr = repeatString(paddingZeroCount, "0");
+
+  return paddingStr + integerString;
+}
+
+export function addElementImmutable<T>(arr: T[], newElement: T): T[] {
+  return [...arr, newElement];
+}
+export function setElementImmutable<T>(arr: T[], elementIndex: number, newValue: T): T[] {
+  return [...arr.slice(0, elementIndex), newValue, ...arr.slice(elementIndex + 1)];
+}
+export function removeElementImmutable<T>(arr: T[], elementIndex: number): T[] {
+  return [...arr.slice(0, elementIndex), ...arr.slice(elementIndex + 1)]
 }
 
 // TODO: actually run in background. use webpack-worker/require()

@@ -1,104 +1,9 @@
 import * as React from "react";
 
-import { SketchPicker } from 'react-color';
-
 import * as Utils from "../Utils";
-import * as Text from "../Text";
-
-function addElementImmutable<T>(arr: T[], newElement: T): T[] {
-  return [...arr, newElement];
-}
-function setElementImmutable<T>(arr: T[], elementIndex: number, newValue: T): T[] {
-  return [...arr.slice(0, elementIndex), newValue, ...arr.slice(elementIndex + 1)];
-}
-function removeElementImmutable<T>(arr: T[], elementIndex: number): T[] {
-  return [...arr.slice(0, elementIndex), ...arr.slice(elementIndex + 1)]
-}
-
-export interface NumberInputProps {
-  value: number,
-  onChange: (newValue: number | null, newValueString: string) => void
-}
-export interface NumberInputState {
-  valueString: string
-}
-export class NumberInput extends React.Component<NumberInputProps, NumberInputState> {
-  constructor(props: NumberInputProps) {
-    super(props);
-
-    this.state = { valueString: (props.value != null) ? props.value.toString() : "" };
-  }
-  onValueStringChange(event: any) {
-    const newValueString = event.target.value;
-    this.setState({ valueString: newValueString });
-
-    if(this.props.onChange) {
-      this.props.onChange(this.tryParseValue(newValueString), newValueString);
-    }
-  }
-  tryParseValue(valueString: string): number {
-    return parseInt(valueString);
-  }
-  // on props updated update valuestring
-
-  render() {
-    const style = isNaN(this.tryParseValue(this.state.valueString)) ? { borderColor: "red" } : {};
-    //const style = isNaN(this.tryParseValue(this.state.valueString)) ? { backgroundColor: "#FFB3B3" } : {};
-
-    return <input type="number" value={this.state.valueString} onChange={this.onValueStringChange.bind(this)} style={style} />;
-  }
-}
-
-export class Color {
-  r: number; // [0, 255]
-  g: number; // [0, 255]
-  b: number; // [0, 255]
-  a: number; // [0, 1]
-
-  constructor(r: number, g: number, b: number, a: number) {
-    this.r = r;
-    this.g = g;
-    this.b = b;
-    this.a = a;
-  }
-  toString() {
-    return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
-  }
-}
-
-export interface ColorInputProps {
-  value: Color,
-  onChange: (newValue: Color) => void
-}
-export interface ColorInputState {
-  isExpanded: boolean
-}
-export class ColorInput extends React.Component<ColorInputProps, ColorInputState> {
-  constructor(props: ColorInputProps) {
-    super(props);
-
-    this.state = { isExpanded: false };
-  }
-  onChange(newValue: any, event: any) {
-    if(this.props.onChange) {
-      this.props.onChange(new Color(newValue.rgb.r, newValue.rgb.g, newValue.rgb.b, newValue.rgb.a));
-    }
-  }
-  toggleIsExpanded() {
-    this.setState({ isExpanded: !this.state.isExpanded });
-  }
-
-  render() {
-    return (
-      <div style={{display: "inline-block", width: "30px", height: "30px", padding: "3px", border: "1px solid #CCC", borderRadius: "4px", position: "relative"}}>
-        <div onClick={this.toggleIsExpanded.bind(this)} style={{width: "100%", height: "100%", backgroundColor: this.props.value.toString(), borderRadius: "4px", cursor: "pointer"}} />
-        <div style={{paddingTop: "5px", position: "absolute", left: 0, top: "100%", zIndex: 999}}>
-          {this.state.isExpanded ? <div style={{}}><SketchPicker color={this.props.value} onChange={this.onChange.bind(this)} /></div> : null}
-        </div>
-      </div>
-    );
-  }
-}
+import { Color } from "../Color";
+import { ColorInput } from "../ColorInput";
+import { NumberInput } from "../NumberInput";
 
 export interface CssBoxShadowProps {
   color: Color;
@@ -142,40 +47,40 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
   onShadowColorChange(shadowIndex: number, newValue: Color) {
     const oldShadow = this.state.shadows[shadowIndex];
     const newShadow = { ...oldShadow, color: newValue };
-    this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
+    this.setState({ shadows: Utils.setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
   onShadowOffsetXChange(shadowIndex: number, newValue: number, newValueString: string) {
     if(isNaN(newValue)) { return; }
 
     const oldShadow = this.state.shadows[shadowIndex];
     const newShadow = { ...oldShadow, offsetX: newValue };
-    this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
+    this.setState({ shadows: Utils.setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
   onShadowOffsetYChange(shadowIndex: number, newValue: number, newValueString: string) {
     if(isNaN(newValue)) { return; }
     
     const oldShadow = this.state.shadows[shadowIndex];
     const newShadow = { ...oldShadow, offsetY: newValue };
-    this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
+    this.setState({ shadows: Utils.setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
   onShadowBlurRadiusChange(shadowIndex: number, newValue: number, newValueString: string) {
     if(isNaN(newValue)) { return; }
     
     const oldShadow = this.state.shadows[shadowIndex];
     const newShadow = { ...oldShadow, blurRadius: newValue };
-    this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
+    this.setState({ shadows: Utils.setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
   onShadowSpreadRadiusChange(shadowIndex: number, newValue: number, newValueString: string) {
     if(isNaN(newValue)) { return; }
     
     const oldShadow = this.state.shadows[shadowIndex];
     const newShadow = { ...oldShadow, spreadRadius: newValue };
-    this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
+    this.setState({ shadows: Utils.setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
   toggleIsShadowInset(shadowIndex: number) {
     const oldShadow = this.state.shadows[shadowIndex];
     const newShadow = { ...oldShadow, isInset: !oldShadow.isInset };
-    this.setState({ shadows: setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
+    this.setState({ shadows: Utils.setElementImmutable(this.state.shadows, shadowIndex, newShadow) });
   }
   addShadow() {
     const newShadow = this.getDefaultShadow();
@@ -187,13 +92,13 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
   }
   removeShadow(index: number) {
     this.setState({
-      shadows: removeElementImmutable(this.state.shadows, index),
-      areShadowEditorsExpanded: removeElementImmutable(this.state.areShadowEditorsExpanded, index)
+      shadows: Utils.removeElementImmutable(this.state.shadows, index),
+      areShadowEditorsExpanded: Utils.removeElementImmutable(this.state.areShadowEditorsExpanded, index)
     });
   }
   toggleShadowEditorExpanded(index: number) {
     const newValue = !this.state.areShadowEditorsExpanded[index];
-    this.setState({ areShadowEditorsExpanded: setElementImmutable(this.state.areShadowEditorsExpanded, index, newValue) });
+    this.setState({ areShadowEditorsExpanded: Utils.setElementImmutable(this.state.areShadowEditorsExpanded, index, newValue) });
   }
 
   render(): JSX.Element {
