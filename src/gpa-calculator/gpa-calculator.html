@@ -1,0 +1,114 @@
+<div class="centered-content-container" style="text-align: center;">
+  <h1>GPA Calculator</h1>
+
+  <div id="gpa-calculator"></div>
+
+  <div class="card" style="margin-top: 1em;">
+    <h2>About WitSpur's GPA Calculator</h2>
+
+    <p>Automatically calculate your GPA with WitSpur's free GPA Calculator.</p>
+    
+    <p>Calculating your GPA by hand is simple but tedious:</p>
+    <ol>
+      <li>For each class, look up the number of grade points you've earned in the table below, and multiply by the number of credit hours.</li>
+      <li>Add those numbers up.</li>
+      <li>Divide the sum of those numbers by the sum of the credit hours for each of your classes.</li>
+    </ol>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Grade</th>
+          <th>Grade Points</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td>A+</td>
+          <td>4.00</td>
+        </tr>
+        <tr>
+          <td>A</td>
+          <td>4.00</td>
+        </tr>
+        <tr>
+          <td>A-</td>
+          <td>3.67</td>
+        </tr>
+        <tr>
+          <td>B+</td>
+          <td>3.33</td>
+        </tr>
+        <tr>
+          <td>B</td>
+          <td>3.00</td>
+        </tr>
+        <tr>
+          <td>B-</td>
+          <td>2.67</td>
+        </tr>
+        <tr>
+          <td>C+</td>
+          <td>2.33</td>
+        </tr>
+        <tr>
+          <td>C</td>
+          <td>2.00</td>
+        </tr>
+        <tr>
+          <td>C-</td>
+          <td>1.67</td>
+        </tr>
+        <tr>
+          <td>D+</td>
+          <td>1.33</td>
+        </tr>
+        <tr>
+          <td>D</td>
+          <td>1.00</td>
+        </tr>
+        <tr>
+          <td>D-</td>
+          <td>0.67</td>
+        </tr>
+        <tr>
+          <td>F</td>
+          <td>0.00</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>This process can be time-consuming and error-prone, so let WitSpur's GPA Calculator do the work for you!</p>
+  </div>
+
+  <div style="text-align: center; margin-top: 4em;">
+    <h2>More Tools</h2>
+    <div class="card tool-card">
+      <a href="character-word-line-counter.html">
+        <img src="img/character-counter-thumbnail.png" alt="Character Counter, Word Counter, &amp; Line Counter" class="thumbnail" />
+        <div class="tool-name">Character, Word, &amp; Line Counter</div>
+      </a>
+    </div>
+    
+    <div class="card tool-card">
+      <a href="css-box-shadow-generator.html">
+        <img src="img/css-box-shadow-generator.png" alt="CSS Box Shadow Generator" class="thumbnail" />
+        <div class="tool-name">CSS Box Shadow Generator</div>
+      </a>
+    </div>
+
+    <div class="card tool-card">
+      <a href="pomodoro-timer.html">
+        <img src="img/pomodoro-timer.png" alt="Pomodoro Timer" class="thumbnail" />
+        <div class="tool-name">Pomodoro Timer</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function (event) {
+  WitSpur.renderGpaCalculator(document.getElementById("gpa-calculator"));
+});
+</script>

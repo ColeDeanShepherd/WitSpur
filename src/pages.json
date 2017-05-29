@@ -20,6 +20,12 @@
     "outputFileName": "pomodoro-timer"
   },
   {
+    "name": "GPA Calculator",
+    "contentsFilePath": "gpa-calculator/gpa-calculator.html",
+    "outputFileName": "gpa-calculator"
+  },
+
+  {
     "name": "Interactive Mandelbrot Set Renderer",
     "contentsFilePath": "mandelbrot/mandelbrot.html",
     "outputFileName": "interactive-mandelbrot-set"
