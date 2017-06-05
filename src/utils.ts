@@ -146,12 +146,12 @@ export function parseTSV(str: string) {
   return parseXSV("\t", str);
 }
 
-export function capitalizeWord(word: string): string {
-  if(word.length === 0) {
-    return word;
+export function capitalizeWord(str: string): string {
+  if((str === null) || (str.length === 0)) {
+    return str;
   }
 
-  return word.charAt(0).toUpperCase() + word.substring(1);
+  return str.charAt(0).toLowerCase() + str.slice(1);
 }
 
 export function openNewTab(url: string) {

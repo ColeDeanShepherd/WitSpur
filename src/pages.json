@@ -24,6 +24,11 @@
     "contentsFilePath": "gpa-calculator/gpa-calculator.html",
     "outputFileName": "gpa-calculator"
   },
+  {
+    "name": "Unit Converter",
+    "contentsFilePath": "unit-converter/unit-converter.html",
+    "outputFileName": "unit-converter"
+  },
 
   {
     "name": "Interactive Mandelbrot Set Renderer",
