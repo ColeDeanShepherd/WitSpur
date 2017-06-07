@@ -33,6 +33,6 @@
   {
     "name": "Interactive Mandelbrot Set Renderer",
     "contentsFilePath": "mandelbrot/mandelbrot.html",
-    "outputFileName": "interactive-mandelbrot-set"
+    "outputFileName": "mandelbrot-set"
   }
 ]

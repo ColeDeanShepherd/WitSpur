@@ -66,6 +66,7 @@ function createMandelbrotSetImageDataPart(widthInPixels: number, heightInPixels:
 export interface MandelbrotSetRendererProps {
   width: number;
   height: number;
+  supersamplingAmount: number;
   heightInUnits: number;
   centerPosition: Complex;
   maxIterationCount: number;
@@ -83,11 +84,17 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
 
     this.state = {};
   }
+  getSupersampledWidth(): number {
+    return this.props.supersamplingAmount * this.props.width;
+  }
+  getSupersampledHeight(): number {
+    return this.props.supersamplingAmount * this.props.height;
+  }
   reRenderMandelbrotSet() {
     if(!this.canvasContext) { return; }
 
-    const widthOfCanvasInPixels = this.props.width;
-    const heightOfCanvasInPixels = this.props.height;
+    const widthOfCanvasInPixels = this.getSupersampledWidth();
+    const heightOfCanvasInPixels = this.getSupersampledHeight();
 
     const canvasAspectRatio = widthOfCanvasInPixels / heightOfCanvasInPixels;
 
@@ -141,8 +148,13 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
   }
 
   render() {
+    const canvasStyle = {
+      width: this.props.width,
+      height: this.props.height
+    };
+
     return (
-      <canvas ref={canvas => this.canvasDomElement = canvas} width={this.props.width} height={this.props.height}>
+      <canvas ref={canvas => this.canvasDomElement = canvas} width={this.getSupersampledWidth()} height={this.getSupersampledHeight()} style={canvasStyle}>
         Your browser does not support the canvas tag. Please upgrade your browser.
       </canvas>
     );
@@ -163,6 +175,7 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
       componentProps: {
         width: 640,
         height: 480,
+        supersamplingAmount: 1,
         heightInUnits: 3,
         centerPosition: new Complex(-0.75, 0),
         maxIterationCount: 50,
@@ -177,6 +190,10 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
   }
   onHeightChange(event: any) {
     const newComponentProps = { ...this.state.componentProps, height: parseFloat(event.target.value) };
+    this.setState({ componentProps: newComponentProps });
+  }
+  onSupersamplingAmountChange(event: any) {
+    const newComponentProps = { ...this.state.componentProps, supersamplingAmount: parseInt(event.target.value) };
     this.setState({ componentProps: newComponentProps });
   }
   onHeightInUnitsChange(event: any) {
@@ -211,6 +228,7 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
       <div>
         Width: <input type="number" value={this.state.componentProps.width} onChange={this.onWidthChange.bind(this)} /><br />
         Height: <input type="number" value={this.state.componentProps.height} onChange={this.onHeightChange.bind(this)} /><br />
+        Supersampling Amount: <input type="number" value={this.state.componentProps.supersamplingAmount} onChange={this.onSupersamplingAmountChange.bind(this)} /><br />
         Height In Units: <input type="number" value={this.state.componentProps.heightInUnits} onChange={this.onHeightInUnitsChange.bind(this)} /><br />
         x (real coordinate): <input type="number" value={this.state.componentProps.centerPosition.re} onChange={this.onCenterPositionXChange.bind(this)} /><br />
         y (imaginary coordinate): <input type="number" value={this.state.componentProps.centerPosition.im} onChange={this.onCenterPositionYChange.bind(this)} /><br />

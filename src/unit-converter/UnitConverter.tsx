@@ -2,27 +2,7 @@ import * as React from "react";
 
 import { capitalizeWord } from "../Utils";
 import { NumberInput } from "../NumberInput";
-
-export const yoctometersInMeter = 1e24;
-export const zeptometersInMeter = 1e21;
-export const attometersInMeter = 1e18;
-export const femtometersInMeter = 1e15;
-export const picometersInMeter = 1e12;
-export const nanometersInMeter = 1e9;
-export const micrometersInMeter = 1e6;
-export const millimetersInMeter = 1e3;
-export const centimetersInMeter = 1e2;
-export const decimetersInMeter = 1e1;
-export const decametersInMeter = 1e-1;
-export const hectometersInMeter = 1e-2;
-export const kilometersInMeter = 1e-3;
-export const megametersInMeter = 1e-6;
-export const gigametersInMeter = 1e-9;
-export const terametersInMeter = 1e-12;
-export const petametersInMeter = 1e-15;
-export const exametersInMeter = 1e-18;
-export const zettametersInMeter = 1e-21;
-export const yottametersInMeter = 1e-24;
+import * as Units from "../Units";
 
 interface UnitInfo {
   name: string,
@@ -31,43 +11,43 @@ interface UnitInfo {
 const lengthUnits: UnitInfo[] = [
   {
     name: "yoctometer",
-    conversionFactor: yoctometersInMeter
+    conversionFactor: Units.yoctometersInMeter
   },
   {
     name: "zeptometer",
-    conversionFactor: zeptometersInMeter
+    conversionFactor: Units.zeptometersInMeter
   },
   {
     name: "attometer",
-    conversionFactor: attometersInMeter
+    conversionFactor: Units.attometersInMeter
   },
   {
     name: "femtometer",
-    conversionFactor: femtometersInMeter
+    conversionFactor: Units.femtometersInMeter
   },
   {
     name: "picometer",
-    conversionFactor: picometersInMeter
+    conversionFactor: Units.picometersInMeter
   },
   {
     name: "nanometer",
-    conversionFactor: nanometersInMeter
+    conversionFactor: Units.nanometersInMeter
   },
   {
     name: "micrometer",
-    conversionFactor: micrometersInMeter
+    conversionFactor: Units.micrometersInMeter
   },
   {
     name: "millimeter",
-    conversionFactor: millimetersInMeter
+    conversionFactor: Units.millimetersInMeter
   },
   {
     name: "centimeter",
-    conversionFactor: centimetersInMeter
+    conversionFactor: Units.centimetersInMeter
   },
   {
     name: "decimeter",
-    conversionFactor: decimetersInMeter
+    conversionFactor: Units.decimetersInMeter
   },
   {
     name: "meter",
@@ -75,52 +55,374 @@ const lengthUnits: UnitInfo[] = [
   },
   {
     name: "decameter",
-    conversionFactor: decametersInMeter
+    conversionFactor: Units.decametersInMeter
   },
   {
     name: "hectometer",
-    conversionFactor: hectometersInMeter
+    conversionFactor: Units.hectometersInMeter
   },
   {
     name: "kilometer",
-    conversionFactor: kilometersInMeter
+    conversionFactor: Units.kilometersInMeter
   },
   {
     name: "megameter",
-    conversionFactor: megametersInMeter
+    conversionFactor: Units.megametersInMeter
   },
   {
     name: "gigameter",
-    conversionFactor: gigametersInMeter
+    conversionFactor: Units.gigametersInMeter
   },
   {
     name: "terameter",
-    conversionFactor: terametersInMeter
+    conversionFactor: Units.terametersInMeter
   },
   {
     name: "petameter",
-    conversionFactor: petametersInMeter
+    conversionFactor: Units.petametersInMeter
   },
   {
     name: "exameter",
-    conversionFactor: exametersInMeter
+    conversionFactor: Units.exametersInMeter
   },
   {
     name: "zettameter",
-    conversionFactor: zettametersInMeter
+    conversionFactor: Units.zettametersInMeter
   },
   {
     name: "yottameter",
-    conversionFactor: yottametersInMeter
+    conversionFactor: Units.yottametersInMeter
   },
+
+  {
+    name: "thou",
+    conversionFactor: Units.thousInMeter
+  },
+  {
+    name: "inches",
+    conversionFactor: Units.inchesInMeter
+  },
+  {
+    name: "feet",
+    conversionFactor: Units.feetInMeter
+  },
+  {
+    name: "yard",
+    conversionFactor: Units.yardsInMeter
+  },
+  {
+    name: "chain",
+    conversionFactor: Units.chainsInMeter
+  },
+  {
+    name: "furlongs",
+    conversionFactor: Units.furlongsInMeter
+  },
+  {
+    name: "miles",
+    conversionFactor: Units.milesInMeter
+  },
+  {
+    name: "leagues",
+    conversionFactor: Units.leaguesInMeter
+  },
+  {
+    name: "fathoms",
+    conversionFactor: Units.fathomsInMeter
+  },
+  {
+    name: "cables",
+    conversionFactor: Units.cablesInMeter
+  },
+  {
+    name: "nautical miles",
+    conversionFactor: Units.nauticalMilesInMeter
+  }
+];
+
+const massUnits: UnitInfo[] = [
+  {
+    name: "yoctogram",
+    conversionFactor: Units.yoctogramsInGram
+  },
+  {
+    name: "zeptogram",
+    conversionFactor: Units.zeptogramsInGram
+  },
+  {
+    name: "attogram",
+    conversionFactor: Units.attogramsInGram
+  },
+  {
+    name: "femtogram",
+    conversionFactor: Units.femtogramsInGram
+  },
+  {
+    name: "picogram",
+    conversionFactor: Units.picogramsInGram
+  },
+  {
+    name: "nanogram",
+    conversionFactor: Units.nanogramsInGram
+  },
+  {
+    name: "microgram",
+    conversionFactor: Units.microgramsInGram
+  },
+  {
+    name: "milligram",
+    conversionFactor: Units.milligramsInGram
+  },
+  {
+    name: "centigram",
+    conversionFactor: Units.centigramsInGram
+  },
+  {
+    name: "decigram",
+    conversionFactor: Units.decigramsInGram
+  },
+  {
+    name: "gram",
+    conversionFactor: 1
+  },
+  {
+    name: "decagram",
+    conversionFactor: Units.decagramsInGram
+  },
+  {
+    name: "hectogram",
+    conversionFactor: Units.hectogramsInGram
+  },
+  {
+    name: "kilogram",
+    conversionFactor: Units.kilogramsInGram
+  },
+  {
+    name: "megagram",
+    conversionFactor: Units.megagramsInGram
+  },
+  {
+    name: "gigagram",
+    conversionFactor: Units.gigagramsInGram
+  },
+  {
+    name: "teragram",
+    conversionFactor: Units.teragramsInGram
+  },
+  {
+    name: "petagram",
+    conversionFactor: Units.petagramsInGram
+  },
+  {
+    name: "exagram",
+    conversionFactor: Units.exagramsInGram
+  },
+  {
+    name: "zettagram",
+    conversionFactor: Units.zettagramsInGram
+  },
+  {
+    name: "yottagram",
+    conversionFactor: Units.yottagramsInGram
+  },
+  
+  {
+    name: "grains",
+    conversionFactor: Units.grainsInGram
+  },
+  {
+    name: "drachms",
+    conversionFactor: Units.drachmsInGram
+  },
+  {
+    name: "ounces",
+    conversionFactor: Units.ouncesInGram
+  },
+  {
+    name: "pounds",
+    conversionFactor: Units.poundsInGram
+  },
+  {
+    name: "stones",
+    conversionFactor: Units.stonesInGram
+  },
+  {
+    name: "quarters",
+    conversionFactor: Units.quartersInGram
+  },
+  {
+    name: "hundredweights",
+    conversionFactor: Units.hundredweightsInGram
+  },
+  {
+    name: "tons",
+    conversionFactor: Units.tonsInGram
+  },
+  {
+    name: "slugs",
+    conversionFactor: Units.slugsInGram
+  },
+];
+
+const energyUnits: UnitInfo[] = [
+  {
+    name: "yoctojoule",
+    conversionFactor: Units.yoctojoulesInJoule
+  },
+  {
+    name: "zeptojoule",
+    conversionFactor: Units.zeptojoulesInJoule
+  },
+  {
+    name: "attojoule",
+    conversionFactor: Units.attojoulesInJoule
+  },
+  {
+    name: "femtojoule",
+    conversionFactor: Units.femtojoulesInJoule
+  },
+  {
+    name: "picojoule",
+    conversionFactor: Units.picojoulesInJoule
+  },
+  {
+    name: "nanojoule",
+    conversionFactor: Units.nanojoulesInJoule
+  },
+  {
+    name: "microjoule",
+    conversionFactor: Units.microjoulesInJoule
+  },
+  {
+    name: "millijoule",
+    conversionFactor: Units.millijoulesInJoule
+  },
+  {
+    name: "centijoule",
+    conversionFactor: Units.centijoulesInJoule
+  },
+  {
+    name: "decijoule",
+    conversionFactor: Units.decijoulesInJoule
+  },
+  {
+    name: "joule",
+    conversionFactor: 1
+  },
+  {
+    name: "decajoule",
+    conversionFactor: Units.decajoulesInJoule
+  },
+  {
+    name: "hectojoule",
+    conversionFactor: Units.hectojoulesInJoule
+  },
+  {
+    name: "kilojoule",
+    conversionFactor: Units.kilojoulesInJoule
+  },
+  {
+    name: "megajoule",
+    conversionFactor: Units.megajoulesInJoule
+  },
+  {
+    name: "gigajoule",
+    conversionFactor: Units.gigajoulesInJoule
+  },
+  {
+    name: "terajoule",
+    conversionFactor: Units.terajoulesInJoule
+  },
+  {
+    name: "petajoule",
+    conversionFactor: Units.petajoulesInJoule
+  },
+  {
+    name: "exajoule",
+    conversionFactor: Units.exajoulesInJoule
+  },
+  {
+    name: "zettajoule",
+    conversionFactor: Units.zettajoulesInJoule
+  },
+  {
+    name: "yottajoule",
+    conversionFactor: Units.yottajoulesInJoule
+  },
+
+  {
+    name: "ergs",
+    conversionFactor: Units.ergsInJoule
+  },
+  {
+    name: "electron-volt",
+    conversionFactor: Units.electronVoltsInJoule
+  },
+  {
+    name: "calorie",
+    conversionFactor: Units.caloriesInJoule
+  },
+  {
+    name: "kilocalorie",
+    conversionFactor: Units.kilocaloriesInJoule
+  },
+  {
+    name: "British Thermal unit",
+    conversionFactor: Units.britishThermalUnitsInJoule
+  },
+  {
+    name: "foot-pound",
+    conversionFactor: Units.footPoundsInJoule
+  },
+  {
+    name: "foot-poundal",
+    conversionFactor: Units.footPoundalsInJoule
+  },
+  {
+    name: "kilowatt-hour",
+    conversionFactor: Units.kilowattHoursInJoule
+  },
+  {
+    name: "watt-hour",
+    conversionFactor: Units.wattHoursInJoule
+  },
+  {
+    name: "litre atmosphere",
+    conversionFactor: Units.litreAtmospheresInJoule
+  },
+  {
+    name: "grams of mass",
+    conversionFactor: Units.gramsOfMassInJoule
+  },
+  {
+    name: "foe",
+    conversionFactor: Units.foesInJoule
+  },
+  {
+    name: "thermochemical calorie",
+    conversionFactor: Units.thermochemicalCaloriesInJoule
+  },
+  {
+    name: "internationalTable calorie",
+    conversionFactor: Units.internationalTableCaloriesInJoule
+  },
+  {
+    name: "watt-second",
+    conversionFactor: Units.wattSecondsInJoule
+  },
+  {
+    name: "tons of TNT",
+    conversionFactor: Units.tonsOfTntInJoule
+  }
 ];
 
 export interface UnitConverterProps {}
 export interface UnitConverterState {
-  yoctometer: number,
-  zeptometer: number,
-  attometer: number,
-  femtometer: number,
+  // SI length units
+  yoctometers: number,
+  zeptometers: number,
+  attometers: number,
+  femtometers: number,
   picometers: number,
   nanometers: number,
   micrometers: number,
@@ -137,48 +439,146 @@ export interface UnitConverterState {
   petameters: number,
   exameters: number,
   zettameters: number,
-  yottameters: number
+  yottameters: number,
+
+  // imperial length units
+  thous: number,
+  inches: number,
+  feet: number,
+  yards: number,
+  chains: number,
+  furlongs: number,
+  miles: number,
+  leagues: number,
+  fathoms: number,
+  cables: number,
+  nauticalMiles: number,
+
+  // SI mass units
+  yoctograms: number,
+  zeptograms: number,
+  attograms: number,
+  femtograms: number,
+  picograms: number,
+  nanograms: number,
+  micrograms: number,
+  milligrams: number,
+  centigrams: number,
+  decigrams: number,
+  grams: number,
+  decagrams: number,
+  hectograms: number,
+  kilograms: number,
+  megagrams: number,
+  gigagrams: number,
+  teragrams: number,
+  petagrams: number,
+  exagrams: number,
+  zettagrams: number,
+  yottagrams: number
+
+  // imperial mass units
+  grains: number,
+  drachms: number,
+  ounces: number,
+  pounds: number,
+  stones: number,
+  quarters: number,
+  hundredweights: number,
+  tons: number,
+  slugs: number
+
+  // SI energy units
+  yoctojoules: number;
+  zeptojoules: number;
+  attojoules: number;
+  femtojoules: number;
+  picojoules: number;
+  nanojoules: number;
+  microjoules: number;
+  millijoules: number;
+  centijoules: number;
+  decijoules: number;
+  decajoules: number;
+  hectojoules: number;
+  kilojoules: number;
+  megajoules: number;
+  gigajoules: number;
+  terajoules: number;
+  petajoules: number;
+  exajoules: number;
+  zettajoules: number;
+  yottajoules: number;
+  
+  // other energy units
+  ergs: number;
+  electronVolts: number;
+  calories: number;
+  kilocalories: number;
+  britishThermalUnits: number;
+  footPounds: number;
+  footPoundals: number;
+  kilowattHours: number;
+  wattHours: number;
+  litreAtmospheres: number;
+  gramsOfMass: number;
+  foes: number;
+  thermochemicalCalories: number;
+  internationalTableCalories: number;
+  wattSeconds: number;
+  tonsOfTnt: number;
 }
 export class UnitConverter extends React.Component<UnitConverterProps, UnitConverterState> {
 
   constructor(props: UnitConverterProps) {
     super(props);
 
-    let initialState = lengthUnits.reduce((acc: {}, unit: UnitInfo) => {
-      acc[unit.name + "s"] = 0;
-      return acc;
+    const unitCategories = [lengthUnits, massUnits, energyUnits];
+
+    let initialState = unitCategories.reduce((acc: {}, unitCategory: UnitInfo[]) => {
+      return unitCategory.reduce((acc: {}, unit: UnitInfo) => {
+        acc[unit.name + "s"] = 0;
+        return acc;
+      }, acc)
     }, {});
 
     this.state = initialState as UnitConverterState;
   }
 
-  onUnitValueChange(unit: UnitInfo, newValue: number, newValueString: string) {
-    if(!isNaN(newValue)) {
-      this.setMeters(newValue / unit.conversionFactor);
-    }
-  }
-  renderUnitValueInput(unit: UnitInfo) {
-    return (
-      <div>
-        {capitalizeWord(unit.name)}
-        <NumberInput value={this.state[unit.name + "s"]} onChange={this.onUnitValueChange.bind(this, unit)} />
-      </div>
-    );
-  }
-
-  setMeters(value: number) {
-    let stateDelta = lengthUnits.reduce((acc: {}, unit: UnitInfo) => {
-      acc[unit.name + "s"] = value * unit.conversionFactor;
+  setBaseUnitValue(baseUnitValue: number, units: UnitInfo[]) {
+    let stateDelta = units.reduce((acc: {}, unit: UnitInfo) => {
+      acc[unit.name + "s"] = baseUnitValue * unit.conversionFactor;
       return acc;
     }, {});
 
     this.setState(stateDelta);
   }
 
+  onUnitValueChange(unit: UnitInfo, units: UnitInfo[], newValue: number, newValueString: string) {
+    if(!isNaN(newValue)) {
+      this.setBaseUnitValue(newValue / unit.conversionFactor, units);
+    }
+  }
+  renderUnitValueInput(unit: UnitInfo, index: number, units: UnitInfo[]) {
+    return (
+      <div>
+        {capitalizeWord(unit.name)}
+        <NumberInput value={this.state[unit.name + "s"]} onChange={this.onUnitValueChange.bind(this, unit, units)} />
+      </div>
+    );
+  }
+
   public render(): JSX.Element {
     return (
       <div style={{textAlign: "center"}}>
+        <h2>Length/Position</h2>
         {lengthUnits.map(this.renderUnitValueInput.bind(this))}
+
+        <h2>Mass</h2>
+        {massUnits.map(this.renderUnitValueInput.bind(this))}
+
+        <h2>Energy</h2>
+        {energyUnits.map(this.renderUnitValueInput.bind(this))}
       </div>
     );
   }
