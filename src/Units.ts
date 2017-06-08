@@ -1,3 +1,7 @@
+export const millisecondsInSecond = 1000;
+export const secondsInMinute = 60;
+export const minutesInHour = 60;
+
 export const yoctometersInMeter = 1e24;
 export const zeptometersInMeter = 1e21;
 export const attometersInMeter = 1e18;

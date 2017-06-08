@@ -25,11 +25,17 @@
     "outputFileName": "gpa-calculator"
   },
   {
+    "name": "Pendulum Simulator",
+    "contentsFilePath": "pendulum-simulator/pendulum-simulator.html",
+    "outputFileName": "pendulum-simulator"
+  },
+  
+
+  {
     "name": "Unit Converter",
     "contentsFilePath": "unit-converter/unit-converter.html",
     "outputFileName": "unit-converter"
   },
-
   {
     "name": "Interactive Mandelbrot Set Renderer",
     "contentsFilePath": "mandelbrot/mandelbrot.html",
