@@ -51,7 +51,7 @@ export function buildHTML(outputDir: string, isDevBuild: boolean) {
 
 export function buildCSS(outputDir: string) {
   fs.copySync("vendor/normalize.css", `${outputDir}/normalize.css`);
-  fs.copySync("src/global.css", `${outputDir}/global.css`);
+  execSync(`stylus src/global.styl --out ${outputDir}`);
 }
 
 export function buildImages(outputDir: string) {

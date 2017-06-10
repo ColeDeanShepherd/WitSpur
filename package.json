@@ -27,6 +27,7 @@
     "concurrently": "^3.4.0",
     "fs-extra": "^3.0.1",
     "source-map-loader": "^0.2.1",
+    "stylus": "^0.54.5",
     "ts-node": "^3.0.4",
     "typescript": "^2.3.2",
     "uglify-js": "^3.0.8",
