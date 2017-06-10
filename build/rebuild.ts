@@ -5,7 +5,7 @@ const isDevBuild = process.argv.indexOf("--target=prod") < 0;
 const outputDir = 'dist';
 
 clean(outputDir);
-buildHTML(outputDir);
+buildHTML(outputDir, isDevBuild);
 buildCSS(outputDir);
 buildImages(outputDir);
 buildSounds(outputDir);

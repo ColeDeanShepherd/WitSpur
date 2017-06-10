@@ -2,98 +2,8 @@ import * as React from "react";
 
 import * as Utils from "../Utils";
 import * as Units from "../Units";
+import * as Numerical from "../Numerical";
 import { NumberInput } from "../NumberInput";
-
-/**
- * Finds an approximation to a root of the function f using the Newton-Raphson method.
- * @param {Number} x0 The initial guess.
- * @param {Function} f The function to find the root of.
- * @param {Function} fPrime The derivative of the function to find the root of.
- * @param {Number} minBackwardError The minimum backward error (abs(f(x)))
- * @param {Number} maxIterationCount The maximum iteration count.
- */
-export function newtonRaphson(x0: number, f: (x: number) => number, fPrime: (x: number) => number, minBackwardError: number | null, maxIterationCount: number | null) {
-  Utils.assert((minBackwardError !== null) || (maxIterationCount !== null));
-
-  let xn = x0;
-  let backwardError = Math.abs(f(xn));
-  let iterationCount = 0;
-
-  while(((minBackwardError === null) || (backwardError > minBackwardError)) && ((maxIterationCount === null) || (iterationCount < maxIterationCount))) {
-    xn = xn - (f(xn) / fPrime(xn));
-    
-    backwardError = Math.abs(f(xn));
-    iterationCount++;
-  }
-
-  return xn;
-}
-
-/**
- * Solves an iteration of an IVP: y' = f(t, y), y(t0) = y0 using the explicit Euler method.
- * @param {Number} yn The value of y after n iterations.
- * @param {Number} tn The value of t after n iterations. Ignored.
- * @param {Number} h The step size (delta t).
- * @param {Number} yPrimeN The expression f(tn, yn).
- */
-export function explicitEulerGivenYPrimeN(yn: number, tn: number, h: number, yPrimeN: number) {
-  return yn + (h * yPrimeN);
-}
-
-/**
- * Solves an iteration of an IVP: y' = f(t, y), y(t0) = y0 using the explicit Euler method.
- * @param {Number} yn The value of y after n iterations.
- * @param {Number} tn The value of t after n iterations.
- * @param {Number} h The step size (delta t).
- * @param {Function} f The function f(t, y) = y'.
- */
-export function explicitEuler(yn: number, tn: number, h: number, f: (t: number, y: number) => number): number {
-  return yn + (h * f(tn, yn));
-}
-
-/**
- * Solves an iteration of an IVP: y' = f(t, y), y(t0) = y0 using the implicit Euler method.
- * @param {Number} yn The value of y after n iterations.
- * @param {Number} tn The value of t after n iterations.
- * @param {Number} h The step size (delta t).
- * @param {Function} f The function f(t, y) = y'.
- * @param {Function} dfdy The derivative of f with respect to y = y''.
- */
-export function implicitEuler(yn: number, tn: number, h: number, f: (t: number, y: number) => number, dfdy: (t: number, y: number) => number, minBackwardError: number | null, maxIterationCount: number | null): number { 
-  const tnPlus1 = tn + h;
-  const rootFn = (ynPlus1: number) => ynPlus1 - yn - (h * f(tnPlus1, ynPlus1));
-  const rootDerivativeFn = (ynPlus1: number) => 1 - (h * dfdy(tnPlus1, ynPlus1));
-  
-  return newtonRaphson(yn, rootFn, rootDerivativeFn, minBackwardError, maxIterationCount);
-}
-
-/**
- * Solves an iteration of an IVP: y' = f(t, y), y(t0) = y0 using the explicit Midpoint method.
- * @param {Number} yn The value of y after n iterations.
- * @param {Number} tn The value of t after n iterations.
- * @param {Number} h The step size (delta t).
- * @param {Function} f The function f(t, y) = y'.
- */
-export function explicitMidpoint(yn: number, tn: number, h: number, f: (t: number, y: number) => number): number {
-  return yn + (h * f(tn + (h / 2), yn + (h / 2) * f(tn, yn)));
-}
-
-/**
- * Solves an iteration of an IVP: y' = f(t, y), y(t0) = y0 using the explicit 4th order Runge-Kutta method.
- * @param {Number} yn The value of y after n iterations.
- * @param {Number} tn The value of t after n iterations.
- * @param {Number} h The step size (delta t).
- * @param {Function} f The function f(t, y) = y'.
- * @returns {Number} y(n + 1)
- */
-export function explicitRk4(yn: number, tn: number, h: number, f: (t: number, y: number) => number): number {
-  const k1 = f(tn, yn);
-  const k2 = f(tn + (h / 2), yn + ((h / 2) * k1));
-  const k3 = f(tn + (h / 2), yn + ((h / 2) * k2));
-  const k4 = f(tn + h, yn + (h * k3));
-
-  return yn + ((h / 6) * (k1 + (2 * k2) + (2 * k3) + k4));
-}
 
 export function angularVelocityToLinearVelocity(radius: number, angularVelocity: number) {
   return angularVelocity * radius;
@@ -164,13 +74,13 @@ export class PendulumSimulator extends React.Component<PendulumSimulatorProps, P
     const oldAngularVelocity = this.pendulumAngularVelocity;
     const oldAngularAcceleration = acceleration(oldAngle);
 
-    const futureAngle = (futureDt: number) => explicitEulerGivenYPrimeN(oldAngle, 0, futureDt, oldAngularVelocity);
-    const futureAngularVelocity = (futureDt: number) => explicitEulerGivenYPrimeN(oldAngularVelocity, 0, futureDt, oldAngularAcceleration);
+    const futureAngle = (futureDt: number) => Numerical.explicitEulerGivenYPrimeN(oldAngle, 0, futureDt, oldAngularVelocity);
+    const futureAngularVelocity = (futureDt: number) => Numerical.explicitEulerGivenYPrimeN(oldAngularVelocity, 0, futureDt, oldAngularAcceleration);
     const futureAngularAcceleration = (futureDt: number) => acceleration(futureAngle(futureDt));
 
-    const newAngle = explicitRk4(oldAngle, 0, dt, (t: number, y: number) => futureAngularVelocity(t));
-    const newAngularVelocity = explicitRk4(oldAngularVelocity, 0, dt, (t: number, y: number) => futureAngularAcceleration(t));
-
+    const newAngle = Numerical.explicitRk4(oldAngle, 0, dt, (t: number, y: number) => futureAngularVelocity(t));
+    const newAngularVelocity = Numerical.explicitRk4(oldAngularVelocity, 0, dt, (t: number, y: number) => futureAngularAcceleration(t));
+    
     this.pendulumAngleInRadians = newAngle;
     this.pendulumAngularVelocity = newAngularVelocity;
 
