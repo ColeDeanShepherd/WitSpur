@@ -9,6 +9,13 @@ export function angularVelocityToLinearVelocity(radius: number, angularVelocity:
   return angularVelocity * radius;
 }
 
+export function rad2Deg(radians: number) {
+  return radians * (180 / Math.PI);
+}
+export function deg2Rad(degrees: number) {
+  return degrees * (Math.PI / 180);
+}
+
 export interface PendulumSimulatorProps {}
 export interface PendulumSimulatorState {}
 
@@ -40,6 +47,9 @@ export class PendulumSimulator extends React.Component<PendulumSimulatorProps, P
     this.state = {};
   }
 
+  getAngularAcceleration(angleInRadians: number) {
+    return -(this.g / this.pendulumStringLength) * Math.sin(angleInRadians);
+  }
   startSimulation() {
     const fixedDt = 1 / 60;
     let accumulatedTime = 0;
@@ -68,7 +78,7 @@ export class PendulumSimulator extends React.Component<PendulumSimulatorProps, P
   }
   update(dt) {
     // Update motion of pendulum.
-    const acceleration = (angleInRadians: number): number => -(this.g / this.pendulumStringLength) * Math.sin(angleInRadians);
+    const acceleration = this.getAngularAcceleration.bind(this);
 
     const oldAngle = this.pendulumAngleInRadians;
     const oldAngularVelocity = this.pendulumAngularVelocity;
@@ -80,7 +90,7 @@ export class PendulumSimulator extends React.Component<PendulumSimulatorProps, P
 
     const newAngle = Numerical.explicitRk4(oldAngle, 0, dt, (t: number, y: number) => futureAngularVelocity(t));
     const newAngularVelocity = Numerical.explicitRk4(oldAngularVelocity, 0, dt, (t: number, y: number) => futureAngularAcceleration(t));
-    
+
     this.pendulumAngleInRadians = newAngle;
     this.pendulumAngularVelocity = newAngularVelocity;
 
@@ -136,6 +146,9 @@ export class PendulumSimulator extends React.Component<PendulumSimulatorProps, P
     let textY = 10;
     let textYSpacing = 15;
 
+    const thetaChar = "\u03B8";
+    const degreesSymbolChar = "\u00B0";
+
     this.canvasContext.fillText("m = " + this.pendulumMass.toFixed(2), textX, textY);
     textY += textYSpacing;
 
@@ -143,6 +156,15 @@ export class PendulumSimulator extends React.Component<PendulumSimulatorProps, P
     textY += textYSpacing;
 
     this.canvasContext.fillText("g = " + this.g.toFixed(2), textX, textY);
+    textY += textYSpacing;
+    
+    this.canvasContext.fillText(thetaChar + " = " + rad2Deg(this.pendulumAngleInRadians).toFixed(2) + degreesSymbolChar, textX, textY);
+    textY += textYSpacing;
+
+    this.canvasContext.fillText(thetaChar + "' = " + rad2Deg(this.pendulumAngularVelocity).toFixed(2) + degreesSymbolChar, textX, textY);
+    textY += textYSpacing;
+
+    this.canvasContext.fillText(thetaChar + "'' = " + rad2Deg(this.getAngularAcceleration(this.pendulumAngleInRadians)).toFixed(2) + degreesSymbolChar, textX, textY);
     textY += textYSpacing;
 
     this.canvasContext.fillText("PE = mgh = " + this.gravitationalPotentialEnergy.toFixed(2), textX, textY);
