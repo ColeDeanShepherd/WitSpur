@@ -110,6 +110,11 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
       MozBoxShadow: boxShadowValue,
       boxShadow: boxShadowValue
     };
+
+    const minCoordinateSliderValue = -50;
+    const maxCoordinateSliderValue = 50;
+    const minBlurSpreadRadiusValue = 0;
+    const maxBlurSpreadRadiusValue = 50;
     
     const shadowEditorHeaderStyle = { width: "100%", height: "auto", backgroundColor: "#2F2F2F", color: "#FFF", padding: "0.5em", cursor: "pointer" };
     const shadowEditorInputContainerStyle = { padding: "0.5em" };
@@ -124,19 +129,19 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
           </div>
           <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Horizontal Offset:</div>
-            <div className="col-1-2"><NumberInput value={shadow.offsetX} onChange={this.onShadowOffsetXChange.bind(this, index)} /></div>
+            <div className="col-1-2"><NumberInput value={shadow.offsetX} onChange={this.onShadowOffsetXChange.bind(this, index)} minSliderValue={minCoordinateSliderValue} maxSliderValue={maxCoordinateSliderValue} /></div>
           </div>
           <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Vertical Offset:</div>
-            <div className="col-1-2"><NumberInput value={shadow.offsetY} onChange={this.onShadowOffsetYChange.bind(this, index)} /></div>
+            <div className="col-1-2"><NumberInput value={shadow.offsetY} onChange={this.onShadowOffsetYChange.bind(this, index)} minSliderValue={minCoordinateSliderValue} maxSliderValue={maxCoordinateSliderValue} /></div>
           </div>
           <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Blur Radius:</div>
-            <div className="col-1-2"><NumberInput value={shadow.blurRadius} onChange={this.onShadowBlurRadiusChange.bind(this, index)} /></div>
+            <div className="col-1-2"><NumberInput value={shadow.blurRadius} onChange={this.onShadowBlurRadiusChange.bind(this, index)} minSliderValue={minBlurSpreadRadiusValue} maxSliderValue={maxBlurSpreadRadiusValue} /></div>
           </div>
           <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Spread Radius:</div>
-            <div className="col-1-2"><NumberInput value={shadow.spreadRadius} onChange={this.onShadowSpreadRadiusChange.bind(this, index)} /></div>
+            <div className="col-1-2"><NumberInput value={shadow.spreadRadius} onChange={this.onShadowSpreadRadiusChange.bind(this, index)} minSliderValue={minBlurSpreadRadiusValue} maxSliderValue={maxBlurSpreadRadiusValue} /></div>
           </div>
           <div className="row no-padding" style={shadowEditorInputRowStyle}>
             <div className="col-1-2" style={{alignSelf: "center"}}>Is Inset:</div>
@@ -160,7 +165,7 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
 
     return (
       <div className="row">
-        <div className="col css-box-shadow-editor-col" style={{padding: 0}}>
+        <div className="col tool-sidebar" style={{padding: 0}}>
           <div className="card">
             <div className="row no-padding" style={{marginBottom: "0.5em"}}>
               <div className="col-1-2" style={{alignSelf: "center"}}>Background Color:</div>
@@ -173,7 +178,7 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
 
         <div className="col" style={{flexGrow: 1}}>
           <div className="card" style={{backgroundColor: this.state.backgroundColor, padding: "5em 1em"}}>
-            <div style={{width: "200px", height: "200px", backgroundColor: "#BBB", margin: "0 auto", borderRadius: "4px", ...boxShadowStyle}} />
+            <div style={{width: "150px", height: "150px", backgroundColor: "#BBB", margin: "0 auto", borderRadius: "4px", ...boxShadowStyle}} />
           </div>
           <textarea value={boxShadowRulesText} readOnly style={{width: "100%", height: "150px", marginTop: "1em"}} />
         </div>

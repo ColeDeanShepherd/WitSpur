@@ -1,3 +1,20 @@
+/* Variables */
+$mobileMaxWidth = 768px;
+
+$backgroundColor = #F4F4F4;
+$linkColor = #72BBDD;
+$containerPaddingCompact = 0.5em;
+$containerPadding = 1em;
+$defaultBorderColor = #CCC;
+$defaultBorderRadius = 4px;
+$headerColor = #2F2F2F;
+$cardBackgroundColor = #FFF;
+
+body {
+  background-color: $backgroundColor;
+  font-family: sans-serif;
+}
+
 div,
 img,
 table,
@@ -7,7 +24,7 @@ textarea {
 }
 
 a {
-  color: #72BBDD;
+  color: $linkColor;
   text-decoration: none;
 }
 
@@ -19,20 +36,21 @@ table {
   background-color: #FFF;
   border-collapse: collapse;
   width: 100%;
-}
 
-table td {
-  border-radius: 0;
+  td {
+    border-radius: 0;
+  }
 }
 
 table td,
 input[type="text"],
 input[type="number"],
-textarea {
+textarea,
+select {
   background-color: #FFF;
-  padding: 0.5em;
-  border: 1px solid #CCC;
-  border-radius: 4px;
+  padding: $containerPaddingCompact;
+  border: 1px solid $defaultBorderColor;
+  border-radius: $defaultBorderRadius;
 }
 
 input[type="text"],
@@ -43,19 +61,15 @@ textarea {
 
 button {
   background-color: #0095FF;
-  padding: 0.5em;
+  padding: $containerPaddingCompact;
   border: 1px solid #07C;
-  border-radius: 4px;
+  border-radius: $defaultBorderRadius;
   color: #FFF;
   cursor: pointer;
-}
-button:hover {
-  background-color: #07C;
-}
 
-body {
-  background-color: #F4F4F4;
-  font-family: sans-serif;
+  &:hover {
+    background-color: #07C;
+  }
 }
 
 .light-above,
@@ -65,82 +79,90 @@ body {
 }
 
 .card {
-  background-color: #FFF;
+  background-color: $cardBackgroundColor;
   text-align: left;
-  padding: 1em;
-  border-radius: 4px;
+  padding: $containerPadding;
+  border-radius: $defaultBorderRadius;
 }
 
 .header {
   display: flex;
   align-items: center;
-  background-color: #2F2F2F;
+  background-color: $headerColor;
   height: 40px;
-}
-.header .logo {
-  font-size: 1.5em;
-  margin-left: 0.25em;
-}
-.header .logo a {
-  color: #FFF;
-  text-decoration: none;
-}
-.header .logo a:hover {
-  color: #AAA;
+
+  .logo {
+    font-size: 1.5em;
+    margin-left: 0.25em;
+
+    a {
+      color: #FFF;
+      text-decoration: none;
+
+      &:hover {
+        color: #AAA;
+      }
+    }
+  }
+
+  &.front-page {
+    display: block;
+    background-color: transparent;
+    font-size: 2em;
+    text-align: center;
+    padding: 1em 0 2em 0;
+    box-shadow: none;
+    height: auto;
+
+    .logo {
+      margin-bottom: 0.25em;
+
+      a {
+        color: #000;
+        text-decoration: none;
+      }
+    }
+  }
 }
 
 .sub-header {
   display: none;
-}
 
-.header.front-page {
-  display: block;
-  background-color: transparent;
-  font-size: 2em;
-  text-align: center;
-  padding: 1em 0 2em 0;
-  box-shadow: none;
-  height: auto;
-}
-.header.front-page .logo {
-  margin-bottom: 0.25em;
-}
-.header.front-page .logo a {
-  color: #000;
-  text-decoration: none;
-}
-
-.sub-header.front-page {
-  display: block;
-  font-size: 1.5rem;
-  text-align: center;
-  margin-bottom: 0.5em;
+  &.front-page {
+    display: block;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 0.5em;
+  }
 }
 
 .nav {
   display: none;
-}
-.nav li a {
-  color: white;
-  font-size: 1.25em;
-  margin: 0 2em 0 3em;
+
+  li a {
+    color: white;
+    font-size: 1.25em;
+    margin: 0 2em 0 3em;
+  }
 }
 
 .social-sharing-icons {
   list-style-type: none;
   padding: 0;
   margin: 0 0 0 1em;
-}
-.social-sharing-icons li {
-  display: inline;
-  margin-left: 1rem;
+
+  li {
+    display: inline;
+    margin-left: 1rem;
+
+    a img {
+      width: 30px;
+      height: 30px;
+    }
+  }
 }
 .header.front-page .social-sharing-icons li:first-child {
   margin-left: 0;
-}
-.social-sharing-icons li a img {
-  width: 30px;
-  height: 30px;
 }
 
 .footer {
@@ -149,7 +171,7 @@ body {
 
 .centered-content-container {
   max-width: 1140px;
-  padding: 0 1em;
+  padding: 0 $containerPadding;
   margin: 0 auto;
 }
 
@@ -158,24 +180,26 @@ body {
   text-align: center;
   padding-bottom: 0;
   margin-bottom: 1em;
-}
-.tool-card a {
-  display: flex;
-  flex-direction: column;
-  color: #000;
-  font-size: 1.2em;
-  text-decoration: none;
-}
-.tool-card a .thumbnail {
-  display: block;
-  width: 100%;
-  min-height: 1px; /* Thanks IE! */
-  height: auto;
-  border: 1px solid #CCC;
-}
-.tool-card .tool-name {
-  width: 100%;
-  padding: 1em 0;
+
+  a {
+    display: flex;
+    flex-direction: column;
+    color: #000;
+    font-size: 1.2em;
+    text-decoration: none;
+
+    .thumbnail {
+      display: block;
+      width: 100%;
+      min-height: 1px; /* Thanks IE! */
+      height: auto;
+      border: 1px solid $defaultBorderColor;
+    }
+  }
+  .tool-name {
+    width: 100%;
+    padding: $containerPadding 0;
+  }
 }
 
 .arrow-head {
@@ -183,29 +207,30 @@ body {
   border-width: 0 3px 3px 0;
   display: inline-block;
   padding: 3px;
-}
-.arrow-head.right {
-  transform: rotate(-45deg);
-  -webkit-transform: rotate(-45deg);
-}
-.arrow-head.left {
-  transform: rotate(135deg);
-  -webkit-transform: rotate(135deg);
-}
-.arrow-head.up {
-  transform: rotate(-135deg);
-  -webkit-transform: rotate(-135deg);
-}
-.arrow-head.down {
-  transform: rotate(45deg);
-  -webkit-transform: rotate(45deg);
+
+  &.right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+  }
+  &.left {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+  }
+  &.up {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+  }
+  &.down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+  }
 }
 
-.css-box-shadow-editor-col {
+.col.tool-sidebar {
   margin-bottom: 1em;
 }
 
-@media (min-width: 768px) {
+@media (min-width: $mobileMaxWidth) {
   .row {
     display: flex;
     flex-direction: row;
@@ -233,7 +258,7 @@ body {
     width: 33%;
   }
 
-  .css-box-shadow-editor-col {
+  .col.tool-sidebar {
     width: 360px;
     margin: 0;
   }

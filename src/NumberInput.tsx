@@ -2,12 +2,23 @@ import * as React from "react";
 
 export interface NumberInputProps {
   value: number,
-  onChange: (newValue: number | null, newValueString: string) => void
+  onChange?: (newValue: number | null, newValueString: string) => void,
+  showSlider?: boolean,
+  minSliderValue?: number,
+  maxSliderValue?: number,
+  sliderStepSize?: number
 }
 export interface NumberInputState {
   valueString: string
 }
 export class NumberInput extends React.Component<NumberInputProps, NumberInputState> {
+  public static defaultProps: Partial<NumberInputProps> = {
+    showSlider: true,
+    minSliderValue: 0,
+    maxSliderValue: 100,
+    sliderStepSize: 1
+  };
+
   constructor(props: NumberInputProps) {
     super(props);
 
@@ -22,7 +33,7 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
     }
   }
   tryParseValue(valueString: string): number {
-    return parseInt(valueString);
+    return parseFloat(valueString);
   }
   // on props updated update valuestring
 
@@ -39,6 +50,11 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
     const style = isNaN(this.tryParseValue(this.state.valueString)) ? { borderColor: "red" } : {};
     //const style = isNaN(this.tryParseValue(this.state.valueString)) ? { backgroundColor: "#FFB3B3" } : {};
 
-    return <input type="number" value={this.state.valueString} onChange={this.onValueStringChange.bind(this)} style={style} />;
+    return (
+      <span>
+        <input type="number" value={this.state.valueString} onChange={this.onValueStringChange.bind(this)} style={style} />
+        {this.props.showSlider ? <input type="range" min={this.props.minSliderValue} max={this.props.maxSliderValue} step={this.props.sliderStepSize} value={this.state.valueString} onChange={this.onValueStringChange.bind(this)} style={{width: "100%", paddingTop: "0.5em"}} /> : null}
+      </span>
+    );
   }
 }

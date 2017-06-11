@@ -563,7 +563,7 @@ export class UnitConverter extends React.Component<UnitConverterProps, UnitConve
     return (
       <div>
         {capitalizeWord(unit.name)}
-        <NumberInput value={this.state[unit.name + "s"]} onChange={this.onUnitValueChange.bind(this, unit, units)} />
+        <NumberInput value={this.state[unit.name + "s"]} onChange={this.onUnitValueChange.bind(this, unit, units)} minSliderValue={0} maxSliderValue={10000} />
       </div>
     );
   }

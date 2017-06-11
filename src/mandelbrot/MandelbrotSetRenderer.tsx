@@ -3,6 +3,8 @@ import * as React from "react";
 import * as Utils from "../Utils";
 import { Complex, add, subtract, multiply, abs } from "../Complex";
 import * as Color from "../Color";
+import { NumberInput } from "../NumberInput";
+import { ColorInput } from "../ColorInput";
 
 function createMandelbrotSetImageDataPart(widthInPixels: number, heightInPixels: number, widthInUnits: number, heightInUnits: number, centerPosition: Complex, maxIterationCount: number, hue: number, saturation: number, startRowIndex: number, rowCount: number): Uint8ClampedArray {
   const widthOfPixelInUnits = widthInUnits / widthInPixels;
@@ -66,12 +68,14 @@ function createMandelbrotSetImageDataPart(widthInPixels: number, heightInPixels:
 export interface MandelbrotSetRendererProps {
   width: number;
   height: number;
-  supersamplingAmount: number;
   heightInUnits: number;
   centerPosition: Complex;
-  maxIterationCount: number;
   hue: number;
   saturation: number;
+  maxIterationCount: number;
+  supersamplingAmount: number;
+
+  onCenterPositionChange: (newValue: Complex) => void
 }
 export interface MandelbrotSetRendererState {}
 
@@ -83,6 +87,31 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     super(props);
 
     this.state = {};
+  }
+
+  getComplexCoordinates(pixelX: number, pixelY: number): Complex {
+    if(!this.canvasContext) { return new Complex(0, 0); }
+
+    const widthOfCanvasInPixels = this.getSupersampledWidth();
+    const heightOfCanvasInPixels = this.getSupersampledHeight();
+
+    const canvasAspectRatio = widthOfCanvasInPixels / heightOfCanvasInPixels;
+
+    const heightOfCanvasInUnits = this.props.heightInUnits;
+    const widthOfCanvasInUnits = canvasAspectRatio * heightOfCanvasInUnits;
+
+    const centerPosition = this.props.centerPosition;
+
+    const widthOfPixelInUnits = widthOfCanvasInUnits / widthOfCanvasInPixels;
+    const heightOfPixelInUnits = heightOfCanvasInUnits / heightOfCanvasInPixels;
+    
+    const topLeftPosition = add(centerPosition, new Complex(-(widthOfCanvasInUnits / 2), heightOfCanvasInUnits / 2));
+    const topLeftPixelCenterPosition = add(topLeftPosition, new Complex(widthOfPixelInUnits / 2, -(heightOfPixelInUnits / 2)));
+
+    const re = topLeftPixelCenterPosition.re + (pixelX * widthOfPixelInUnits);
+    const im = topLeftPixelCenterPosition.im - (pixelY * heightOfPixelInUnits);
+
+    return new Complex(re, im);
   }
   getSupersampledWidth(): number {
     return this.props.supersamplingAmount * this.props.width;
@@ -136,6 +165,25 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     }
   }
 
+  onCanvasClick(event: any) {
+    const scrolledCanvasBoundingRect = this.canvasDomElement.getBoundingClientRect();
+    const canvasResolutionScaleX = this.canvasDomElement.width / scrolledCanvasBoundingRect.width;
+    const canvasResolutionScaleY = this.canvasDomElement.height / scrolledCanvasBoundingRect.height;
+
+    const scrolledCursorPositionX = event.clientX;
+    const scrolledCursorPositionY = event.clientY;
+
+    const unscaledCursorPositionInCanvasX = scrolledCursorPositionX - scrolledCanvasBoundingRect.left;
+    const unscaledCursorPositionInCanvasY = scrolledCursorPositionY - scrolledCanvasBoundingRect.top;
+
+    const scaledCursorPositionInCanvasX = unscaledCursorPositionInCanvasX * canvasResolutionScaleX;
+    const scaledCursorPositionInCanvasY = unscaledCursorPositionInCanvasY * canvasResolutionScaleY;
+
+    const newCenterPosition = this.getComplexCoordinates(scaledCursorPositionInCanvasX, scaledCursorPositionInCanvasY);
+
+    this.props.onCenterPositionChange(newCenterPosition);
+  }
+
   componentDidMount() {
     const context = this.canvasDomElement.getContext("2d");
     if(!context) { return; }
@@ -154,7 +202,7 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     };
 
     return (
-      <canvas ref={canvas => this.canvasDomElement = canvas} width={this.getSupersampledWidth()} height={this.getSupersampledHeight()} style={canvasStyle}>
+      <canvas ref={canvas => this.canvasDomElement = canvas} width={this.getSupersampledWidth()} height={this.getSupersampledHeight()} onClick={this.onCanvasClick.bind(this)} style={canvasStyle}>
         Your browser does not support the canvas tag. Please upgrade your browser.
       </canvas>
     );
@@ -164,79 +212,120 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
 export interface MandelbrotSetRendererEditorProps {
 }
 export interface MandelbrotSetRendererEditorState {
-  componentProps: MandelbrotSetRendererProps
+  componentProps: MandelbrotSetRendererProps,
+  color: Color.Color
 }
 
 export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRendererEditorProps, MandelbrotSetRendererEditorState> {
   constructor(props: MandelbrotSetRendererEditorProps) {
     super(props);
 
+    const hue = 0.66;
+    const saturation = 0.5;
+
     this.state = {
       componentProps: {
         width: 640,
         height: 480,
-        supersamplingAmount: 1,
         heightInUnits: 3,
         centerPosition: new Complex(-0.75, 0),
-        maxIterationCount: 50,
-        hue: 0.66,
-        saturation: 0.5
-      }
+        hue: hue,
+        saturation: saturation,
+        maxIterationCount: 100,
+        supersamplingAmount: 2,
+        onCenterPositionChange: this.onCenterPositionChange.bind(this)
+      },
+      color: this.hsToColor(hue, saturation)
     };
   }
-  onWidthChange(event: any) {
-    const newComponentProps = { ...this.state.componentProps, width: parseFloat(event.target.value) };
+
+  hsToColor(hue: number, saturation: number): Color.Color {
+    const rgb = Color.hslToRgb(hue, saturation, 0.5);
+    return new Color.Color(rgb[0], rgb[1], rgb[2], 1);
+  }
+
+  onWidthChange(newValue: number | null, newValueString: string) {
+    if(newValue === null) { return; }
+
+    const newComponentProps = { ...this.state.componentProps, width: newValue };
     this.setState({ componentProps: newComponentProps });
   }
-  onHeightChange(event: any) {
-    const newComponentProps = { ...this.state.componentProps, height: parseFloat(event.target.value) };
+  onHeightChange(newValue: number | null, newValueString: string) {
+    if(newValue === null) { return; }
+    
+    const newComponentProps = { ...this.state.componentProps, height: newValue };
     this.setState({ componentProps: newComponentProps });
   }
-  onSupersamplingAmountChange(event: any) {
-    const newComponentProps = { ...this.state.componentProps, supersamplingAmount: parseInt(event.target.value) };
+  onHeightInUnitsChange(newValue: number | null, newValueString: string) {
+    if(newValue === null) { return; }
+    
+    const newComponentProps = { ...this.state.componentProps, heightInUnits: newValue };
     this.setState({ componentProps: newComponentProps });
   }
-  onHeightInUnitsChange(event: any) {
-    const newComponentProps = { ...this.state.componentProps, heightInUnits: parseFloat(event.target.value) };
-    this.setState({ componentProps: newComponentProps });
-  }
-  onCenterPositionXChange(event: any) {
-    const newCenterPosition = new Complex(parseFloat(event.target.value), this.state.componentProps.centerPosition.im);
+  onCenterPositionXChange(newValue: number | null, newValueString: string) {
+    if(newValue === null) { return; }
+    
+    const newCenterPosition = new Complex(newValue, this.state.componentProps.centerPosition.im);
     const newComponentProps = { ...this.state.componentProps, centerPosition: newCenterPosition };
     this.setState({ componentProps: newComponentProps });
   }
-  onCenterPositionYChange(event: any) {
-    const newCenterPosition = new Complex(this.state.componentProps.centerPosition.re, parseFloat(event.target.value));
+  onCenterPositionYChange(newValue: number | null, newValueString: string) {
+    if(newValue === null) { return; }
+    
+    const newCenterPosition = new Complex(this.state.componentProps.centerPosition.re, newValue);
     const newComponentProps = { ...this.state.componentProps, centerPosition: newCenterPosition };
     this.setState({ componentProps: newComponentProps });
   }
-  onMaxIterationCountChange(event: any) {
-    const newComponentProps = { ...this.state.componentProps, maxIterationCount: parseInt(event.target.value) };
+  onCenterPositionChange(newValue: Complex) {
+    const newComponentProps = { ...this.state.componentProps, centerPosition: newValue };
     this.setState({ componentProps: newComponentProps });
   }
-  onHueChange(event: any) {
-    const newComponentProps = { ...this.state.componentProps, hue: parseFloat(event.target.value) };
+  onColorChange(newValue: Color.Color) {
+    const hsl = Color.rgbToHsl(newValue.r, newValue.g, newValue.b);
+    const newComponentProps = { ...this.state.componentProps, hue: hsl[0], saturation: hsl[1] };
+
+    this.setState({ componentProps: newComponentProps, color: newValue });
+  }
+  onMaxIterationCountChange(newValue: number | null, newValueString: string) {
+    if(newValue === null) { return; }
+    
+    const newComponentProps = { ...this.state.componentProps, maxIterationCount: newValue };
     this.setState({ componentProps: newComponentProps });
   }
-  onSaturationChange(event: any) {
-    const newComponentProps = { ...this.state.componentProps, saturation: parseFloat(event.target.value) };
+  onSupersamplingAmountChange(newValue: number | null, newValueString: string) {
+    if(newValue === null) { return; }
+    
+    const newComponentProps = { ...this.state.componentProps, supersamplingAmount: newValue };
     this.setState({ componentProps: newComponentProps });
   }
 
   render() {
-    return (
-      <div>
-        Width: <input type="number" value={this.state.componentProps.width} onChange={this.onWidthChange.bind(this)} /><br />
-        Height: <input type="number" value={this.state.componentProps.height} onChange={this.onHeightChange.bind(this)} /><br />
-        Supersampling Amount: <input type="number" value={this.state.componentProps.supersamplingAmount} onChange={this.onSupersamplingAmountChange.bind(this)} /><br />
-        Height In Units: <input type="number" value={this.state.componentProps.heightInUnits} onChange={this.onHeightInUnitsChange.bind(this)} /><br />
-        x (real coordinate): <input type="number" value={this.state.componentProps.centerPosition.re} onChange={this.onCenterPositionXChange.bind(this)} /><br />
-        y (imaginary coordinate): <input type="number" value={this.state.componentProps.centerPosition.im} onChange={this.onCenterPositionYChange.bind(this)} /><br />
-        Max. Iteration Count: <input type="number" value={this.state.componentProps.maxIterationCount} onChange={this.onMaxIterationCountChange.bind(this)} /><br />
-        Hue: <input type="number" value={this.state.componentProps.hue} onChange={this.onHueChange.bind(this)} /><br />
-        Saturation: <input type="number" value={this.state.componentProps.saturation} onChange={this.onSaturationChange.bind(this)} /><br />
+    /*
+    Width: <NumberInput value={this.state.componentProps.width} onChange={this.onWidthChange.bind(this)} /><br />
+    Height: <NumberInput value={this.state.componentProps.height} onChange={this.onHeightChange.bind(this)} /><br />
+    Supersampling Amount: <NumberInput value={this.state.componentProps.supersamplingAmount} onChange={this.onSupersamplingAmountChange.bind(this)} /><br />
+    */
 
-        {React.createElement(MandelbrotSetRenderer, this.state.componentProps)}
+    const minCoordinateSliderValue = -10;
+    const maxCoordinateSliderValue = 10;
+    
+    return (
+      <div className="row">
+        <div className="col tool-sidebar">
+          <div className="card">
+            View Height In Units: <NumberInput value={this.state.componentProps.heightInUnits} onChange={this.onHeightInUnitsChange.bind(this)} showSlider={false} /><br />
+            x (real coordinate): <NumberInput value={this.state.componentProps.centerPosition.re} onChange={this.onCenterPositionXChange.bind(this)} showSlider={false} /><br />
+            y (imaginary coordinate): <NumberInput value={this.state.componentProps.centerPosition.im} onChange={this.onCenterPositionYChange.bind(this)} showSlider={false} /><br />
+            Color: <ColorInput value={this.state.color} onChange={this.onColorChange.bind(this)} /><br />
+            Max. Iteration Count: <NumberInput value={this.state.componentProps.maxIterationCount} onChange={this.onMaxIterationCountChange.bind(this)} showSlider={false} /><br />
+          </div>
+        </div>
+
+        <div className="col" style={{flexGrow: 1}}>
+          <div className="card" style={{display: "inline-block"}}>
+            {React.createElement(MandelbrotSetRenderer, this.state.componentProps)}
+          </div>
+        </div>
       </div>
     );
   }

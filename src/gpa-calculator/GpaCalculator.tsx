@@ -100,7 +100,7 @@ export class GpaCalculator extends React.Component<GpaCalculatorProps, GpaCalcul
           </select>
         </td>
         <td style={tdStyle}>
-          <NumberInput value={gpaRow.creditHours} onChange={this.onCreditHoursChange.bind(this, index)} />
+          <NumberInput value={gpaRow.creditHours} onChange={this.onCreditHoursChange.bind(this, index)} showSlider={false} />
         </td>
         <td style={tdStyle}>
           <button onClick={this.removeRow.bind(this, index)}>X</button>
