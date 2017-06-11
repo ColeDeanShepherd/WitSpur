@@ -25,12 +25,17 @@
     "outputFileName": "gpa-calculator"
   },
   {
+    "name": "Sight Reading Exercises",
+    "contentsFilePath": "sight-reading-exercises/sight-reading-exercises.html",
+    "outputFileName": "sight-reading-exercises"
+  },
+
+
+  {
     "name": "Pendulum Simulator",
     "contentsFilePath": "pendulum-simulator/pendulum-simulator.html",
     "outputFileName": "pendulum-simulator"
   },
-  
-
   {
     "name": "Unit Converter",
     "contentsFilePath": "unit-converter/unit-converter.html",

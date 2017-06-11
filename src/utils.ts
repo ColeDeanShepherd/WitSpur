@@ -25,6 +25,15 @@ export class IntRange {
     this.start = start;
     this.count = count;
   }
+  toArray(): number[] {
+    let array = new Array<number>(this.count);
+
+    for(let i = 0; i < this.count; i++) {
+      array[i] = this.start + i;
+    }
+
+    return array;
+  }
 }
 export function splitRangeIntoSubRanges(range: IntRange, subRangeCount: number): IntRange[] {
   const countPerRangeEvenDistribution = Math.floor(range.count / subRangeCount);

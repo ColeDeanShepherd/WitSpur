@@ -48,7 +48,7 @@ function createMandelbrotSetImageDataPart(widthInPixels: number, heightInPixels:
       }
       
       const colorI = n - 1; // [0, maxIterationCount]
-      const lightness = (colorI === maxIterationCount) ? 0 : (colorI / (maxIterationCount - 1));
+      const lightness = (colorI === maxIterationCount) ? 0 : Math.sqrt(colorI / (maxIterationCount - 1));
       Color.hslToRgbRef(hue, saturation, lightness, pixelRgb);
 
       // set pixel of image
