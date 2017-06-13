@@ -7,6 +7,10 @@ export function assert(condition: boolean) {
   }
 }
 
+export function assertUnreachable(x: never): never {
+  throw new Error("Failed unreachable assertion.");
+}
+
 export function reduceObjectPropertyNames<T>(iteratee: (accumulator: T, propertyName: string) => T, obj: object, initialValue: T): T {
   let accumulator = initialValue;
   
