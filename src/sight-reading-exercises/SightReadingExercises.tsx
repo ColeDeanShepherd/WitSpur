@@ -172,19 +172,24 @@ export class Pitch {
     return new Pitch(pitchClass, octaveNumber);
   }
 
-  constructor(public pitchClass: PitchClass, public octaveNumber: number) {}
-  get midiNoteNumber(): number {
+  public constructor(public pitchClass: PitchClass, public octaveNumber: number) {}
+  public get midiNoteNumber(): number {
     return midiNoteNumber(this);
   }
-  toString() {
+  public toString() {
     return pitchClassToString(this.pitchClass) + this.octaveNumber;
   }
 }
 
+export const highestLedgerLinePitchBelowBassClef = new Pitch(PitchClass.E, 2);
 export const bassClefLowestPitch = new Pitch(PitchClass.G, 2);
 export const bassClefHighestPitch = new Pitch(PitchClass.A, 3);
 export const trebleClefLowestPitch = new Pitch(PitchClass.E, 4);
 export const trebleClefHighestPitch = new Pitch(PitchClass.F, 5);
+export const lowestLedgerLinePitchAboveTrebleClef = new Pitch(PitchClass.A, 5);
+
+export const lowestPitchOn88KeyPiano = new Pitch(PitchClass.A, 0);
+export const highestPitchOn88KeyPiano = new Pitch(PitchClass.C, 8);
 
 export function isNatural(pitch: Pitch): boolean {
   return !isAccidental(pitch);
@@ -276,10 +281,10 @@ export function getVisibleLedgerLinesForPitch(pitch: Pitch): Pitch[] {
     return [Pitch.middleC];
   }
 
-  if(pitch.midiNoteNumber > trebleClefHighestPitch.midiNoteNumber) {
+  if(pitch.midiNoteNumber >= lowestLedgerLinePitchAboveTrebleClef.midiNoteNumber) {
     let ledgerLines: Pitch[] = [];
 
-    for(let midiNoteNumber = trebleClefHighestPitch.midiNoteNumber + 1; midiNoteNumber <= pitch.midiNoteNumber; midiNoteNumber++) {
+    for(let midiNoteNumber = lowestLedgerLinePitchAboveTrebleClef.midiNoteNumber; midiNoteNumber <= pitch.midiNoteNumber; midiNoteNumber++) {
       const currentPitch = Pitch.fromMidiNoteNumber(midiNoteNumber);
 
       if(isOnLedgerLineInGrandStaff(currentPitch)) {
@@ -290,10 +295,10 @@ export function getVisibleLedgerLinesForPitch(pitch: Pitch): Pitch[] {
     return ledgerLines;
   }
 
-  if(pitch.midiNoteNumber < bassClefLowestPitch.midiNoteNumber) {
+  if(pitch.midiNoteNumber <= highestLedgerLinePitchBelowBassClef.midiNoteNumber) {
     let ledgerLines: Pitch[] = [];
 
-    for(let midiNoteNumber = bassClefLowestPitch.midiNoteNumber - 1; midiNoteNumber >= pitch.midiNoteNumber; midiNoteNumber--) {
+    for(let midiNoteNumber = highestLedgerLinePitchBelowBassClef.midiNoteNumber; midiNoteNumber >= pitch.midiNoteNumber; midiNoteNumber--) {
       const currentPitch = Pitch.fromMidiNoteNumber(midiNoteNumber);
 
       if(isOnLedgerLineInGrandStaff(currentPitch)) {
@@ -305,6 +310,28 @@ export function getVisibleLedgerLinesForPitch(pitch: Pitch): Pitch[] {
   }
   
   return [];
+}
+
+export function randomFloat(inclusiveMin: number, exclusiveMax: number): number {
+  Utils.assert(inclusiveMin <= exclusiveMax);
+
+  return inclusiveMin + (Math.random() * (exclusiveMax - inclusiveMin));
+}
+export function randomInt(inclusiveMin: number, inclusiveMax: number): number {
+  Utils.assert(inclusiveMin <= inclusiveMax);
+
+  return inclusiveMin + Math.floor(Math.random() * (inclusiveMax - inclusiveMin + 1));
+}
+
+export function getRandomPitch(lowestPitch: Pitch, highestPitch: Pitch): Pitch {
+  Utils.assert(lowestPitch.midiNoteNumber <= highestPitch.midiNoteNumber);
+  
+  const pitchDistanceInSemitones = highestPitch.midiNoteNumber - lowestPitch.midiNoteNumber;
+
+  return Pitch.fromMidiNoteNumber(randomInt(lowestPitch.midiNoteNumber, highestPitch.midiNoteNumber));
+}
+export function getRandomPitchOn88KeyPiano(): Pitch {
+  return getRandomPitch(lowestPitchOn88KeyPiano, highestPitchOn88KeyPiano);
 }
 
 export function renderStaff(width: number, height: number, x: number, y: number): JSX.Element {
@@ -322,118 +349,182 @@ export function renderStaff(width: number, height: number, x: number, y: number)
   );
 }
 
-export function renderGrandStaffWithNote(width: number, height: number, x: number, y: number, notePitch: Pitch) {
-  const staffHeightsInTotalHeight = 8; // treble, bass, margin between treble & bass, "staff" above treble, "staff" below bass, two spaces above treble + two spaces below bass, staff of padding at top and bottom
-  const heightPerStaff = height / staffHeightsInTotalHeight;
-  const lineWidth = 2;
+export class OneMeasureGrandStaffLayout {
+  // public readonly : number;
+  public readonly containerWidth: number;
+  public readonly containerHeight: number;
 
-  const clefMarginLeft = 5;
-  const spaceCount = 4;
-  const distanceBetweenLinesInStaff = (heightPerStaff - lineWidth) / spaceCount;
+  public readonly lineWidth: number;
 
-  const trebleStaffX = 0;
-  const trebleStaffY = 2.5 * heightPerStaff;
-  const bassStaffX = trebleStaffX;
-  const bassStaffY = trebleStaffY + (2 * heightPerStaff);
+  public readonly heightPerStaff: number;
 
-  const trebleClefAspectRatio = 23.872036 / 65.035126;
-  const trebleClefHeight = 1.5 * heightPerStaff;
-  const trebleClefWidth = trebleClefAspectRatio * trebleClefHeight;
-  const trebleClefAnchorYPercent = 0.64;
-  const topTrebleClefLineY = trebleStaffY + (lineWidth / 2);
-  const trebleClefAnchorY = topTrebleClefLineY + (3 * distanceBetweenLinesInStaff);
-  const trebleClefLeftX = trebleStaffX + clefMarginLeft;
-  const trebleClefTopY = trebleClefAnchorY - (trebleClefAnchorYPercent * trebleClefHeight);
-  const lowestTrebleClefPitch = new Pitch(PitchClass.C, 4);
-  const bottomTrebleClefLinePitch = new Pitch(PitchClass.E, 4);
-  const bottomTrebleClefLineY = topTrebleClefLineY + (4 * distanceBetweenLinesInStaff);
+  public readonly trebleStaffLeftX: number;
+  public readonly trebleStaffTopY: number;
+  public readonly trebleStaffBottomY: number;
 
-  const bassClefAspectRatio = 18 / 20;
-  const bassClefHeight = (3 / 4) * heightPerStaff;
-  const bassClefWidth = bassClefAspectRatio * bassClefHeight;
-  const bassClefAnchorYPercent = 0.3;
-  const topBassClefLineY = bassStaffY + (lineWidth / 2);
-  const bassClefAnchorY = topBassClefLineY + distanceBetweenLinesInStaff;
-  const bassClefLeftX = bassStaffX + clefMarginLeft;
-  const bassClefTopY = bassClefAnchorY - (bassClefAnchorYPercent * bassClefHeight);
-  const lastBassClefPitch = new Pitch(PitchClass.B, 3);
-  const bottomBassClefLinePitch = new Pitch(PitchClass.G, 2);
-  const bottomBassClefLineY = topBassClefLineY + (4 * distanceBetweenLinesInStaff);
+  public readonly bassStaffLeftX: number;
+  public readonly bassStaffTopY: number;
+  public readonly bassStaffBottomY: number;
 
-  const staffConnectingLineX1 = lineWidth / 2;
-  const staffConnectingLineY1 = trebleStaffY;
-  const staffConnectingLineX2 = staffConnectingLineX1;
-  const staffConnectingLineY2 = bassStaffY + heightPerStaff;
-  
-  const quarterNoteAspectRatio = 14.565798 / 41.169685;
-  const quarterNoteHeight = heightPerStaff;
-  const quarterNoteWidth = quarterNoteAspectRatio * quarterNoteHeight;
-  const quarterNoteAnchorXPercent = 0.5;
-  const quarterNoteAnchorYPercent = 0.85;
+  public readonly staffSpaceHeight: number;
 
-  const sharpSymbolAspectRatio = 6.8493137 / 18.679947;
-  const sharpSymbolHeight = (3 / 4) * heightPerStaff;
-  const sharpSymbolWidth = sharpSymbolAspectRatio * sharpSymbolHeight;
-  const sharpSymbolAnchorXPercent = 0.5;
-  const sharpSymbolAnchorYPercent = 0.5;
+  public readonly trebleClefWidth: number;
+  public readonly trebleClefHeight: number;
 
-  const flatSymbolAspectRatio = 5.6537971 / 15.641341;
-  const flatSymbolHeight = (3 / 4) * heightPerStaff;
-  const flatSymbolWidth = flatSymbolAspectRatio * flatSymbolHeight;
-  const flatSymbolAnchorXPercent = 0.5;
-  const flatSymbolAnchorYPercent = 0.8;
+  public readonly bassClefWidth: number;
+  public readonly bassClefHeight: number;
 
-  const pitchToY = (pitch: Pitch) => {
-    const isNoteOnTrebleClef = pitch.midiNoteNumber >= lowestTrebleClefPitch.midiNoteNumber;
-    const clefBottomLinePitch = isNoteOnTrebleClef ? bottomTrebleClefLinePitch : bottomBassClefLinePitch;
-    const clefBottomLineY = isNoteOnTrebleClef ? bottomTrebleClefLineY : bottomBassClefLineY;
-    return clefBottomLineY - (getOffsetInNaturalPitches(clefBottomLinePitch, pitch) * (distanceBetweenLinesInStaff / 2));
+  public readonly quarterNoteWidth: number;
+  public readonly quarterNoteHeight: number;
+
+  public readonly sharpSymbolWidth: number;
+  public readonly sharpSymbolHeight: number;
+
+  public readonly flatSymbolWidth: number;
+  public readonly flatSymbolHeight: number;
+
+  public readonly ledgerLineWidth: number;
+
+  public constructor(containerWidth: number, containerHeight: number, lineWidth: number) {
+    this.containerWidth = containerWidth;
+    this.containerHeight = containerHeight;
+    
+    this.lineWidth = lineWidth;
+
+    const containerPaddingTopOrBottomInStaffHeights = 1 / 2;
+    const heightOfLedgerLinesAboveTrebleStaffOrBelowBassStaffInStaffHeights = 2.5;
+    const spaceBetweenTrebleAndBassStaffsInStaffHeights = 1;
+    
+    const totalHeightAboveTrebleStaffOrBelowBassStaffInStaffHeights = (
+      containerPaddingTopOrBottomInStaffHeights +
+      heightOfLedgerLinesAboveTrebleStaffOrBelowBassStaffInStaffHeights
+    );
+    const containerHeightInStaffHeights = (
+      totalHeightAboveTrebleStaffOrBelowBassStaffInStaffHeights + 
+      1 + // treble staff
+      spaceBetweenTrebleAndBassStaffsInStaffHeights +
+      1 + // bass staff
+      totalHeightAboveTrebleStaffOrBelowBassStaffInStaffHeights
+    );
+    
+    this.heightPerStaff = this.containerHeight / containerHeightInStaffHeights;
+
+    this.trebleStaffLeftX = 0;
+    this.trebleStaffTopY = totalHeightAboveTrebleStaffOrBelowBassStaffInStaffHeights * this.heightPerStaff;
+    this.trebleStaffBottomY = this.trebleStaffTopY + this.heightPerStaff;
+
+    this.bassStaffLeftX = 0;
+    this.bassStaffTopY = this.trebleStaffBottomY + (spaceBetweenTrebleAndBassStaffsInStaffHeights * this.heightPerStaff);
+    this.bassStaffBottomY = this.bassStaffTopY + this.heightPerStaff;
+
+    const spaceCountPerStaff = 4;
+    this.staffSpaceHeight = this.heightPerStaff / spaceCountPerStaff;
+
+    const trebleClefAspectRatio = 23.872036 / 65.035126;
+    this.trebleClefHeight = 1.5 * this.heightPerStaff;
+    this.trebleClefWidth = trebleClefAspectRatio * this.trebleClefHeight;
+
+    const bassClefAspectRatio = 18 / 20;
+    this.bassClefHeight = (3 / 4) * this.heightPerStaff;
+    this.bassClefWidth = bassClefAspectRatio * this.bassClefHeight;
+
+    const quarterNoteAspectRatio = 14.565798 / 41.169685;
+    this.quarterNoteHeight = this.heightPerStaff;
+    this.quarterNoteWidth = quarterNoteAspectRatio * this.quarterNoteHeight;
+
+    const sharpSymbolAspectRatio = 6.8493137 / 18.679947;
+    this.sharpSymbolHeight = (3 / 4) * this.heightPerStaff;
+    this.sharpSymbolWidth = sharpSymbolAspectRatio * this.sharpSymbolHeight;
+
+    const flatSymbolAspectRatio = 5.6537971 / 15.641341;
+    this.flatSymbolHeight = (3 / 4) * this.heightPerStaff;
+    this.flatSymbolWidth = flatSymbolAspectRatio * this.flatSymbolHeight;
+
+    this.ledgerLineWidth = 1.5 * this.quarterNoteWidth;
+  }
+  public pitchToY(pitch: Pitch): number {
+    const isNoteOnTrebleClef = pitch.midiNoteNumber >= trebleClefLowestPitch.midiNoteNumber;
+    const clefBottomLinePitch = isNoteOnTrebleClef ? trebleClefLowestPitch : bassClefLowestPitch;
+    const clefBottomLineY = isNoteOnTrebleClef ? this.trebleStaffBottomY : this.bassStaffBottomY;
+    return clefBottomLineY - (getOffsetInNaturalPitches(clefBottomLinePitch, pitch) * (this.staffSpaceHeight / 2));
   };
-  
-  const noteAnchorX = (1 / 2) * width;
-  const noteAnchorY = pitchToY(notePitch);
-  const noteLeftX = noteAnchorX - (quarterNoteAnchorXPercent * quarterNoteWidth);
-  const noteTopY = noteAnchorY - (quarterNoteAnchorYPercent * quarterNoteHeight);
+}
 
-  const accidentalAnchorX = noteAnchorX - quarterNoteWidth;
+const quarterNoteAnchorXPercent = 0.5;
+const quarterNoteAnchorYPercent = 0.85;
+const sharpSymbolAnchorXPercent = 0.5;
+const sharpSymbolAnchorYPercent = 0.5;
+const flatSymbolAnchorXPercent = 0.5;
+const flatSymbolAnchorYPercent = 0.8;
+
+export function renderQuarterNoteAndAccidentalSymbolAndLedgerLines(layout: OneMeasureGrandStaffLayout, notePitch: Pitch, noteAnchorX: number) {
+  const noteAnchorY = layout.pitchToY(notePitch);
+  const noteLeftX = noteAnchorX - (quarterNoteAnchorXPercent * layout.quarterNoteWidth);
+  const noteTopY = noteAnchorY - (quarterNoteAnchorYPercent * layout.quarterNoteHeight);
+
+  const accidentalAnchorX = noteAnchorX - layout.quarterNoteWidth;
   const accidentalAnchorY = noteAnchorY;
 
-  const sharpSymbolLeftX = accidentalAnchorX - (sharpSymbolAnchorXPercent * sharpSymbolWidth);
-  const sharpSymbolTopY = accidentalAnchorY - (sharpSymbolAnchorYPercent * sharpSymbolHeight);
+  const sharpSymbolLeftX = accidentalAnchorX - (sharpSymbolAnchorXPercent * layout.sharpSymbolWidth);
+  const sharpSymbolTopY = accidentalAnchorY - (sharpSymbolAnchorYPercent * layout.sharpSymbolHeight);
 
-  const flatSymbolLeftX = accidentalAnchorX - (flatSymbolAnchorXPercent * flatSymbolWidth);
-  const flatSymbolTopY = accidentalAnchorY - (flatSymbolAnchorYPercent * flatSymbolHeight);
+  const flatSymbolLeftX = accidentalAnchorX - (flatSymbolAnchorXPercent * layout.flatSymbolWidth);
+  const flatSymbolTopY = accidentalAnchorY - (flatSymbolAnchorYPercent * layout.flatSymbolHeight);
 
-  const ledgerLineWidth = 1.5 * quarterNoteWidth;
   const visibleLedgerLinePitches = getVisibleLedgerLinesForPitch(notePitch);
 
-  const ledgerLineX1 = noteAnchorX - (ledgerLineWidth / 2);
-  const ledgerLineX2 = noteAnchorX + (ledgerLineWidth / 2);
+  const ledgerLineX1 = noteAnchorX - (layout.ledgerLineWidth / 2);
+  const ledgerLineX2 = noteAnchorX + (layout.ledgerLineWidth / 2);
   const ledgerLines = visibleLedgerLinePitches.map((pitch: Pitch) => {
-    const y = pitchToY(pitch);
-    return <line x1={ledgerLineX1} y1={y} x2={ledgerLineX2} y2={y} strokeWidth={lineWidth} stroke={"#000"} />;
+    const y = layout.pitchToY(pitch);
+    return <line x1={ledgerLineX1} y1={y} x2={ledgerLineX2} y2={y} strokeWidth={layout.lineWidth} stroke={"#000"} />;
   });
 
   return (
-    <g transform={`translate(${x}, ${y})`}>
-      {renderStaff(width, heightPerStaff, trebleStaffX, trebleStaffY)}
-      <image x={trebleClefLeftX} y={trebleClefTopY} width={trebleClefWidth} height={trebleClefHeight} xlinkHref="img/treble-clef.svg" />
-      
-      {renderStaff(width, heightPerStaff, bassStaffX, bassStaffY)}
-      <image x={bassClefLeftX} y={bassClefTopY} width={bassClefWidth} height={bassClefHeight} xlinkHref="img/bass-clef.svg" />
-
-      <line x1={staffConnectingLineX1} y1={staffConnectingLineY1} x2={staffConnectingLineX2} y2={staffConnectingLineY2} strokeWidth={lineWidth} stroke={"#000"} />
-
+    <g>
       {ledgerLines}
-      <image x={noteLeftX} y={noteTopY} width={quarterNoteWidth} height={quarterNoteHeight} xlinkHref="img/quarter-note.svg" />
-      {isSharp(notePitch) ? <image x={sharpSymbolLeftX} y={sharpSymbolTopY} width={sharpSymbolWidth} height={sharpSymbolHeight} xlinkHref="img/sharp-symbol.svg" /> : null}
-      {isFlat(notePitch) ? <image x={flatSymbolLeftX} y={flatSymbolTopY} width={flatSymbolWidth} height={flatSymbolHeight} xlinkHref="img/flat-symbol.svg" /> : null}
+      <image x={noteLeftX} y={noteTopY} width={layout.quarterNoteWidth} height={layout.quarterNoteHeight} xlinkHref="img/quarter-note.svg" />
+      {isSharp(notePitch) ? <image x={sharpSymbolLeftX} y={sharpSymbolTopY} width={layout.sharpSymbolWidth} height={layout.sharpSymbolHeight} xlinkHref="img/sharp-symbol.svg" /> : null}
+      {isFlat(notePitch) ? <image x={flatSymbolLeftX} y={flatSymbolTopY} width={layout.flatSymbolWidth} height={layout.flatSymbolHeight} xlinkHref="img/flat-symbol.svg" /> : null}
+    </g>
+  );
+}
+
+export function renderGrandStaffWithNote(layout: OneMeasureGrandStaffLayout, x: number, y: number, notePitches: (Pitch | null)[]) {
+  const clefMarginLeft = 5;
+
+  const trebleClefAnchorYPercent = 0.64;
+  const trebleClefAnchorY = layout.trebleStaffTopY + (3 * layout.staffSpaceHeight);
+  const trebleClefLeftX = layout.trebleStaffLeftX + clefMarginLeft;
+  const trebleClefTopY = trebleClefAnchorY - (trebleClefAnchorYPercent * layout.trebleClefHeight);
+  
+  const bassClefAnchorYPercent = 0.3;
+  const bassClefAnchorY = layout.bassStaffTopY + layout.staffSpaceHeight;
+  const bassClefLeftX = layout.bassStaffLeftX + clefMarginLeft;
+  const bassClefTopY = bassClefAnchorY - (bassClefAnchorYPercent * layout.bassClefHeight);
+
+  const staffConnectingLineX1 = layout.lineWidth / 2;
+  const staffConnectingLineY1 = layout.trebleStaffTopY;
+  const staffConnectingLineX2 = staffConnectingLineX1;
+  const staffConnectingLineY2 = layout.bassStaffBottomY;
+
+  return (
+    <g transform={`translate(${x}, ${y})`}>
+      {renderStaff(layout.containerWidth, layout.heightPerStaff, layout.trebleStaffLeftX, layout.trebleStaffTopY)}
+      <image x={trebleClefLeftX} y={trebleClefTopY} width={layout.trebleClefWidth} height={layout.trebleClefHeight} xlinkHref="img/treble-clef.svg" />
+      
+      {renderStaff(layout.containerWidth, layout.heightPerStaff, layout.bassStaffLeftX, layout.bassStaffTopY)}
+      <image x={bassClefLeftX} y={bassClefTopY} width={layout.bassClefWidth} height={layout.bassClefHeight} xlinkHref="img/bass-clef.svg" />
+
+      <line x1={staffConnectingLineX1} y1={staffConnectingLineY1} x2={staffConnectingLineX2} y2={staffConnectingLineY2} strokeWidth={layout.lineWidth} stroke={"#000"} />
+
+      {notePitches.map(notePitch => notePitch ? renderQuarterNoteAndAccidentalSymbolAndLedgerLines(layout, notePitch, (1 / 2) * layout.containerWidth) : null)}
     </g>
   );
 }
 export function renderPiano(width: number, height: number, onKeyPressed: (keyPitch: Pitch) => void): JSX.Element {
   const keyCount = 88;
-  const firstKeyPitch = new Pitch(PitchClass.A, 0);
+  const firstKeyPitch = lowestPitchOn88KeyPiano;
   const keyPitches = (new Utils.IntRange(firstKeyPitch.midiNoteNumber, keyCount)).toArray().map(midiNoteNumber => Pitch.fromMidiNoteNumber(midiNoteNumber));
   const naturalKeyCount = keyPitches.reduce((acc: number, pitch: Pitch) => isNatural(pitch) ? (acc + 1) : acc, 0);
   const keyStrokeWidth = 2;
@@ -476,7 +567,8 @@ export function renderPiano(width: number, height: number, onKeyPressed: (keyPit
 
 export interface SightReadingExercisesProps {}
 export interface SightReadingExercisesState {
-  pressedPitch: Pitch;
+  correctPitch: Pitch;
+  pressedPitch: Pitch | null;
 }
 
 export class SightReadingExercises extends React.Component<SightReadingExercisesProps, SightReadingExercisesState> {
@@ -484,12 +576,21 @@ export class SightReadingExercises extends React.Component<SightReadingExercises
     super(props);
 
     this.state = {
-      pressedPitch: new Pitch(PitchClass.A, 4)
+      correctPitch: getRandomPitchOn88KeyPiano(),
+      pressedPitch: null
     };
   }
 
-  onKeyPressed(pitch: Pitch) {
-    this.setState({ pressedPitch: pitch })
+  onKeyPressed(keyPitch: Pitch) {
+    const newStateDelta = {
+      pressedPitch: keyPitch
+    };
+
+    if(keyPitch.midiNoteNumber === this.state.correctPitch.midiNoteNumber) {
+      newStateDelta["correctPitch"] = getRandomPitchOn88KeyPiano();
+    }
+
+    this.setState(newStateDelta);
   }
 
   render(): JSX.Element {
@@ -497,11 +598,12 @@ export class SightReadingExercises extends React.Component<SightReadingExercises
     const grandStaffWidth = 160;
     const grandStaffHeight = 300;
     const grandStaffTopMargin = 20;
+    const layout = new OneMeasureGrandStaffLayout(grandStaffWidth, grandStaffHeight, 2);
 
     return (
       <div>
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width={grandStaffWidth} height={grandStaffTopMargin + grandStaffHeight}>
-          {renderGrandStaffWithNote(grandStaffWidth, grandStaffHeight, 0, grandStaffTopMargin, this.state.pressedPitch)}
+          {renderGrandStaffWithNote(layout, 0, grandStaffTopMargin, [this.state.correctPitch, this.state.pressedPitch])}
         </svg>  
         {renderPiano(960, 180, this.onKeyPressed.bind(this))}
       </div>
