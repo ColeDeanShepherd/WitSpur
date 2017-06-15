@@ -21,6 +21,17 @@ export function reduceObjectPropertyNames<T>(iteratee: (accumulator: T, property
   return accumulator;
 }
 
+export function randomFloat(inclusiveMin: number, exclusiveMax: number): number {
+  assert(inclusiveMin <= exclusiveMax);
+
+  return inclusiveMin + (Math.random() * (exclusiveMax - inclusiveMin));
+}
+export function randomInt(inclusiveMin: number, inclusiveMax: number): number {
+  assert(inclusiveMin <= inclusiveMax);
+
+  return inclusiveMin + Math.floor(Math.random() * (inclusiveMax - inclusiveMin + 1));
+}
+
 export class IntRange {
   start: number;
   count: number;
