@@ -191,48 +191,93 @@ export function renderGrandStaffWithNote(layout: OneMeasureGrandStaffLayout, x: 
     </g>
   );
 }
-export function renderPiano(width: number, height: number, onKeyPressed: (keyPitch: Pitch.Pitch) => void): JSX.Element {
-  const keyCount = 88;
-  const firstKeyPitch = Pitch.lowestPitchOn88KeyPiano;
-  const keyPitches = (new Utils.IntRange(firstKeyPitch.midiNoteNumber, keyCount)).toArray().map(midiNoteNumber => Pitch.Pitch.fromMidiNoteNumber(midiNoteNumber));
-  const naturalKeyCount = keyPitches.reduce((acc: number, pitch: Pitch.Pitch) => Pitch.isNatural(pitch) ? (acc + 1) : acc, 0);
-  const keyStrokeWidth = 2;
-  const firstNaturalKeyX = keyStrokeWidth / 2;
-  const firstNaturalKeyY = keyStrokeWidth / 2;
-  const naturalKeyWidth = (width - keyStrokeWidth) / naturalKeyCount; // Assuming piano starts and ends with natural keys.
-  const naturalKeyHeight = height - keyStrokeWidth;
-  const accidentalKeyWidth = 0.55 * naturalKeyWidth;
-  const accidentalKeyHeight = 0.6 * naturalKeyHeight;
 
-  const renderPianoKey = (pitch: Pitch.Pitch, x: number, y: number) => {
-    const isNaturalKey = Pitch.isNatural(pitch);
-    const width = isNaturalKey ? naturalKeyWidth : accidentalKeyWidth;
-    const height = isNaturalKey ? naturalKeyHeight : accidentalKeyHeight;
-    const fill = isNaturalKey ? "#FFF" : "#000";
+export interface PianoProps {
+  width: number;
+  height: number;
+  pressedKeys: Pitch.Pitch[];
+  onKeyPressed: (onKeyPressed: Pitch.Pitch) => void;
+  onKeyReleased: (onKeyPressed: Pitch.Pitch) => void;
+}
+export interface PianoState {}
+export class Piano extends React.Component<PianoProps, PianoState> {
+  isMouseDown: boolean;
+  boundOnMouseDown: (event: any) => void;
+  boundOnMouseUp: (event: any) => void;
+
+  onMouseDown(event: any) {
+    this.isMouseDown = true;
+  }
+  onMouseUp(event: any) {
+    this.isMouseDown = false;
+  }
+  componentDidMount() {
+    this.boundOnMouseDown = this.onMouseDown.bind(this);
+    this.boundOnMouseUp = this.onMouseUp.bind(this);
+
+    window.addEventListener("mousedown", this.boundOnMouseDown, false);
+    window.addEventListener("mouseup", this.boundOnMouseUp, false);
+  }
+  componentWillUnmount() {
+    window.removeEventListener("mousedown", this.boundOnMouseDown, false);
+    window.removeEventListener("mouseup", this.boundOnMouseUp, false);
+  }
+  render() {
+    const keyCount = 88;
+    const firstKeyPitch = Pitch.lowestPitchOn88KeyPiano;
+    const keyPitches = (new Utils.IntRange(firstKeyPitch.midiNoteNumber, keyCount)).toArray().map(midiNoteNumber => Pitch.Pitch.fromMidiNoteNumber(midiNoteNumber));
+    const naturalKeyCount = keyPitches.reduce((acc: number, pitch: Pitch.Pitch) => Pitch.isNatural(pitch) ? (acc + 1) : acc, 0);
+    const keyStrokeWidth = 2;
+    const firstNaturalKeyX = keyStrokeWidth / 2;
+    const firstNaturalKeyY = keyStrokeWidth / 2;
+    const naturalKeyWidth = (this.props.width - keyStrokeWidth) / naturalKeyCount; // Assuming piano starts and ends with natural keys.
+    const naturalKeyHeight = this.props.height - keyStrokeWidth;
+    const accidentalKeyWidth = 0.55 * naturalKeyWidth;
+    const accidentalKeyHeight = 0.6 * naturalKeyHeight;
+
+    const renderPianoKey = (pitch: Pitch.Pitch, x: number, y: number) => {
+      const isNaturalKey = Pitch.isNatural(pitch);
+      const width = isNaturalKey ? naturalKeyWidth : accidentalKeyWidth;
+      const height = isNaturalKey ? naturalKeyHeight : accidentalKeyHeight;
+      const defaultFill = isNaturalKey ? "#FFF" : "#000";
+      const pressedFill = "#CCC";
+      const isKeyPressed = this.props.pressedKeys.find((pressedPitch: Pitch.Pitch) => pressedPitch.midiNoteNumber === pitch.midiNoteNumber);
+      const fill = isKeyPressed ? pressedFill : defaultFill;
+      const onMouseOver = () => {
+        if(this.isMouseDown) {
+          this.props.onKeyPressed(pitch);
+        }
+      };
+      const onMouseOut = () => {
+        if(isKeyPressed) {
+          this.props.onKeyReleased(pitch);
+        }
+      };
+
+      return <rect width={width} height={height} fill={fill} strokeWidth={keyStrokeWidth} stroke="#000" x={x} y={y} onMouseOver={onMouseOver.bind(this)} onMouseOut={onMouseOut.bind(this)} onMouseDown={() => this.props.onKeyPressed(pitch)} onMouseUp={() => this.props.onKeyReleased(pitch)} className="piano-key" />;
+    };
     
-    return <rect width={width} height={height} fill={fill} strokeWidth={keyStrokeWidth} stroke="#000" x={x} y={y} onClick={() => onKeyPressed(pitch)} />;
-  };
-  
-  let naturalKeyX = firstNaturalKeyX;
-  let naturalKeyY = firstNaturalKeyY;
+    let naturalKeyX = firstNaturalKeyX;
+    let naturalKeyY = firstNaturalKeyY;
 
-  const keyXs = keyPitches.map((pitch: Pitch.Pitch, index: number) => {
-    if((index > 0) && Pitch.isNatural(pitch)) {
-      naturalKeyX += naturalKeyWidth;
-    }
+    const keyXs = keyPitches.map((pitch: Pitch.Pitch, index: number) => {
+      if((index > 0) && Pitch.isNatural(pitch)) {
+        naturalKeyX += naturalKeyWidth;
+      }
 
-    const accidentalOffset = Pitch.isAccidental(pitch) ? (naturalKeyWidth - (accidentalKeyWidth / 2)) : 0;
-    return naturalKeyX + accidentalOffset;
-  });
-  const renderNaturalKeys = () => keyPitches.map((pitch: Pitch.Pitch, index: number) => Pitch.isNatural(pitch) ? renderPianoKey(pitch, keyXs[index], naturalKeyY) : null);
-  const renderAccidentalKeys = () => keyPitches.map((pitch: Pitch.Pitch, index: number) => Pitch.isAccidental(pitch) ? renderPianoKey(pitch, keyXs[index], naturalKeyY) : null);
+      const accidentalOffset = Pitch.isAccidental(pitch) ? (naturalKeyWidth - (accidentalKeyWidth / 2)) : 0;
+      return naturalKeyX + accidentalOffset;
+    });
+    const renderNaturalKeys = () => keyPitches.map((pitch: Pitch.Pitch, index: number) => Pitch.isNatural(pitch) ? renderPianoKey(pitch, keyXs[index], naturalKeyY) : null);
+    const renderAccidentalKeys = () => keyPitches.map((pitch: Pitch.Pitch, index: number) => Pitch.isAccidental(pitch) ? renderPianoKey(pitch, keyXs[index], naturalKeyY) : null);
 
-  return (
-    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width={width} height={height}>
-      {renderNaturalKeys()}
-      {renderAccidentalKeys()}
-    </svg>
-  );
+    return (
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width={this.props.width} height={this.props.height}>
+        {renderNaturalKeys()}
+        {renderAccidentalKeys()}
+      </svg>
+    );
+  }
 }
 
 export interface SightReadingExercisesProps {}
@@ -262,6 +307,9 @@ export class SightReadingExercises extends React.Component<SightReadingExercises
 
     this.setState(newStateDelta);
   }
+  onKeyReleased(keyPitch: Pitch.Pitch) {
+    this.setState({ pressedPitch: null });
+  }
 
   render(): JSX.Element {
     //<circle cx={10} cy={spaceCenterYInStaff(staffHeight, )} r={noteHeight / 2} fill="#000" />
@@ -275,7 +323,7 @@ export class SightReadingExercises extends React.Component<SightReadingExercises
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width={grandStaffWidth} height={grandStaffTopMargin + grandStaffHeight}>
           {renderGrandStaffWithNote(layout, 0, grandStaffTopMargin, [this.state.correctPitch, this.state.pressedPitch])}
         </svg>  
-        {renderPiano(960, 180, this.onKeyPressed.bind(this))}
+        <Piano width={960} height={180} onKeyPressed={this.onKeyPressed.bind(this)} onKeyReleased={this.onKeyReleased.bind(this)} pressedKeys={this.state.pressedPitch ? [this.state.pressedPitch] : []} />
       </div>
     );
   }
