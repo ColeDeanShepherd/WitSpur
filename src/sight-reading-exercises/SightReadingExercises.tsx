@@ -126,7 +126,7 @@ const sharpSymbolAnchorYPercent = 0.5;
 const flatSymbolAnchorXPercent = 0.5;
 const flatSymbolAnchorYPercent = 0.8;
 
-export function renderQuarterNoteAndAccidentalSymbolAndLedgerLines(layout: OneMeasureGrandStaffLayout, notePitch: Pitch.Pitch, noteAnchorX: number) {
+export function renderQuarterNoteAndAccidentalSymbolAndLedgerLines(layout: OneMeasureGrandStaffLayout, notePitch: Pitch.Pitch, noteAnchorX: number, offsetX: number, offsetY: number, opacity: number) {
   const noteAnchorY = layout.pitchToY(notePitch);
   const noteLeftX = noteAnchorX - (quarterNoteAnchorXPercent * layout.quarterNoteWidth);
   const noteTopY = noteAnchorY - (quarterNoteAnchorYPercent * layout.quarterNoteHeight);
@@ -150,16 +150,16 @@ export function renderQuarterNoteAndAccidentalSymbolAndLedgerLines(layout: OneMe
   });
 
   return (
-    <g>
+    <g transform={`translate(${offsetX}, ${offsetY})`}>
       {ledgerLines}
-      <image x={noteLeftX} y={noteTopY} width={layout.quarterNoteWidth} height={layout.quarterNoteHeight} xlinkHref="img/quarter-note.svg" />
-      {Pitch.isSharp(notePitch) ? <image x={sharpSymbolLeftX} y={sharpSymbolTopY} width={layout.sharpSymbolWidth} height={layout.sharpSymbolHeight} xlinkHref="img/sharp-symbol.svg" /> : null}
-      {Pitch.isFlat(notePitch) ? <image x={flatSymbolLeftX} y={flatSymbolTopY} width={layout.flatSymbolWidth} height={layout.flatSymbolHeight} xlinkHref="img/flat-symbol.svg" /> : null}
+      <image x={noteLeftX} y={noteTopY} width={layout.quarterNoteWidth} height={layout.quarterNoteHeight} xlinkHref="img/quarter-note.svg" opacity={opacity} />
+      {Pitch.isSharp(notePitch) ? <image x={sharpSymbolLeftX} y={sharpSymbolTopY} width={layout.sharpSymbolWidth} height={layout.sharpSymbolHeight} xlinkHref="img/sharp-symbol.svg" opacity={opacity} /> : null}
+      {Pitch.isFlat(notePitch) ? <image x={flatSymbolLeftX} y={flatSymbolTopY} width={layout.flatSymbolWidth} height={layout.flatSymbolHeight} xlinkHref="img/flat-symbol.svg" opacity={opacity} /> : null}
     </g>
   );
 }
 
-export function renderGrandStaffWithNote(layout: OneMeasureGrandStaffLayout, x: number, y: number, notePitches: (Pitch.Pitch | null)[]) {
+export function renderGrandStaff(layout: OneMeasureGrandStaffLayout, x: number, y: number) {
   const clefMarginLeft = 5;
 
   const trebleClefAnchorYPercent = 0.64;
@@ -186,8 +186,6 @@ export function renderGrandStaffWithNote(layout: OneMeasureGrandStaffLayout, x: 
       <image x={bassClefLeftX} y={bassClefTopY} width={layout.bassClefWidth} height={layout.bassClefHeight} xlinkHref="img/bass-clef.svg" />
 
       <line x1={staffConnectingLineX1} y1={staffConnectingLineY1} x2={staffConnectingLineX2} y2={staffConnectingLineY2} strokeWidth={layout.lineWidth} stroke={"#000"} />
-
-      {notePitches.map(notePitch => notePitch ? renderQuarterNoteAndAccidentalSymbolAndLedgerLines(layout, notePitch, (1 / 2) * layout.containerWidth) : null)}
     </g>
   );
 }
@@ -314,14 +312,16 @@ export class SightReadingExercises extends React.Component<SightReadingExercises
   render(): JSX.Element {
     //<circle cx={10} cy={spaceCenterYInStaff(staffHeight, )} r={noteHeight / 2} fill="#000" />
     const grandStaffWidth = 160;
-    const grandStaffHeight = 300;
+    const grandStaffHeight = 400;
     const grandStaffTopMargin = 20;
     const layout = new OneMeasureGrandStaffLayout(grandStaffWidth, grandStaffHeight, 2);
 
     return (
       <div>
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width={grandStaffWidth} height={grandStaffTopMargin + grandStaffHeight}>
-          {renderGrandStaffWithNote(layout, 0, grandStaffTopMargin, [this.state.correctPitch, this.state.pressedPitch])}
+          {renderGrandStaff(layout, 0, grandStaffTopMargin)}
+          {renderQuarterNoteAndAccidentalSymbolAndLedgerLines(layout, this.state.correctPitch, (1 / 2) * layout.containerWidth, 0, grandStaffTopMargin, 1)}
+          {this.state.pressedPitch ? renderQuarterNoteAndAccidentalSymbolAndLedgerLines(layout, this.state.pressedPitch, (1 / 2) * layout.containerWidth, 0, grandStaffTopMargin, 0.5) : null}
         </svg>  
         <Piano width={960} height={180} onKeyPressed={this.onKeyPressed.bind(this)} onKeyReleased={this.onKeyReleased.bind(this)} pressedKeys={this.state.pressedPitch ? [this.state.pressedPitch] : []} />
       </div>
