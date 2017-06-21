@@ -221,6 +221,50 @@ export function exportSvgToRasterImage(svgString: string, imageWidth: number, im
   }, imageWidth, imageHeight);
 }
 
+export class Vector2 {
+  public static add(a: Vector2, b: Vector2): Vector2 {
+    return new Vector2(a.x + b.x, a.y + b.y);
+  }
+  public static subtract(a: Vector2, b: Vector2): Vector2 {
+    return new Vector2(a.x - b.x, a.y - b.y);
+  }
+  public static multiply(v: Vector2, s: number): Vector2 {
+    return new Vector2(v.x * s, v.y * s);
+  }
+  public static divide(v: Vector2, s: number): Vector2 {
+    return new Vector2(v.x / s, v.y / s);
+  }
+  public static distanceSquared(a: Vector2, b: Vector2): number {
+    const difference = this.subtract(a, b);
+    return (difference.x * difference.x) + (difference.y * difference.y);
+  }
+  public static distance(a: Vector2, b: Vector2): number {
+    const difference = this.subtract(a, b);
+    return Math.sqrt((difference.x * difference.x) + (difference.y * difference.y));
+  }
+
+  constructor(public x: number, public y: number) {}
+}
+export function getOffsetRelativeToElement(element: HTMLElement, position: Vector2): Vector2 {
+  const scrolledElementBoundingRect = element.getBoundingClientRect();
+  return new Vector2(position.x - scrolledElementBoundingRect.left, position.y - scrolledElementBoundingRect.top);
+}
+export function getScaledPositionInCanvas(canvasElement: HTMLCanvasElement, position: Vector2): Vector2 {
+  const unscaledCursorPositionInCanvas = getOffsetRelativeToElement(canvasElement, position);
+
+  const scrolledCanvasBoundingRect = canvasElement.getBoundingClientRect();
+  const canvasResolutionScaleX = canvasElement.width / scrolledCanvasBoundingRect.width;
+  const canvasResolutionScaleY = canvasElement.height / scrolledCanvasBoundingRect.height;
+
+  return new Vector2(unscaledCursorPositionInCanvas.x * canvasResolutionScaleX, unscaledCursorPositionInCanvas.y * canvasResolutionScaleY);
+}
+
+export function isPointInCircle(circleRadius: number, circlePosition: Vector2, point: Vector2): boolean {
+  const circleRadiusSquared = circleRadius * circleRadius;
+
+  return  Vector2.distanceSquared(point, circlePosition) <= circleRadiusSquared;
+}
+
 let _genUniqueIdState: { lastDateValue: number | null , collisionCount: number } = {
   lastDateValue: null,
   collisionCount: 0

@@ -66,8 +66,6 @@ function createMandelbrotSetImageDataPart(widthInPixels: number, heightInPixels:
 }
 
 export interface MandelbrotSetRendererProps {
-  width: number;
-  height: number;
   heightInUnits: number;
   centerPosition: Complex;
   hue: number;
@@ -75,7 +73,9 @@ export interface MandelbrotSetRendererProps {
   maxIterationCount: number;
   supersamplingAmount: number;
 
-  onCenterPositionChange: (newValue: Complex) => void
+  onCenterPositionChange: (newValue: Complex) => void,
+
+  style?: any
 }
 export interface MandelbrotSetRendererState {}
 
@@ -83,13 +83,18 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
   canvasDomElement: HTMLCanvasElement;
   canvasContext: CanvasRenderingContext2D;
 
+  boundOnWindowResize: (event: any) => void;
+
+  canvasDomElementWidth: number = 640;
+  canvasDomElementHeight: number = 480;
+
   constructor(props: MandelbrotSetRendererProps) {
     super(props);
 
     this.state = {};
   }
 
-  getComplexCoordinates(pixelX: number, pixelY: number): Complex {
+  getComplexCoordinates(pixelPosition: Utils.Vector2): Complex {
     if(!this.canvasContext) { return new Complex(0, 0); }
 
     const widthOfCanvasInPixels = this.getSupersampledWidth();
@@ -108,16 +113,16 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     const topLeftPosition = add(centerPosition, new Complex(-(widthOfCanvasInUnits / 2), heightOfCanvasInUnits / 2));
     const topLeftPixelCenterPosition = add(topLeftPosition, new Complex(widthOfPixelInUnits / 2, -(heightOfPixelInUnits / 2)));
 
-    const re = topLeftPixelCenterPosition.re + (pixelX * widthOfPixelInUnits);
-    const im = topLeftPixelCenterPosition.im - (pixelY * heightOfPixelInUnits);
+    const re = topLeftPixelCenterPosition.re + (pixelPosition.x * widthOfPixelInUnits);
+    const im = topLeftPixelCenterPosition.im - (pixelPosition.y * heightOfPixelInUnits);
 
     return new Complex(re, im);
   }
   getSupersampledWidth(): number {
-    return this.props.supersamplingAmount * this.props.width;
+    return this.props.supersamplingAmount * this.canvasDomElementWidth;
   }
   getSupersampledHeight(): number {
-    return this.props.supersamplingAmount * this.props.height;
+    return this.props.supersamplingAmount * this.canvasDomElementHeight;
   }
   reRenderMandelbrotSet() {
     if(!this.canvasContext) { return; }
@@ -166,43 +171,47 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
   }
 
   onCanvasClick(event: any) {
-    const scrolledCanvasBoundingRect = this.canvasDomElement.getBoundingClientRect();
-    const canvasResolutionScaleX = this.canvasDomElement.width / scrolledCanvasBoundingRect.width;
-    const canvasResolutionScaleY = this.canvasDomElement.height / scrolledCanvasBoundingRect.height;
-
-    const scrolledCursorPositionX = event.clientX;
-    const scrolledCursorPositionY = event.clientY;
-
-    const unscaledCursorPositionInCanvasX = scrolledCursorPositionX - scrolledCanvasBoundingRect.left;
-    const unscaledCursorPositionInCanvasY = scrolledCursorPositionY - scrolledCanvasBoundingRect.top;
-
-    const scaledCursorPositionInCanvasX = unscaledCursorPositionInCanvasX * canvasResolutionScaleX;
-    const scaledCursorPositionInCanvasY = unscaledCursorPositionInCanvasY * canvasResolutionScaleY;
-
-    const newCenterPosition = this.getComplexCoordinates(scaledCursorPositionInCanvasX, scaledCursorPositionInCanvasY);
-
+    const scaledCursorPositionInCanvas = Utils.getScaledPositionInCanvas(this.canvasDomElement, new Utils.Vector2(event.clientX, event.clientY));
+    const newCenterPosition = this.getComplexCoordinates(scaledCursorPositionInCanvas);
     this.props.onCenterPositionChange(newCenterPosition);
   }
 
+  onWindowResize(event: any) {
+    const canvasBoundingClientRect = this.canvasDomElement.getBoundingClientRect();
+
+    this.canvasDomElementWidth = canvasBoundingClientRect.width;
+    this.canvasDomElementHeight = canvasBoundingClientRect.height;
+
+    this.canvasDomElement.width = this.getSupersampledWidth();
+    this.canvasDomElement.height = this.getSupersampledHeight();
+
+    this.reRenderMandelbrotSet();
+  }
   componentDidMount() {
     const context = this.canvasDomElement.getContext("2d");
     if(!context) { return; }
 
+    this.boundOnWindowResize = this.onWindowResize.bind(this);
+    window.addEventListener("resize", this.boundOnWindowResize, false);
+
+    this.onWindowResize(null);
+
     this.canvasContext = context;
     this.reRenderMandelbrotSet();
   }
+  componentWillUnmount() {
+    if(this.boundOnWindowResize) {
+      window.addEventListener("resize", this.boundOnWindowResize, false);
+    }
+  }
+
   componentDidUpdate() {
     this.reRenderMandelbrotSet();
   }
 
   render() {
-    const canvasStyle = {
-      width: this.props.width,
-      height: this.props.height
-    };
-
     return (
-      <canvas ref={canvas => this.canvasDomElement = canvas} width={this.getSupersampledWidth()} height={this.getSupersampledHeight()} onClick={this.onCanvasClick.bind(this)} style={canvasStyle}>
+      <canvas ref={canvas => this.canvasDomElement = canvas} width={this.getSupersampledWidth()} height={this.getSupersampledHeight()} onClick={this.onCanvasClick.bind(this)} style={this.props.style}>
         Your browser does not support the canvas tag. Please upgrade your browser.
       </canvas>
     );
@@ -225,15 +234,14 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
 
     this.state = {
       componentProps: {
-        width: 640,
-        height: 480,
         heightInUnits: 3,
         centerPosition: new Complex(-0.75, 0),
         hue: hue,
         saturation: saturation,
         maxIterationCount: 100,
         supersamplingAmount: 2,
-        onCenterPositionChange: this.onCenterPositionChange.bind(this)
+        onCenterPositionChange: this.onCenterPositionChange.bind(this),
+        style: { width: "100%", height: "100%" }
       },
       color: this.hsToColor(hue, saturation)
     };
@@ -308,23 +316,24 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
 
     const minCoordinateSliderValue = -10;
     const maxCoordinateSliderValue = 10;
+    const toolSidebarStyle: React.CSSProperties = {
+      position: "absolute",
+      left: 0,
+      top: 0
+    };
     
     return (
-      <div className="row">
-        <div className="col tool-sidebar">
-          <div className="card">
+      <div style={{width: "100%", height: "100vh", padding: "1em"}}>
+        <div style={{width: "100%", height: "100%", position: "relative"}}>
+          <div className="card" style={toolSidebarStyle}>
             View Height In Units: <NumberInput value={this.state.componentProps.heightInUnits} onChange={this.onHeightInUnitsChange.bind(this)} showSlider={false} /><br />
             x (real coordinate): <NumberInput value={this.state.componentProps.centerPosition.re} onChange={this.onCenterPositionXChange.bind(this)} showSlider={false} /><br />
             y (imaginary coordinate): <NumberInput value={this.state.componentProps.centerPosition.im} onChange={this.onCenterPositionYChange.bind(this)} showSlider={false} /><br />
             Color: <ColorInput value={this.state.color} onChange={this.onColorChange.bind(this)} /><br />
             Max. Iteration Count: <NumberInput value={this.state.componentProps.maxIterationCount} onChange={this.onMaxIterationCountChange.bind(this)} showSlider={false} /><br />
           </div>
-        </div>
 
-        <div className="col" style={{flexGrow: 1}}>
-          <div className="card" style={{display: "inline-block"}}>
-            {React.createElement(MandelbrotSetRenderer, this.state.componentProps)}
-          </div>
+          {React.createElement(MandelbrotSetRenderer, this.state.componentProps)}
         </div>
       </div>
     );

@@ -280,27 +280,41 @@ export class Piano extends React.Component<PianoProps, PianoState> {
 
 export interface SightReadingExercisesProps {}
 export interface SightReadingExercisesState {
-  correctPitch: Pitch.Pitch;
+  nextPitches: Pitch.Pitch[];
   pressedPitch: Pitch.Pitch | null;
+  correctNoteCount: number;
+  incorrectNoteCount: number;
 }
 
 export class SightReadingExercises extends React.Component<SightReadingExercisesProps, SightReadingExercisesState> {
   constructor(props: SightReadingExercisesProps) {
     super(props);
 
+    const nextPitchCount = 4;
+    let nextPitches: Pitch.Pitch[] = [];
+    for(let i = 0; i < nextPitchCount; i++) {
+      nextPitches.push(Pitch.getRandomPitchOn88KeyPiano());
+    }
+
     this.state = {
-      correctPitch: Pitch.getRandomPitchOn88KeyPiano(),
-      pressedPitch: null
+      nextPitches: nextPitches,
+      pressedPitch: null,
+      correctNoteCount: 0,
+      incorrectNoteCount: 0
     };
   }
 
   onKeyPressed(keyPitch: Pitch.Pitch) {
-    const newStateDelta = {
+    const newStateDelta: any = {
+      nextPitches: this.state.nextPitches,
       pressedPitch: keyPitch
     };
 
-    if(keyPitch.midiNoteNumber === this.state.correctPitch.midiNoteNumber) {
-      newStateDelta["correctPitch"] = Pitch.getRandomPitchOn88KeyPiano();
+    if(keyPitch.midiNoteNumber === this.state.nextPitches[0].midiNoteNumber) {
+      newStateDelta.nextPitches = newStateDelta.nextPitches.concat([Pitch.getRandomPitchOn88KeyPiano()]).slice(1);
+      newStateDelta.correctNoteCount = this.state.correctNoteCount + 1;
+    } else {
+      newStateDelta.incorrectNoteCount = this.state.incorrectNoteCount + 1;
     }
 
     this.setState(newStateDelta);
@@ -311,17 +325,21 @@ export class SightReadingExercises extends React.Component<SightReadingExercises
 
   render(): JSX.Element {
     //<circle cx={10} cy={spaceCenterYInStaff(staffHeight, )} r={noteHeight / 2} fill="#000" />
-    const grandStaffWidth = 160;
+    const grandStaffWidth = 300;
     const grandStaffHeight = 400;
     const grandStaffTopMargin = 20;
     const layout = new OneMeasureGrandStaffLayout(grandStaffWidth, grandStaffHeight, 2);
+    const firstQuarterNoteOffsetX = (1 / 4) * layout.containerWidth;
+    const quarterNoteHorizontalSpacing = 60;
+    const totalNoteCount = this.state.correctNoteCount + this.state.incorrectNoteCount;
+    const correntNotePercent = (totalNoteCount > 0) ? (this.state.correctNoteCount / totalNoteCount) : 0;
 
     return (
       <div>
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width={grandStaffWidth} height={grandStaffTopMargin + grandStaffHeight}>
           {renderGrandStaff(layout, 0, grandStaffTopMargin)}
-          {renderQuarterNoteAndAccidentalSymbolAndLedgerLines(layout, this.state.correctPitch, (1 / 2) * layout.containerWidth, 0, grandStaffTopMargin, 1)}
-          {this.state.pressedPitch ? renderQuarterNoteAndAccidentalSymbolAndLedgerLines(layout, this.state.pressedPitch, (1 / 2) * layout.containerWidth, 0, grandStaffTopMargin, 0.5) : null}
+          {this.state.nextPitches.map((pitch: Pitch.Pitch, i: number) => renderQuarterNoteAndAccidentalSymbolAndLedgerLines(layout, pitch, firstQuarterNoteOffsetX + (i * quarterNoteHorizontalSpacing), 0, grandStaffTopMargin, 1))}
+          {this.state.pressedPitch ? renderQuarterNoteAndAccidentalSymbolAndLedgerLines(layout, this.state.pressedPitch, firstQuarterNoteOffsetX, 0, grandStaffTopMargin, 0.5) : null}
         </svg>  
         <Piano width={960} height={180} onKeyPressed={this.onKeyPressed.bind(this)} onKeyReleased={this.onKeyReleased.bind(this)} pressedKeys={this.state.pressedPitch ? [this.state.pressedPitch] : []} />
       </div>

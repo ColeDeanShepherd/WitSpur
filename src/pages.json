@@ -25,25 +25,24 @@
     "outputFileName": "gpa-calculator"
   },
   {
-    "name": "Sight Reading Exercises",
+    "name": "Piano Sight Reading Trainer",
     "contentsFilePath": "sight-reading-exercises/sight-reading-exercises.html",
-    "outputFileName": "sight-reading-exercises"
-  },
-
-
-  {
-    "name": "Pendulum Simulator",
-    "contentsFilePath": "pendulum-simulator/pendulum-simulator.html",
-    "outputFileName": "pendulum-simulator"
-  },
-  {
-    "name": "Unit Converter",
-    "contentsFilePath": "unit-converter/unit-converter.html",
-    "outputFileName": "unit-converter"
+    "outputFileName": "piano-sight-reading-trainer"
   },
   {
     "name": "Interactive Mandelbrot Set Renderer",
     "contentsFilePath": "mandelbrot/mandelbrot.html",
     "outputFileName": "mandelbrot-set"
+  },
+  {
+    "name": "Pendulum Simulator",
+    "contentsFilePath": "pendulum-simulator/pendulum-simulator.html",
+    "outputFileName": "pendulum-simulator"
+  },
+  
+  {
+    "name": "Unit Converter",
+    "contentsFilePath": "unit-converter/unit-converter.html",
+    "outputFileName": "unit-converter"
   }
 ]
