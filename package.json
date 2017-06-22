@@ -35,8 +35,10 @@
     "webpack": "^2.5.1"
   },
   "dependencies": {
+    "@types/deep-equal": "^1.0.0",
     "@types/react": "^15.0.24",
     "@types/react-dom": "^15.5.0",
+    "deep-equal": "^1.0.1",
     "react": "^15.5.4",
     "react-color": "^2.11.7",
     "react-dom": "^15.5.4"

@@ -199,6 +199,7 @@ export class CharWordLineCounter extends React.Component<CharWordLineCounterProp
         </table>
       ) : <textarea
             value={this.getOverallCountsTsv(characterCount, characterCountExcludingNewLines, characterCountExcludingWhiteSpace, characterCountExcludingWhiteSpaceAndOtherChars, wordCount, lineCount)}
+            readOnly
             style={columnTextAreaStyle} />;
 
       return (
@@ -213,7 +214,7 @@ export class CharWordLineCounter extends React.Component<CharWordLineCounterProp
       const countsElementStyle = { ...columnTextAreaStyle, marginTop: "1em" };
       const countsElement = !this.state.showTablesAsTextAreas ?
         <table style={{margin: "1em 0"}}><tbody>{charCountTrs}</tbody></table> :
-        <textarea value={this.getCharCountTsv(orderedCharCountPairs)} style={countsElementStyle} />;
+        <textarea value={this.getCharCountTsv(orderedCharCountPairs)} readOnly style={countsElementStyle} />;
 
       return (
         <div className="col-1-3">
@@ -231,7 +232,7 @@ export class CharWordLineCounter extends React.Component<CharWordLineCounterProp
     const renderWordCountsColumn = () => {
       const countsElement = !this.state.showTablesAsTextAreas ?
         <table style={{margin: "1em 0"}}><tbody>{wordCountTrs}</tbody></table> :
-        <textarea value={this.getWordCountTsv(wordCount, orderedWordCountPairs, visibleWordCountRowCount)} style={columnTextAreaStyle} />;
+        <textarea value={this.getWordCountTsv(wordCount, orderedWordCountPairs, visibleWordCountRowCount)} readOnly style={columnTextAreaStyle} />;
       const showMoreOrLessLink = (orderedWordCountPairs.length > visibleWordCountRowCount) ? <a href="" onClick={this.toggleShowAllWordCountRows.bind(this)}>{!this.state.showingAllWordCountRows ? "Show More" : "Show Less"}</a> : null;
         
       return (

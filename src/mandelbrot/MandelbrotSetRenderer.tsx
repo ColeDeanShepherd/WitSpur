@@ -1,4 +1,5 @@
 import * as React from "react";
+import equal = require("deep-equal");
 
 import * as Utils from "../Utils";
 import { Complex, add, subtract, multiply, abs } from "../Complex";
@@ -75,9 +76,13 @@ export interface MandelbrotSetRendererProps {
 
   onCenterPositionChange: (newValue: Complex) => void,
 
+  className?: string,
   style?: any
 }
-export interface MandelbrotSetRendererState {}
+export interface MandelbrotSetRendererState {
+  cursorPositionRelativeToCanvas: Utils.Vector2,
+  cursorDragStartPositionRelativeToCanvas: Utils.Vector2 | null
+}
 
 export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRendererProps, MandelbrotSetRendererState> {
   canvasDomElement: HTMLCanvasElement;
@@ -91,7 +96,10 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
   constructor(props: MandelbrotSetRendererProps) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      cursorPositionRelativeToCanvas: new Utils.Vector2(0, 0),
+      cursorDragStartPositionRelativeToCanvas: null
+    };
   }
 
   getComplexCoordinates(pixelPosition: Utils.Vector2): Complex {
@@ -170,10 +178,24 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     }
   }
 
-  onCanvasClick(event: any) {
-    const scaledCursorPositionInCanvas = Utils.getScaledPositionInCanvas(this.canvasDomElement, new Utils.Vector2(event.clientX, event.clientY));
-    const newCenterPosition = this.getComplexCoordinates(scaledCursorPositionInCanvas);
-    this.props.onCenterPositionChange(newCenterPosition);
+  onMouseDown(event: any) {
+    const scrolledCursorPosition = new Utils.Vector2(event.clientX, event.clientY);
+    this.setState({ cursorDragStartPositionRelativeToCanvas: Utils.getOffsetRelativeToElement(this.canvasDomElement, scrolledCursorPosition) });
+  }
+  onMouseUp(event: any) {
+    if(this.props.onCenterPositionChange) {
+      const scrolledCursorPosition = new Utils.Vector2(event.clientX, event.clientY);
+      const cursorDragEndScaledPositionInCanvas = Utils.getScaledPositionInCanvas(this.canvasDomElement, scrolledCursorPosition);
+      const cursorDragEndComplexPosition = this.getComplexCoordinates(cursorDragEndScaledPositionInCanvas);
+
+      this.props.onCenterPositionChange(cursorDragEndComplexPosition);
+    }
+
+    this.setState({ cursorDragStartPositionRelativeToCanvas: null });
+  }
+  onMouseMove(event: any) {
+    const scrolledCursorPosition = new Utils.Vector2(event.clientX, event.clientY);
+    this.setState({ cursorPositionRelativeToCanvas: Utils.getOffsetRelativeToElement(this.canvasDomElement, scrolledCursorPosition) });
   }
 
   onWindowResize(event: any) {
@@ -205,15 +227,53 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     }
   }
 
-  componentDidUpdate() {
-    this.reRenderMandelbrotSet();
+  shouldComponentUpdate(nextProps: MandelbrotSetRendererProps, nextState: MandelbrotSetRendererState) {
+    return !equal(this.props, nextProps) || !equal(this.state, nextState);
+  }
+  componentDidUpdate(prevProps: MandelbrotSetRendererProps, prevState: MandelbrotSetRendererState) {
+    if(!equal(this.props, prevProps)) {
+      this.reRenderMandelbrotSet();
+    }
   }
 
+  renderSelectionRect() {
+    if(!this.state.cursorDragStartPositionRelativeToCanvas) { return null; }
+
+    const left = Math.min(this.state.cursorDragStartPositionRelativeToCanvas.x, this.state.cursorPositionRelativeToCanvas.x);
+    const right = Math.max(this.state.cursorDragStartPositionRelativeToCanvas.x, this.state.cursorPositionRelativeToCanvas.x);
+    const top = Math.min(this.state.cursorDragStartPositionRelativeToCanvas.y, this.state.cursorPositionRelativeToCanvas.y);
+    const bottom = Math.max(this.state.cursorDragStartPositionRelativeToCanvas.y, this.state.cursorPositionRelativeToCanvas.y);
+    
+    const width = right - left;
+    const height = bottom - top;
+
+    const style: React.CSSProperties = {
+      width: width,
+      height: height,
+      border: "2px solid #F00",
+      position: "absolute",
+      left: left,
+      top: top
+    };
+
+    return <div style={style} />;
+  }
   render() {
     return (
-      <canvas ref={canvas => this.canvasDomElement = canvas} width={this.getSupersampledWidth()} height={this.getSupersampledHeight()} onClick={this.onCanvasClick.bind(this)} style={this.props.style}>
-        Your browser does not support the canvas tag. Please upgrade your browser.
-      </canvas>
+      <div style={{width: "100%", height: "100%", position: "relative"}}>
+        <canvas
+          ref={canvas => this.canvasDomElement = canvas}
+          width={this.getSupersampledWidth()}
+          height={this.getSupersampledHeight()}
+          onMouseDown={this.onMouseDown.bind(this)}
+          onMouseUp={this.onMouseUp.bind(this)}
+          onMouseMove={this.onMouseMove.bind(this)}
+          className={this.props.className}
+          style={this.props.style}>
+          Your browser does not support the canvas tag. Please upgrade your browser.
+        </canvas>
+        {this.renderSelectionRect()}
+      </div>
     );
   }
 }
@@ -222,7 +282,9 @@ export interface MandelbrotSetRendererEditorProps {
 }
 export interface MandelbrotSetRendererEditorState {
   componentProps: MandelbrotSetRendererProps,
-  color: Color.Color
+  nextComponentProps: MandelbrotSetRendererProps,
+  color: Color.Color,
+  isMenuOpen: boolean
 }
 
 export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRendererEditorProps, MandelbrotSetRendererEditorState> {
@@ -231,19 +293,23 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
 
     const hue = 0.66;
     const saturation = 0.5;
+    const componentProps = {
+      heightInUnits: 3,
+      centerPosition: new Complex(-0.75, 0),
+      hue: hue,
+      saturation: saturation,
+      maxIterationCount: 100,
+      supersamplingAmount: 1,
+      onCenterPositionChange: this.onCenterPositionChange.bind(this),
+      className: "hover-cursor",
+      style: { width: "100%", height: "100%" }
+    };
 
     this.state = {
-      componentProps: {
-        heightInUnits: 3,
-        centerPosition: new Complex(-0.75, 0),
-        hue: hue,
-        saturation: saturation,
-        maxIterationCount: 100,
-        supersamplingAmount: 2,
-        onCenterPositionChange: this.onCenterPositionChange.bind(this),
-        style: { width: "100%", height: "100%" }
-      },
-      color: this.hsToColor(hue, saturation)
+      componentProps: componentProps,
+      nextComponentProps: { ...componentProps },
+      color: this.hsToColor(hue, saturation),
+      isMenuOpen: true
     };
   }
 
@@ -255,85 +321,145 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
   onWidthChange(newValue: number | null, newValueString: string) {
     if(newValue === null) { return; }
 
-    const newComponentProps = { ...this.state.componentProps, width: newValue };
-    this.setState({ componentProps: newComponentProps });
+    const newComponentProps = { ...this.state.nextComponentProps, width: newValue };
+    this.setState({ nextComponentProps: newComponentProps });
   }
   onHeightChange(newValue: number | null, newValueString: string) {
     if(newValue === null) { return; }
     
-    const newComponentProps = { ...this.state.componentProps, height: newValue };
-    this.setState({ componentProps: newComponentProps });
+    const newComponentProps = { ...this.state.nextComponentProps, height: newValue };
+    this.setState({ nextComponentProps: newComponentProps });
   }
   onHeightInUnitsChange(newValue: number | null, newValueString: string) {
     if(newValue === null) { return; }
     
-    const newComponentProps = { ...this.state.componentProps, heightInUnits: newValue };
-    this.setState({ componentProps: newComponentProps });
+    const newComponentProps = { ...this.state.nextComponentProps, heightInUnits: newValue };
+    this.setState({ nextComponentProps: newComponentProps });
   }
   onCenterPositionXChange(newValue: number | null, newValueString: string) {
     if(newValue === null) { return; }
     
-    const newCenterPosition = new Complex(newValue, this.state.componentProps.centerPosition.im);
-    const newComponentProps = { ...this.state.componentProps, centerPosition: newCenterPosition };
-    this.setState({ componentProps: newComponentProps });
+    const newCenterPosition = new Complex(newValue, this.state.nextComponentProps.centerPosition.im);
+    const newComponentProps = { ...this.state.nextComponentProps, centerPosition: newCenterPosition };
+    this.setState({ nextComponentProps: newComponentProps });
   }
   onCenterPositionYChange(newValue: number | null, newValueString: string) {
     if(newValue === null) { return; }
     
-    const newCenterPosition = new Complex(this.state.componentProps.centerPosition.re, newValue);
-    const newComponentProps = { ...this.state.componentProps, centerPosition: newCenterPosition };
-    this.setState({ componentProps: newComponentProps });
+    const newCenterPosition = new Complex(this.state.nextComponentProps.centerPosition.re, newValue);
+    const newComponentProps = { ...this.state.nextComponentProps, centerPosition: newCenterPosition };
+    this.setState({ nextComponentProps: newComponentProps });
   }
   onCenterPositionChange(newValue: Complex) {
-    const newComponentProps = { ...this.state.componentProps, centerPosition: newValue };
-    this.setState({ componentProps: newComponentProps });
+    const newComponentProps = { ...this.state.nextComponentProps, centerPosition: newValue };
+    this.setState({ componentProps: newComponentProps, nextComponentProps: { ...newComponentProps } });
   }
   onColorChange(newValue: Color.Color) {
     const hsl = Color.rgbToHsl(newValue.r, newValue.g, newValue.b);
-    const newComponentProps = { ...this.state.componentProps, hue: hsl[0], saturation: hsl[1] };
+    const newComponentProps = { ...this.state.nextComponentProps, hue: hsl[0], saturation: hsl[1] };
 
-    this.setState({ componentProps: newComponentProps, color: newValue });
+    this.setState({ nextComponentProps: newComponentProps, color: newValue });
   }
   onMaxIterationCountChange(newValue: number | null, newValueString: string) {
     if(newValue === null) { return; }
     
-    const newComponentProps = { ...this.state.componentProps, maxIterationCount: newValue };
-    this.setState({ componentProps: newComponentProps });
+    const newComponentProps = { ...this.state.nextComponentProps, maxIterationCount: newValue };
+    this.setState({ nextComponentProps: newComponentProps });
   }
   onSupersamplingAmountChange(newValue: number | null, newValueString: string) {
     if(newValue === null) { return; }
     
-    const newComponentProps = { ...this.state.componentProps, supersamplingAmount: newValue };
-    this.setState({ componentProps: newComponentProps });
+    const newComponentProps = { ...this.state.nextComponentProps, supersamplingAmount: newValue };
+    this.setState({ nextComponentProps: newComponentProps });
+  }
+
+  toggleIsMenuOpen() {
+    this.setState({ isMenuOpen: !this.state.isMenuOpen });
+  }
+
+  onRenderClick() {
+    this.setState({ componentProps: this.state.nextComponentProps });
   }
 
   render() {
-    /*
-    Width: <NumberInput value={this.state.componentProps.width} onChange={this.onWidthChange.bind(this)} /><br />
-    Height: <NumberInput value={this.state.componentProps.height} onChange={this.onHeightChange.bind(this)} /><br />
-    Supersampling Amount: <NumberInput value={this.state.componentProps.supersamplingAmount} onChange={this.onSupersamplingAmountChange.bind(this)} /><br />
-    */
-
     const minCoordinateSliderValue = -10;
     const maxCoordinateSliderValue = 10;
-    const toolSidebarStyle: React.CSSProperties = {
+    const toolSidebarContainerStyle: React.CSSProperties = {
       position: "absolute",
       left: 0,
-      top: 0
+      top: 0,
+      padding: "1em"
+    };
+    const menuIconStyle: React.CSSProperties = {
+      width: "40px",
+      height: "40px",
+      color: "#FFF",
+      fontSize: "32px"
     };
     
     return (
       <div style={{width: "100%", height: "100vh", padding: "1em"}}>
         <div style={{width: "100%", height: "100%", position: "relative"}}>
-          <div className="card" style={toolSidebarStyle}>
-            View Height In Units: <NumberInput value={this.state.componentProps.heightInUnits} onChange={this.onHeightInUnitsChange.bind(this)} showSlider={false} /><br />
-            x (real coordinate): <NumberInput value={this.state.componentProps.centerPosition.re} onChange={this.onCenterPositionXChange.bind(this)} showSlider={false} /><br />
-            y (imaginary coordinate): <NumberInput value={this.state.componentProps.centerPosition.im} onChange={this.onCenterPositionYChange.bind(this)} showSlider={false} /><br />
-            Color: <ColorInput value={this.state.color} onChange={this.onColorChange.bind(this)} /><br />
-            Max. Iteration Count: <NumberInput value={this.state.componentProps.maxIterationCount} onChange={this.onMaxIterationCountChange.bind(this)} showSlider={false} /><br />
-          </div>
-
           {React.createElement(MandelbrotSetRenderer, this.state.componentProps)}
+
+          <div style={toolSidebarContainerStyle}>
+            {this.state.isMenuOpen ? (
+              <div className="card">
+                <div style={{textAlign: "right", paddingBottom: "0.5em"}}>
+                  <span onClick={this.toggleIsMenuOpen.bind(this)} className="fa fa-times hover-cursor" />
+                </div>
+                <div>
+                  <div className="row" style={{marginBottom: "0.5em"}}>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>View Height In Units:</div>
+                    <div className="col-1-2">
+                      <NumberInput value={this.state.nextComponentProps.heightInUnits} onChange={this.onHeightInUnitsChange.bind(this)} showSlider={false} />
+                    </div>
+                  </div>
+                  
+                  <div className="row" style={{marginBottom: "0.5em"}}>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>x (real coordinate):</div>
+                    <div className="col-1-2">
+                      <NumberInput value={this.state.nextComponentProps.centerPosition.re} onChange={this.onCenterPositionXChange.bind(this)} showSlider={false} />
+                    </div>
+                  </div>
+
+                  <div className="row" style={{marginBottom: "0.5em"}}>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>y (imaginary coordinate):</div>
+                    <div className="col-1-2">
+                      <NumberInput value={this.state.nextComponentProps.centerPosition.im} onChange={this.onCenterPositionYChange.bind(this)} showSlider={false} />
+                    </div>
+                  </div>
+
+                  <div className="row" style={{marginBottom: "0.5em"}}>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>Color:</div>
+                    <div className="col-1-2">
+                      <ColorInput value={this.state.color} onChange={this.onColorChange.bind(this)} />
+                    </div>
+                  </div>
+
+                  <div className="row" style={{marginBottom: "0.5em"}}>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>Max. Iteration Count:</div>
+                    <div className="col-1-2">
+                      <NumberInput value={this.state.nextComponentProps.maxIterationCount} onChange={this.onMaxIterationCountChange.bind(this)} showSlider={false} />
+                    </div>
+                  </div>
+
+                  <div className="row" style={{marginBottom: "0.5em"}}>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>Supersamples:</div>
+                    <div className="col-1-2">
+                      <NumberInput value={this.state.componentProps.supersamplingAmount} onChange={this.onSupersamplingAmountChange.bind(this)} showSlider={false} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <button onClick={this.onRenderClick.bind(this)}>Re-render</button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <span onClick={this.toggleIsMenuOpen.bind(this)} className="fa fa-bars hover-cursor" style={menuIconStyle} />
+            )}
+          </div>
         </div>
       </div>
     );
