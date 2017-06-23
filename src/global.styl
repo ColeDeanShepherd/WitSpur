@@ -53,6 +53,15 @@ select {
   border-radius: $defaultBorderRadius;
 }
 
+input[type="text"]:disabled,
+input[type="number"]:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: #F5F5F5;
+  color: #7A7A7A;
+  cursor: not-allowed;
+}
+
 input[type="text"],
 input[type="number"],
 textarea {

@@ -74,21 +74,20 @@ export interface MandelbrotSetRendererProps {
   maxIterationCount: number;
   supersamplingAmount: number;
 
-  onCenterPositionChange: (newValue: Complex) => void,
+  onMouseDown?: (cursorPositionRelativeToCanvas: Utils.Vector2, cursorComplexPosition: Complex) => void;
+  onMouseUp?: (cursorPositionRelativeToCanvas: Utils.Vector2, cursorComplexPosition: Complex) => void;
+  onMouseMove?: (cursorPositionRelativeToCanvas: Utils.Vector2, cursorComplexPosition: Complex) => void;
 
   className?: string,
   style?: any
 }
-export interface MandelbrotSetRendererState {
-  cursorPositionRelativeToCanvas: Utils.Vector2,
-  cursorDragStartPositionRelativeToCanvas: Utils.Vector2 | null
-}
+export interface MandelbrotSetRendererState {}
 
 export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRendererProps, MandelbrotSetRendererState> {
   canvasDomElement: HTMLCanvasElement;
   canvasContext: CanvasRenderingContext2D;
 
-  boundOnWindowResize: (event: any) => void;
+  boundOnWindowResize: ((event: any) => void) | null;
 
   canvasDomElementWidth: number = 640;
   canvasDomElementHeight: number = 480;
@@ -96,10 +95,7 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
   constructor(props: MandelbrotSetRendererProps) {
     super(props);
 
-    this.state = {
-      cursorPositionRelativeToCanvas: new Utils.Vector2(0, 0),
-      cursorDragStartPositionRelativeToCanvas: null
-    };
+    this.state = {};
   }
 
   getComplexCoordinates(pixelPosition: Utils.Vector2): Complex {
@@ -178,26 +174,6 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     }
   }
 
-  onMouseDown(event: any) {
-    const scrolledCursorPosition = new Utils.Vector2(event.clientX, event.clientY);
-    this.setState({ cursorDragStartPositionRelativeToCanvas: Utils.getOffsetRelativeToElement(this.canvasDomElement, scrolledCursorPosition) });
-  }
-  onMouseUp(event: any) {
-    if(this.props.onCenterPositionChange) {
-      const scrolledCursorPosition = new Utils.Vector2(event.clientX, event.clientY);
-      const cursorDragEndScaledPositionInCanvas = Utils.getScaledPositionInCanvas(this.canvasDomElement, scrolledCursorPosition);
-      const cursorDragEndComplexPosition = this.getComplexCoordinates(cursorDragEndScaledPositionInCanvas);
-
-      this.props.onCenterPositionChange(cursorDragEndComplexPosition);
-    }
-
-    this.setState({ cursorDragStartPositionRelativeToCanvas: null });
-  }
-  onMouseMove(event: any) {
-    const scrolledCursorPosition = new Utils.Vector2(event.clientX, event.clientY);
-    this.setState({ cursorPositionRelativeToCanvas: Utils.getOffsetRelativeToElement(this.canvasDomElement, scrolledCursorPosition) });
-  }
-
   onWindowResize(event: any) {
     const canvasBoundingClientRect = this.canvasDomElement.getBoundingClientRect();
 
@@ -209,12 +185,46 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
 
     this.reRenderMandelbrotSet();
   }
+
+  onMouseDown(event: any) {
+    if(this.props.onMouseDown) {
+      const scrolledCursorPosition = new Utils.Vector2(event.clientX, event.clientY);
+      const cursorPositionRelativeToCanvas = Utils.getOffsetRelativeToElement(this.canvasDomElement, scrolledCursorPosition);
+      const cursorScaledPositionInCanvas = Utils.getScaledPositionInCanvas(this.canvasDomElement, scrolledCursorPosition);
+      const cursorComplexPosition = this.getComplexCoordinates(cursorScaledPositionInCanvas);
+
+      this.props.onMouseDown(cursorPositionRelativeToCanvas, cursorComplexPosition);
+    }
+  }
+  onMouseUp(event: any) {
+    if(this.props.onMouseUp) {
+      const scrolledCursorPosition = new Utils.Vector2(event.clientX, event.clientY);
+      const cursorPositionRelativeToCanvas = Utils.getOffsetRelativeToElement(this.canvasDomElement, scrolledCursorPosition);
+      const cursorScaledPositionInCanvas = Utils.getScaledPositionInCanvas(this.canvasDomElement, scrolledCursorPosition);
+      const cursorComplexPosition = this.getComplexCoordinates(cursorScaledPositionInCanvas);
+
+      this.props.onMouseUp(cursorPositionRelativeToCanvas, cursorComplexPosition);
+    }
+  }
+  onMouseMove(event: any) {
+    if(this.props.onMouseMove) {
+      const scrolledCursorPosition = new Utils.Vector2(event.clientX, event.clientY);
+      const cursorPositionRelativeToCanvas = Utils.getOffsetRelativeToElement(this.canvasDomElement, scrolledCursorPosition);
+      const cursorScaledPositionInCanvas = Utils.getScaledPositionInCanvas(this.canvasDomElement, scrolledCursorPosition);
+      const cursorComplexPosition = this.getComplexCoordinates(cursorScaledPositionInCanvas);
+
+      this.props.onMouseMove(cursorPositionRelativeToCanvas, cursorComplexPosition);
+    }
+  }
+
   componentDidMount() {
     const context = this.canvasDomElement.getContext("2d");
     if(!context) { return; }
 
     this.boundOnWindowResize = this.onWindowResize.bind(this);
-    window.addEventListener("resize", this.boundOnWindowResize, false);
+    if(this.boundOnWindowResize !== null) {
+      window.addEventListener("resize", this.boundOnWindowResize, false);
+    }
 
     this.onWindowResize(null);
 
@@ -223,7 +233,7 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
   }
   componentWillUnmount() {
     if(this.boundOnWindowResize) {
-      window.addEventListener("resize", this.boundOnWindowResize, false);
+      window.removeEventListener("resize", this.boundOnWindowResize, false);
     }
   }
 
@@ -236,28 +246,6 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     }
   }
 
-  renderSelectionRect() {
-    if(!this.state.cursorDragStartPositionRelativeToCanvas) { return null; }
-
-    const left = Math.min(this.state.cursorDragStartPositionRelativeToCanvas.x, this.state.cursorPositionRelativeToCanvas.x);
-    const right = Math.max(this.state.cursorDragStartPositionRelativeToCanvas.x, this.state.cursorPositionRelativeToCanvas.x);
-    const top = Math.min(this.state.cursorDragStartPositionRelativeToCanvas.y, this.state.cursorPositionRelativeToCanvas.y);
-    const bottom = Math.max(this.state.cursorDragStartPositionRelativeToCanvas.y, this.state.cursorPositionRelativeToCanvas.y);
-    
-    const width = right - left;
-    const height = bottom - top;
-
-    const style: React.CSSProperties = {
-      width: width,
-      height: height,
-      border: "2px solid #F00",
-      position: "absolute",
-      left: left,
-      top: top
-    };
-
-    return <div style={style} />;
-  }
   render() {
     return (
       <div style={{width: "100%", height: "100%", position: "relative"}}>
@@ -272,45 +260,63 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
           style={this.props.style}>
           Your browser does not support the canvas tag. Please upgrade your browser.
         </canvas>
-        {this.renderSelectionRect()}
       </div>
     );
   }
 }
 
-export interface MandelbrotSetRendererEditorProps {
-}
+export interface MandelbrotSetRendererEditorProps {}
 export interface MandelbrotSetRendererEditorState {
   componentProps: MandelbrotSetRendererProps,
   nextComponentProps: MandelbrotSetRendererProps,
   color: Color.Color,
-  isMenuOpen: boolean
+  isMenuOpen: boolean,
+  autoMaxIterationCount: boolean,
+  cursorDragStartPositionRelativeToCanvas: Utils.Vector2 | null,
+  cursorDragStartComplexPosition: Complex,
+  cursorPositionRelativeToCanvas: Utils.Vector2,
+  cursorComplexPosition: Complex
 }
 
 export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRendererEditorProps, MandelbrotSetRendererEditorState> {
+  boundOnMouseUp: ((event: any) => void) | null;
+  defaultHue = 0.66;
+  defaultSaturation = 0.5;
+
   constructor(props: MandelbrotSetRendererEditorProps) {
     super(props);
 
-    const hue = 0.66;
-    const saturation = 0.5;
-    const componentProps = {
-      heightInUnits: 3,
+    this.state = {
+      componentProps: this.getDefaultComponentProps(),
+      nextComponentProps: this.getDefaultComponentProps(),
+      color: this.hsToColor(this.defaultHue, this.defaultSaturation),
+      isMenuOpen: true,
+      autoMaxIterationCount: true,
+      cursorDragStartPositionRelativeToCanvas: null,
+      cursorDragStartComplexPosition: new Complex(0, 0),
+      cursorPositionRelativeToCanvas: new Utils.Vector2(0, 0),
+      cursorComplexPosition: new Complex(0, 0)
+    };
+  }
+
+  getDefaultComponentProps(): MandelbrotSetRendererProps {
+    const heightInUnits = 3;
+
+    return {
+      heightInUnits: heightInUnits,
       centerPosition: new Complex(-0.75, 0),
-      hue: hue,
-      saturation: saturation,
-      maxIterationCount: 100,
+      hue: this.defaultHue,
+      saturation: this.defaultSaturation,
+      maxIterationCount: this.calcAutoMaxIterationCount(heightInUnits),
       supersamplingAmount: 1,
-      onCenterPositionChange: this.onCenterPositionChange.bind(this),
+      onMouseDown: this.onMouseDown.bind(this),
+      onMouseMove: this.onMouseMove.bind(this),
       className: "hover-cursor",
       style: { width: "100%", height: "100%" }
     };
-
-    this.state = {
-      componentProps: componentProps,
-      nextComponentProps: { ...componentProps },
-      color: this.hsToColor(hue, saturation),
-      isMenuOpen: true
-    };
+  }
+  calcAutoMaxIterationCount(heightInUnits): number {
+    return Math.floor(200 / Math.pow(heightInUnits, 1 / 4));
   }
 
   hsToColor(hue: number, saturation: number): Color.Color {
@@ -350,10 +356,6 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
     const newComponentProps = { ...this.state.nextComponentProps, centerPosition: newCenterPosition };
     this.setState({ nextComponentProps: newComponentProps });
   }
-  onCenterPositionChange(newValue: Complex) {
-    const newComponentProps = { ...this.state.nextComponentProps, centerPosition: newValue };
-    this.setState({ componentProps: newComponentProps, nextComponentProps: { ...newComponentProps } });
-  }
   onColorChange(newValue: Color.Color) {
     const hsl = Color.rgbToHsl(newValue.r, newValue.g, newValue.b);
     const newComponentProps = { ...this.state.nextComponentProps, hue: hsl[0], saturation: hsl[1] };
@@ -377,10 +379,95 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
     this.setState({ isMenuOpen: !this.state.isMenuOpen });
   }
 
+  onMouseDown(cursorPositionRelativeToCanvas: Utils.Vector2, cursorComplexPosition: Complex) {
+    this.boundOnMouseUp = this.onMouseUp.bind(this);
+    if(this.boundOnMouseUp !== null) {
+      window.addEventListener("mouseup", this.boundOnMouseUp);
+    }
+
+    this.setState({
+      cursorDragStartPositionRelativeToCanvas: cursorPositionRelativeToCanvas,
+      cursorDragStartComplexPosition: cursorComplexPosition
+    });
+  }
+  onMouseUp(event: any) {
+    if(this.boundOnMouseUp !== null) {
+      window.removeEventListener("mouseup", this.boundOnMouseUp);
+    }
+    this.boundOnMouseUp = null;
+
+    const centerPosition = new Complex((this.state.cursorDragStartComplexPosition.re + this.state.cursorComplexPosition.re) / 2, (this.state.cursorDragStartComplexPosition.im + this.state.cursorComplexPosition.im) / 2);
+    
+    let heightInUnits = Math.abs(this.state.cursorComplexPosition.re - this.state.cursorDragStartComplexPosition.re);
+    if(heightInUnits === 0) {
+      heightInUnits = this.state.componentProps.heightInUnits;
+    }
+
+    const newComponentProps = {
+      ...this.state.nextComponentProps,
+      centerPosition: centerPosition,
+      heightInUnits: heightInUnits,
+      maxIterationCount: this.state.autoMaxIterationCount ? this.calcAutoMaxIterationCount(heightInUnits) : this.state.nextComponentProps.maxIterationCount
+    };
+
+    this.setState({
+      componentProps: newComponentProps,
+      nextComponentProps: { ...newComponentProps },
+      cursorDragStartPositionRelativeToCanvas: null
+    });
+  }
+  onMouseMove(cursorPositionRelativeToCanvas: Utils.Vector2, cursorComplexPosition: Complex) {
+    this.setState({
+      cursorPositionRelativeToCanvas: cursorPositionRelativeToCanvas,
+      cursorComplexPosition: cursorComplexPosition
+    });
+  }
+
+  toggleAutoMaxIterationCount() {
+    const newComponentProps = {
+      ...this.state.nextComponentProps,
+      maxIterationCount: this.calcAutoMaxIterationCount(this.state.nextComponentProps.heightInUnits)
+    };
+    this.setState({
+      autoMaxIterationCount: !this.state.autoMaxIterationCount,
+      nextComponentProps: newComponentProps
+    });
+  }
+
   onRenderClick() {
     this.setState({ componentProps: this.state.nextComponentProps });
   }
+  onResetClick() {
+    const newComponentProps = this.getDefaultComponentProps();
 
+    this.setState({
+      componentProps: newComponentProps,
+      nextComponentProps: newComponentProps
+    });
+  }
+
+  renderSelectionRect() {
+    if(!this.state.cursorDragStartPositionRelativeToCanvas) { return null; }
+
+    const left = Math.min(this.state.cursorDragStartPositionRelativeToCanvas.x, this.state.cursorPositionRelativeToCanvas.x);
+    const right = Math.max(this.state.cursorDragStartPositionRelativeToCanvas.x, this.state.cursorPositionRelativeToCanvas.x);
+    const top = Math.min(this.state.cursorDragStartPositionRelativeToCanvas.y, this.state.cursorPositionRelativeToCanvas.y);
+    const bottom = Math.max(this.state.cursorDragStartPositionRelativeToCanvas.y, this.state.cursorPositionRelativeToCanvas.y);
+    
+    const width = right - left;
+    const height = bottom - top;
+
+    const style: React.CSSProperties = {
+      width: width,
+      height: height,
+      border: "2px solid #F00",
+      position: "absolute",
+      left: left,
+      top: top
+    };
+
+    return <div onMouseUp={this.onMouseUp.bind(this)} style={style} />;
+  }
   render() {
     const minCoordinateSliderValue = -10;
     const maxCoordinateSliderValue = 10;
@@ -438,9 +525,16 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
                   </div>
 
                   <div className="row" style={{marginBottom: "0.5em"}}>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>Auto. Iteration Count:</div>
+                    <div className="col-1-2">
+                      <input type="checkbox" checked={this.state.autoMaxIterationCount} onChange={this.toggleAutoMaxIterationCount.bind(this)} />
+                    </div>
+                  </div>
+
+                  <div className="row" style={{marginBottom: "0.5em"}}>
                     <div className="col-1-2" style={{alignSelf: "center"}}>Max. Iteration Count:</div>
                     <div className="col-1-2">
-                      <NumberInput value={this.state.nextComponentProps.maxIterationCount} onChange={this.onMaxIterationCountChange.bind(this)} showSlider={false} />
+                      <NumberInput value={this.state.nextComponentProps.maxIterationCount} onChange={this.onMaxIterationCountChange.bind(this)} showSlider={false} readOnly={this.state.autoMaxIterationCount} />
                     </div>
                   </div>
 
@@ -453,6 +547,7 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
 
                   <div>
                     <button onClick={this.onRenderClick.bind(this)}>Re-render</button>
+                    <button onClick={this.onResetClick.bind(this)}>Reset</button>
                   </div>
                 </div>
               </div>
@@ -460,6 +555,8 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
               <span onClick={this.toggleIsMenuOpen.bind(this)} className="fa fa-bars hover-cursor" style={menuIconStyle} />
             )}
           </div>
+          
+          {this.renderSelectionRect()}
         </div>
       </div>
     );

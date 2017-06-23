@@ -6,7 +6,8 @@ export interface NumberInputProps {
   showSlider?: boolean,
   minSliderValue?: number,
   maxSliderValue?: number,
-  sliderStepSize?: number
+  sliderStepSize?: number,
+  readOnly?: boolean
 }
 export interface NumberInputState {
   valueString: string
@@ -16,7 +17,8 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
     showSlider: true,
     minSliderValue: 0,
     maxSliderValue: 100,
-    sliderStepSize: 1
+    sliderStepSize: 1,
+    readOnly: false
   };
 
   constructor(props: NumberInputProps) {
@@ -52,8 +54,8 @@ export class NumberInput extends React.Component<NumberInputProps, NumberInputSt
 
     return (
       <span>
-        <input type="number" value={this.state.valueString} onChange={this.onValueStringChange.bind(this)} style={style} />
-        {this.props.showSlider ? <input type="range" min={this.props.minSliderValue} max={this.props.maxSliderValue} step={this.props.sliderStepSize} value={this.state.valueString} onChange={this.onValueStringChange.bind(this)} style={{width: "100%", paddingTop: "0.5em"}} /> : null}
+        <input type="number" value={this.state.valueString} onChange={this.onValueStringChange.bind(this)} style={style} readOnly={this.props.readOnly} disabled={this.props.readOnly} />
+        {this.props.showSlider ? <input type="range" min={this.props.minSliderValue} max={this.props.maxSliderValue} step={this.props.sliderStepSize} value={this.state.valueString} onChange={this.onValueStringChange.bind(this)} style={{width: "100%", paddingTop: "0.5em"}} readOnly={this.props.readOnly} disabled={this.props.readOnly} /> : null}
       </span>
     );
   }
