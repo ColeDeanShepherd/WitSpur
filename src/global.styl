@@ -79,10 +79,29 @@ button {
   &:hover {
     background-color: #07C;
   }
+  &.green {
+    background-color: #14CC00;
+    border-color: #12B800;
+
+    &:hover {
+      background-color: #12B800;
+    }
+  }
 }
 
 .hover-cursor:hover {
   cursor: pointer;
+}
+
+.no-user-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.no-pointer-events {
+  pointer-events: none;
 }
 
 .light-above,

@@ -11,6 +11,74 @@ export function assertUnreachable(x: never): never {
   throw new Error("Failed unreachable assertion.");
 }
 
+export function objectToUrlParamsString(obj: object): string {
+  let urlParamsString = "";
+
+  for(const key in obj) {
+    if(urlParamsString.length > 0) {
+      urlParamsString += "&";
+    }
+
+    urlParamsString += `${key}=${encodeURI(obj[key])}`;
+  }
+
+  return urlParamsString;
+}
+export function urlParamsStringToObject(urlParamsString: string): any {
+  const urlParamStrings = urlParamsString.split("&");
+  let urlParams = {};
+
+  urlParamStrings.forEach(urlParamString => {
+    const keyValueStrings = urlParamString.split("=");
+    urlParams[keyValueStrings[0]] = decodeURI(keyValueStrings[1]);
+  })
+
+  return urlParams;
+}
+
+export function parseWithTemplate(templateStr: string, str: string): string[] | null {
+  let placeHolderValues: string[] = [];
+
+  // Split the template string by place-holders. This leaves an array of (possibly empty) strings which were separated by place-holders.
+  const constTemplateParts = templateStr.split("${}");
+
+  // For each constant part of the template.
+  let currentCharIndex = 0;
+  for(let i = 0; i < constTemplateParts.length; i++) {
+    // Verify that the parsed string contains the constant part of the template at the correct position.
+    const constTemplatePart = constTemplateParts[i];
+    if(constTemplatePart.length > 0) {
+      if(str.indexOf(constTemplatePart, currentCharIndex) !== currentCharIndex) {
+        return null;
+      }
+
+      // Move past the constant part of the template.
+      currentCharIndex += constTemplatePart.length;
+    }
+
+    // Parse the next placeholder value unless we're done parsing the string.
+    if(i < (constTemplateParts.length - 1)) {
+      const nextConstTemplatePart = constTemplateParts[i + 1];
+
+      // Extract the place-holder value.
+      const placeHolderValue = (nextConstTemplatePart.length > 0) ? str.substring(currentCharIndex, str.indexOf(nextConstTemplatePart, currentCharIndex)) : str.substring(currentCharIndex);
+
+      // Add the place-holder value to the result array.
+      placeHolderValues.push(placeHolderValue);
+
+      // Move past the place-holder string.
+      currentCharIndex += placeHolderValue.length;
+    }
+  }
+
+  // If we're not at the end of the string, parsing failed.
+  if(currentCharIndex < str.length) {
+    return null;
+  }
+
+  return placeHolderValues
+}
+
 export function reduceObjectPropertyNames<T>(iteratee: (accumulator: T, propertyName: string) => T, obj: object, initialValue: T): T {
   let accumulator = initialValue;
   

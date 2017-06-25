@@ -1,4 +1,16 @@
+import { parseWithTemplate } from "./Utils";
+
 export class Color {
+  public static parse(str: string): Color | null {
+    const componentStrings = parseWithTemplate("rgba(${}, ${}, ${}, ${})", str);
+    if(!componentStrings) { return null; }
+
+    const components = componentStrings.map(parseFloat);
+    if(components.some(isNaN)) { return null; }
+
+    return new Color(components[0], components[1], components[2], components[3]);
+  }
+
   r: number; // [0, 255]
   g: number; // [0, 255]
   b: number; // [0, 255]
