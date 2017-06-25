@@ -611,7 +611,7 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
                   <span onClick={this.toggleIsMenuOpen.bind(this)} className="fa fa-times hover-cursor" />
                 </div>
 
-                <p style={{fontWeight: "bold", textAlign: "center"}}>Click to move, click and drag to zoom.</p>
+                <p style={{fontWeight: "bold", textAlign: "center"}}>Click to move, click and drag to zoom in, right-click to zoom out.</p>
 
                 <div>
                   <div className="row no-padding" style={{marginBottom: "0.5em"}}>
