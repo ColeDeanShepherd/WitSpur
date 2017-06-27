@@ -7,7 +7,7 @@ import * as Color from "../Color";
 import { NumberInput } from "../NumberInput";
 import { ColorInput } from "../ColorInput";
 
-function createMandelbrotSetImageDataPart(widthInPixels: number, heightInPixels: number, widthInUnits: number, heightInUnits: number, centerPosition: Complex, maxIterationCount: number, hue: number, saturation: number, startRowIndex: number, rowCount: number): Uint8ClampedArray {
+function createJuliaSetImageDataPart(widthInPixels: number, heightInPixels: number, widthInUnits: number, heightInUnits: number, c: Complex, centerPosition: Complex, maxIterationCount: number, hue: number, saturation: number, startRowIndex: number, rowCount: number): Uint8ClampedArray {
   const widthOfPixelInUnits = widthInUnits / widthInPixels;
   const heightOfPixelInUnits = heightInUnits / heightInPixels;
   
@@ -22,10 +22,10 @@ function createMandelbrotSetImageDataPart(widthInPixels: number, heightInPixels:
 
   for(let y = startPixelY; y < endPixelY; y++) {
     for(let x = 0; x < widthInPixels; x++) {
-      const cRe = topLeftPixelCenterPosition.re + (x * widthOfPixelInUnits);
-      const cIm = topLeftPixelCenterPosition.im - (y * heightOfPixelInUnits);
-      let znRe = 0;
-      let znIm = 0;
+      const cRe = c.re;
+      const cIm = c.im;
+      let znRe = topLeftPixelCenterPosition.re + (x * widthOfPixelInUnits);
+      let znIm = topLeftPixelCenterPosition.im - (y * heightOfPixelInUnits);
       let n = 1;
 
       /*
@@ -66,7 +66,8 @@ function createMandelbrotSetImageDataPart(widthInPixels: number, heightInPixels:
   return imageData;
 }
 
-export interface MandelbrotSetRendererProps {
+export interface JuliaSetRendererProps {
+  c: Complex;
   heightInUnits: number;
   centerPosition: Complex;
   hue: number;
@@ -81,9 +82,9 @@ export interface MandelbrotSetRendererProps {
   className?: string,
   style?: any
 }
-export interface MandelbrotSetRendererState {}
+export interface JuliaSetRendererState {}
 
-export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRendererProps, MandelbrotSetRendererState> {
+export class JuliaSetRenderer extends React.Component<JuliaSetRendererProps, JuliaSetRendererState> {
   canvasDomElement: HTMLCanvasElement;
   canvasContext: CanvasRenderingContext2D;
 
@@ -94,7 +95,7 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
 
   renderId: string;
 
-  constructor(props: MandelbrotSetRendererProps) {
+  constructor(props: JuliaSetRendererProps) {
     super(props);
 
     this.state = {};
@@ -130,7 +131,7 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
   getSupersampledHeight(): number {
     return this.props.supersamplingAmount * this.canvasDomElementHeight;
   }
-  reRenderMandelbrotSet() {
+  reRenderJuliaSet() {
     if(!this.canvasContext) { return; }
 
     const localRenderId = Utils.genUniqueId();
@@ -143,6 +144,8 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
 
     const heightOfCanvasInUnits = this.props.heightInUnits;
     const widthOfCanvasInUnits = canvasAspectRatio * heightOfCanvasInUnits;
+
+    const c = this.props.c;
 
     const centerPosition = this.props.centerPosition;
     
@@ -160,11 +163,12 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
       const rowStartIndex = threadRowRanges[threadIndex].start;
       const rowCount = threadRowRanges[threadIndex].count;
 
-      const pixels = createMandelbrotSetImageDataPart(
+      const pixels = createJuliaSetImageDataPart(
         widthOfCanvasInPixels,
         heightOfCanvasInPixels,
         widthOfCanvasInUnits,
         heightOfCanvasInUnits,
+        c,
         centerPosition,
         maxIterationCount,
         hue,
@@ -196,7 +200,7 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     this.canvasDomElement.width = this.getSupersampledWidth();
     this.canvasDomElement.height = this.getSupersampledHeight();
 
-    this.reRenderMandelbrotSet();
+    this.reRenderJuliaSet();
   }
 
   onMouseDown(event: any) {
@@ -242,7 +246,7 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     this.onWindowResize(null);
 
     this.canvasContext = context;
-    this.reRenderMandelbrotSet();
+    this.reRenderJuliaSet();
   }
   componentWillUnmount() {
     if(this.boundOnWindowResize) {
@@ -250,12 +254,12 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
     }
   }
 
-  shouldComponentUpdate(nextProps: MandelbrotSetRendererProps, nextState: MandelbrotSetRendererState) {
+  shouldComponentUpdate(nextProps: JuliaSetRendererProps, nextState: JuliaSetRendererState) {
     return !equal(this.props, nextProps) || !equal(this.state, nextState);
   }
-  componentDidUpdate(prevProps: MandelbrotSetRendererProps, prevState: MandelbrotSetRendererState) {
+  componentDidUpdate(prevProps: JuliaSetRendererProps, prevState: JuliaSetRendererState) {
     if(!equal(this.props, prevProps)) {
-      this.reRenderMandelbrotSet();
+      this.reRenderJuliaSet();
     }
   }
 
@@ -278,10 +282,10 @@ export class MandelbrotSetRenderer extends React.Component<MandelbrotSetRenderer
   }
 }
 
-export interface MandelbrotSetRendererEditorProps {}
-export interface MandelbrotSetRendererEditorState {
-  componentProps: MandelbrotSetRendererProps,
-  nextComponentProps: MandelbrotSetRendererProps,
+export interface JuliaSetRendererEditorProps {}
+export interface JuliaSetRendererEditorState {
+  componentProps: JuliaSetRendererProps,
+  nextComponentProps: JuliaSetRendererProps,
   color: Color.Color,
   isMenuOpen: boolean,
   autoMaxIterationCount: boolean,
@@ -292,7 +296,7 @@ export interface MandelbrotSetRendererEditorState {
   hasLoadedInitialParams: boolean
 }
 
-export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRendererEditorProps, MandelbrotSetRendererEditorState> {
+export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEditorProps, JuliaSetRendererEditorState> {
   containerElement: HTMLElement;
   boundOnMouseUp: ((event: any) => void) | null;
   boundOnHashChange: ((event: any) => void) | null;
@@ -300,7 +304,7 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
   defaultSaturation = 0.5;
   wasHashChangedProgrammatically = false;
 
-  constructor(props: MandelbrotSetRendererEditorProps) {
+  constructor(props: JuliaSetRendererEditorProps) {
     super(props);
 
     this.state = {
@@ -317,16 +321,17 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
     };
   }
 
-  getDefaultComponentProps(): MandelbrotSetRendererProps {
+  getDefaultComponentProps(): JuliaSetRendererProps {
     const heightInUnits = 3;
 
     return {
+      c: new Complex(-0.4, 0.6),
       heightInUnits: heightInUnits,
-      centerPosition: new Complex(-0.75, 0),
+      centerPosition: new Complex(0, 0),
       hue: this.defaultHue,
       saturation: this.defaultSaturation,
       maxIterationCount: this.calcAutoMaxIterationCount(heightInUnits),
-      supersamplingAmount: 1,
+      supersamplingAmount: 2,
       onMouseDown: this.onMouseDown.bind(this),
       onMouseMove: this.onMouseMove.bind(this),
       className: "hover-cursor",
@@ -334,7 +339,7 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
     };
   }
   calcAutoMaxIterationCount(heightInUnits): number {
-    return Math.floor(200 / Math.pow(heightInUnits, 1 / 4));
+    return Math.floor(500 / Math.pow(heightInUnits, 1 / 8));
   }
 
   hsToColor(hue: number, saturation: number): Color.Color {
@@ -342,6 +347,20 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
     return new Color.Color(rgb[0], rgb[1], rgb[2], 1);
   }
 
+  onCReChange(newValue: number | null, newValueString: string) {
+    if(newValue === null) { return; }
+    
+    const newC = new Complex(newValue, this.state.nextComponentProps.c.im);
+    const newComponentProps = { ...this.state.nextComponentProps, c: newC };
+    this.setState({ nextComponentProps: newComponentProps });
+  }
+  onCImChange(newValue: number | null, newValueString: string) {
+    if(newValue === null) { return; }
+    
+    const newC = new Complex(this.state.nextComponentProps.c.re, newValue);
+    const newComponentProps = { ...this.state.nextComponentProps, c: newC };
+    this.setState({ nextComponentProps: newComponentProps });
+  }
   onWidthChange(newValue: number | null, newValueString: string) {
     if(newValue === null) { return; }
 
@@ -477,8 +496,10 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
     }
   }
   
-  updateUrlFromComponentProps(newComponentProps: MandelbrotSetRendererProps, newColor: Color.Color, autoMaxIterationCount: boolean) {
+  updateUrlFromComponentProps(newComponentProps: JuliaSetRendererProps, newColor: Color.Color, autoMaxIterationCount: boolean) {
     const urlParamsObj = {
+      cRe: newComponentProps.c.re,
+      cIm: newComponentProps.c.im,
       heightInUnits: newComponentProps.heightInUnits,
       x: newComponentProps.centerPosition.re,
       y: newComponentProps.centerPosition.im,
@@ -500,6 +521,7 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
 
       const newComponentProps = {
         ...this.state.componentProps,
+        c: new Complex(parseFloat(urlParams.cRe), parseFloat(urlParams.cIm)),
         heightInUnits: parseFloat(urlParams.heightInUnits),
         centerPosition: new Complex(parseFloat(urlParams.x), parseFloat(urlParams.y)),
         hue: parseFloat(urlParams.hue),
@@ -517,7 +539,7 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
       this.commitNewComponentProps(this.getDefaultComponentProps(), this.hsToColor(this.defaultHue, this.defaultSaturation), true, false);
     }
   }
-  commitNewComponentProps(newComponentProps: MandelbrotSetRendererProps, newColor: Color.Color, newAutoMaxIterationCount: boolean, updateUrl: boolean) {
+  commitNewComponentProps(newComponentProps: JuliaSetRendererProps, newColor: Color.Color, newAutoMaxIterationCount: boolean, updateUrl: boolean) {
     if(updateUrl) {
       this.wasHashChangedProgrammatically = true;
       this.updateUrlFromComponentProps(newComponentProps, newColor, newAutoMaxIterationCount);
@@ -536,7 +558,7 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
   }
 
   componentDidMount() {
-    // Scroll to the Mandelbrot set.
+    // Scroll to the Julia set.
     window.scroll(0, this.containerElement.getBoundingClientRect().top);
 
     // Scroll to the top before refreshing so that Chrome doesn't mess up our auto-scrolling with its auto-scrolling.
@@ -606,7 +628,7 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
     return (
       <div ref={containerElement => this.containerElement = containerElement} style={{width: "100%", height: "100vh"}}>
         <div onContextMenu={this.onContextMenu.bind(this)} style={{width: "100%", height: "100%", position: "relative"}}>
-          {this.state.hasLoadedInitialParams ? React.createElement(MandelbrotSetRenderer, this.state.componentProps) : null}
+          {this.state.hasLoadedInitialParams ? React.createElement(JuliaSetRenderer, this.state.componentProps) : null}
 
           <div style={toolSidebarContainerStyle}>
             {this.state.isMenuOpen ? (
@@ -618,6 +640,20 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
                 <p style={{fontWeight: "bold", textAlign: "center"}}>Click to move, click and drag to zoom in, right-click to zoom out.</p>
 
                 <div>
+                  <div className="row no-padding" style={{marginBottom: "0.5em"}}>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>c real part:</div>
+                    <div className="col-1-2">
+                      <NumberInput value={this.state.nextComponentProps.c.re} onChange={this.onCReChange.bind(this)} showSlider={false} />
+                    </div>
+                  </div>
+
+                  <div className="row no-padding" style={{marginBottom: "0.5em"}}>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>c imaginary part:</div>
+                    <div className="col-1-2">
+                      <NumberInput value={this.state.nextComponentProps.c.im} onChange={this.onCImChange.bind(this)} showSlider={false} />
+                    </div>
+                  </div>
+                  
                   <div className="row no-padding" style={{marginBottom: "0.5em"}}>
                     <div className="col-1-2" style={{alignSelf: "center"}}>View Height In Units:</div>
                     <div className="col-1-2">

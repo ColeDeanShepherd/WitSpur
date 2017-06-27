@@ -35,6 +35,11 @@
     "outputFileName": "mandelbrot-set"
   },
   {
+    "name": "Interactive Julia Set Renderer",
+    "contentsFilePath": "julia-set/julia-set.html",
+    "outputFileName": "julia-set"
+  },
+  {
     "name": "Pendulum Simulator",
     "contentsFilePath": "pendulum-simulator/pendulum-simulator.html",
     "outputFileName": "pendulum-simulator"
