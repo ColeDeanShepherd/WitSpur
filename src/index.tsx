@@ -6,6 +6,7 @@ import * as ReactDOM from "react-dom";
 import { CharWordLineCounter } from "./char-word-line-counter/CharWordLineCounter";
 import { CssBoxShadowGenerator } from "./box-shadow-generator/BoxShadowGenerator";
 import { PomodoroTimer } from "./pomodoro-timer/PomodoroTimer";
+import { InvestmentCalculator } from "./investment-calculator/InvestmentCalculator";
 import { GpaCalculator } from "./gpa-calculator/GpaCalculator";
 import { SightReadingExercises } from "./sight-reading-exercises/SightReadingExercises";
 import { PendulumSimulator } from "./pendulum-simulator/PendulumSimulator";
@@ -20,12 +21,20 @@ export function renderTextAnalysis(element: HTMLElement) {
 export function renderCssBoxShadowGenerator(element: HTMLElement) {
   ReactDOM.render(<CssBoxShadowGenerator />, element);
 }
+export function renderCssTextShadowGenerator(element: HTMLElement) {
+  ReactDOM.render(<CssBoxShadowGenerator editTextShadow={true} />, element);
+}
 export function renderPomodoroTimer(element: HTMLElement) {
   ReactDOM.render(<PomodoroTimer />, element);
+}
+
+export function renderInvestmentCalculator(element: HTMLElement) {
+  ReactDOM.render(<InvestmentCalculator />, element);
 }
 export function renderGpaCalculator(element: HTMLElement) {
   ReactDOM.render(<GpaCalculator />, element);
 }
+
 export function renderSightReadingExercises(element: HTMLElement) {
   ReactDOM.render(<SightReadingExercises />, element);
 }

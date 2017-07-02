@@ -626,14 +626,14 @@ export class MandelbrotSetRendererEditor extends React.Component<MandelbrotSetRe
                   </div>
                   
                   <div className="row no-padding" style={{marginBottom: "0.5em"}}>
-                    <div className="col-1-2" style={{alignSelf: "center"}}>real coordinate (x):</div>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>Re(c):</div>
                     <div className="col-1-2">
                       <NumberInput value={this.state.nextComponentProps.centerPosition.re} onChange={this.onCenterPositionXChange.bind(this)} showSlider={false} />
                     </div>
                   </div>
 
                   <div className="row no-padding" style={{marginBottom: "0.5em"}}>
-                    <div className="col-1-2" style={{alignSelf: "center"}}>imaginary coordinate (y):</div>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>Im(c):</div>
                     <div className="col-1-2">
                       <NumberInput value={this.state.nextComponentProps.centerPosition.im} onChange={this.onCenterPositionYChange.bind(this)} showSlider={false} />
                     </div>

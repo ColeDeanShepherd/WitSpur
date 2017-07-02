@@ -1,3 +1,7 @@
+export const daysInWeek = 7;
+export const averageDaysInMonth = 30;
+export const daysInYear = 365;
+
 export const millisecondsInSecond = 1000;
 export const secondsInMinute = 60;
 export const minutesInHour = 60;

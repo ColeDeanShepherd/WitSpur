@@ -15,6 +15,11 @@
     "outputFileName": "css-box-shadow-generator"
   },
   {
+    "name": "CSS Text Shadow Generator",
+    "contentsFilePath": "text-shadow-generator/text-shadow-generator.html",
+    "outputFileName": "css-text-shadow-generator"
+  },
+  {
     "name": "Pomodoro Timer",
     "contentsFilePath": "pomodoro-timer/pomodoro-timer.html",
     "outputFileName": "pomodoro-timer"
@@ -43,6 +48,11 @@
     "name": "Pendulum Simulator",
     "contentsFilePath": "pendulum-simulator/pendulum-simulator.html",
     "outputFileName": "pendulum-simulator"
+  },
+  {
+    "name": "Investment Calculator",
+    "contentsFilePath": "investment-calculator/investment-calculator.html",
+    "outputFileName": "investment-calculator"
   },
   
   {

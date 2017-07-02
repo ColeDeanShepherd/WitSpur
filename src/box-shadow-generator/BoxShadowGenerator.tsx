@@ -14,18 +14,30 @@ export interface CssBoxShadowProps {
   isInset: boolean;
 }
 
-export interface CssBoxShadowGeneratorProps {}
+export interface CssBoxShadowGeneratorProps {
+  editTextShadow?: boolean;
+}
 export interface CssBoxShadowGeneratorState {
   backgroundColor: Color,
+  squareColor: Color,
+  previewText: string,
+  previewTextColor: Color,
   shadows: CssBoxShadowProps[],
   areShadowEditorsExpanded: boolean[]
 }
 export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGeneratorProps, CssBoxShadowGeneratorState> {
+  public static defaultProps: Partial<CssBoxShadowGeneratorProps> = {
+    editTextShadow: false
+  };
+
   constructor(props: CssBoxShadowGeneratorProps) {
     super(props);
 
     this.state = {
       backgroundColor: new Color(255, 255, 255, 1),
+      squareColor: new Color(187, 187, 187, 1),
+      previewText: "WitSpur",
+      previewTextColor: new Color(0, 0, 0, 1),
       shadows: [this.getDefaultShadow()],
       areShadowEditorsExpanded: [true]
     };
@@ -43,6 +55,15 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
 
   onBackgroundColorChange(newValue: Color) {
     this.setState({ backgroundColor: newValue });
+  }
+  onSquareColorChange(newValue: Color) {
+    this.setState({ squareColor: newValue });
+  }
+  onPreviewTextChange(e: any) {
+    this.setState({ previewText: e.target.value });
+  }
+  onPreviewTextColorChange(newValue: Color) {
+    this.setState({ previewTextColor: newValue });
   }
   onShadowColorChange(shadowIndex: number, newValue: Color) {
     const oldShadow = this.state.shadows[shadowIndex];
@@ -102,7 +123,7 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
   }
 
   render(): JSX.Element {
-    const boxShadowValue = this.state.shadows.map(shadow => `${shadow.color.toString()} ${shadow.offsetX}px ${shadow.offsetY}px ${shadow.blurRadius}px ${shadow.spreadRadius}px${shadow.isInset ? " inset" : ""}`).join(", ");
+    const boxShadowValue = this.state.shadows.map(shadow => `${shadow.isInset ? "inset " : ""}${shadow.offsetX}px ${shadow.offsetY}px ${shadow.blurRadius}px ${shadow.spreadRadius}px ${shadow.color.toString()}`).join(", ");
     const boxShadowRuleNames = ["-webkit-box-shadow", "-moz-box-shadow", "box-shadow"];
     const boxShadowRulesText = boxShadowValue ? boxShadowRuleNames.map(ruleName => `${ruleName}: ${boxShadowValue};`).join("\n") : "";
     const boxShadowStyle = {
@@ -111,6 +132,12 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
       boxShadow: boxShadowValue
     };
 
+    const textShadowValue = this.state.shadows.map(shadow => `${shadow.offsetX}px ${shadow.offsetY}px ${shadow.blurRadius}px ${shadow.color.toString()}`).join(", ");
+    const textShadowRuleNames = ["text-shadow"];
+    const textShadowRulesText = textShadowValue ? textShadowRuleNames.map(ruleName => `${ruleName}: ${textShadowValue};`).join("\n") : "";
+    const textShadowStyle = {
+      textShadow: textShadowValue
+    };
     const minCoordinateSliderValue = -50;
     const maxCoordinateSliderValue = 50;
     const minBlurSpreadRadiusValue = 0;
@@ -139,14 +166,18 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
             <div className="col-1-2" style={{alignSelf: "center"}}>Blur Radius:</div>
             <div className="col-1-2"><NumberInput value={shadow.blurRadius} onChange={this.onShadowBlurRadiusChange.bind(this, index)} minSliderValue={minBlurSpreadRadiusValue} maxSliderValue={maxBlurSpreadRadiusValue} /></div>
           </div>
-          <div className="row no-padding" style={shadowEditorInputRowStyle}>
-            <div className="col-1-2" style={{alignSelf: "center"}}>Spread Radius:</div>
-            <div className="col-1-2"><NumberInput value={shadow.spreadRadius} onChange={this.onShadowSpreadRadiusChange.bind(this, index)} minSliderValue={minBlurSpreadRadiusValue} maxSliderValue={maxBlurSpreadRadiusValue} /></div>
-          </div>
-          <div className="row no-padding" style={shadowEditorInputRowStyle}>
-            <div className="col-1-2" style={{alignSelf: "center"}}>Is Inset:</div>
-            <div className="col-1-2"><input type="checkbox" checked={shadow.isInset} onClick={this.toggleIsShadowInset.bind(this, index)} style={{margin: "0.5em 0.5em 0.5em 0"}} /></div>
-          </div>
+          {!this.props.editTextShadow ? (
+            <div>
+              <div className="row no-padding" style={shadowEditorInputRowStyle}>
+                <div className="col-1-2" style={{alignSelf: "center"}}>Spread Radius:</div>
+                <div className="col-1-2"><NumberInput value={shadow.spreadRadius} onChange={this.onShadowSpreadRadiusChange.bind(this, index)} minSliderValue={minBlurSpreadRadiusValue} maxSliderValue={maxBlurSpreadRadiusValue} /></div>
+              </div>
+              <div className="row no-padding" style={shadowEditorInputRowStyle}>
+                <div className="col-1-2" style={{alignSelf: "center"}}>Is Inset:</div>
+                <div className="col-1-2"><input type="checkbox" checked={shadow.isInset} onClick={this.toggleIsShadowInset.bind(this, index)} style={{margin: "0.5em 0.5em 0.5em 0"}} /></div>
+              </div>
+            </div>
+          ) : null}
 
           <button onClick={this.removeShadow.bind(this, index)}>Remove</button>
         </div>
@@ -171,6 +202,28 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
               <div className="col-1-2" style={{alignSelf: "center"}}>Background Color:</div>
               <div className="col-1-2"><ColorInput value={this.state.backgroundColor} onChange={this.onBackgroundColorChange.bind(this)} /></div>
             </div>
+
+            {!this.props.editTextShadow ? (
+              <div className="row no-padding" style={{marginBottom: "0.5em"}}>
+                <div className="col-1-2" style={{alignSelf: "center"}}>Square Color:</div>
+                <div className="col-1-2"><ColorInput value={this.state.squareColor} onChange={this.onSquareColorChange.bind(this)} /></div>
+              </div>
+            ) : null}
+
+            {this.props.editTextShadow ? (
+              <div>
+                <div className="row no-padding" style={{marginBottom: "0.5em"}}>
+                  <div className="col-1-2" style={{alignSelf: "center"}}>Preview Text:</div>
+                  <div className="col-1-2"><input type="text" value={this.state.previewText} onChange={this.onPreviewTextChange.bind(this)} /></div>
+                </div>
+
+                <div className="row no-padding" style={{marginBottom: "0.5em"}}>
+                  <div className="col-1-2" style={{alignSelf: "center"}}>Preview Text Color:</div>
+                  <div className="col-1-2"><ColorInput value={this.state.previewTextColor} onChange={this.onPreviewTextColorChange.bind(this)} /></div>
+                </div>
+              </div>
+            ) : null}
+
             {shadowEditors}
             <button onClick={this.addShadow.bind(this)}>Add</button>
           </div>
@@ -178,9 +231,13 @@ export class CssBoxShadowGenerator extends React.Component<CssBoxShadowGenerator
 
         <div className="col" style={{flexGrow: 1}}>
           <div className="card" style={{backgroundColor: this.state.backgroundColor, padding: "5em 1em"}}>
-            <div style={{width: "150px", height: "150px", backgroundColor: "#BBB", margin: "0 auto", borderRadius: "4px", ...boxShadowStyle}} />
+            {!this.props.editTextShadow ? (
+              <div style={{width: "150px", height: "150px", backgroundColor: this.state.squareColor.toString(), margin: "0 auto", borderRadius: "4px", ...boxShadowStyle}} />
+            ) : (
+              <div style={{fontSize: "4em", color: this.state.previewTextColor.toString(), textAlign: "center", ...textShadowStyle}}>{this.state.previewText}</div>
+            )}
           </div>
-          <textarea value={boxShadowRulesText} readOnly style={{width: "100%", height: "150px", marginTop: "1em"}} />
+          <textarea value={!this.props.editTextShadow ? boxShadowRulesText : textShadowRulesText} readOnly style={{width: "100%", height: "150px", marginTop: "1em"}} />
         </div>
       </div>
     );

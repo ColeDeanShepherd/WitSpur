@@ -83,7 +83,9 @@ export class GpaCalculator extends React.Component<GpaCalculatorProps, GpaCalcul
     const newRow = new GpaRow(oldRow.id, grade, oldRow.creditHours);
     this.setState({ rows: Utils.setElementImmutable(this.state.rows, index, newRow) });
   }
-  onCreditHoursChange(index: number, newValue: number, newValueString: string) {
+  onCreditHoursChange(index: number, newValue: number | null, newValueString: string) {
+    if(newValue === null) { return; }
+    
     const oldRow = this.state.rows[index];
     const newRow = new GpaRow(oldRow.id, oldRow.grade, newValue);
     this.setState({ rows: Utils.setElementImmutable(this.state.rows, index, newRow) });

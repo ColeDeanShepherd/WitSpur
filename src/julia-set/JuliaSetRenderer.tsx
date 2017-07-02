@@ -641,14 +641,14 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
 
                 <div>
                   <div className="row no-padding" style={{marginBottom: "0.5em"}}>
-                    <div className="col-1-2" style={{alignSelf: "center"}}>c real part:</div>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>Re(c):</div>
                     <div className="col-1-2">
                       <NumberInput value={this.state.nextComponentProps.c.re} onChange={this.onCReChange.bind(this)} showSlider={false} />
                     </div>
                   </div>
 
                   <div className="row no-padding" style={{marginBottom: "0.5em"}}>
-                    <div className="col-1-2" style={{alignSelf: "center"}}>c imaginary part:</div>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>Im(c):</div>
                     <div className="col-1-2">
                       <NumberInput value={this.state.nextComponentProps.c.im} onChange={this.onCImChange.bind(this)} showSlider={false} />
                     </div>
@@ -662,14 +662,14 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
                   </div>
                   
                   <div className="row no-padding" style={{marginBottom: "0.5em"}}>
-                    <div className="col-1-2" style={{alignSelf: "center"}}>real coordinate (x):</div>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>Re(z):</div>
                     <div className="col-1-2">
                       <NumberInput value={this.state.nextComponentProps.centerPosition.re} onChange={this.onCenterPositionXChange.bind(this)} showSlider={false} />
                     </div>
                   </div>
 
                   <div className="row no-padding" style={{marginBottom: "0.5em"}}>
-                    <div className="col-1-2" style={{alignSelf: "center"}}>imaginary coordinate (y):</div>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>Im(z):</div>
                     <div className="col-1-2">
                       <NumberInput value={this.state.nextComponentProps.centerPosition.im} onChange={this.onCenterPositionYChange.bind(this)} showSlider={false} />
                     </div>
