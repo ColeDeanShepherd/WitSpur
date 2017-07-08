@@ -32,7 +32,8 @@
     "typescript": "^2.3.2",
     "uglify-js": "^3.0.8",
     "watch": "^1.0.2",
-    "webpack": "^2.5.1"
+    "webpack": "^2.5.1",
+    "worker-loader": "^0.8.1"
   },
   "dependencies": {
     "@types/deep-equal": "^1.0.0",
