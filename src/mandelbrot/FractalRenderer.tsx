@@ -7,9 +7,12 @@ import * as Color from "../Color";
 import { NumberInput } from "../NumberInput";
 import { ColorInput } from "../ColorInput";
 
-import * as JuliaWorker from "worker-loader!./JuliaWorker";
+import * as MandelbrotWorker from "worker-loader!./MandelbrotWorker";
+import * as JuliaWorker from "worker-loader!../julia-set/JuliaWorker";
 
-export interface JuliaSetRendererProps {
+export interface FractalRendererProps {
+  isMandelbrot: boolean;
+
   c: Complex;
   heightInUnits: number;
   centerPosition: Complex;
@@ -25,9 +28,9 @@ export interface JuliaSetRendererProps {
   className?: string,
   style?: any
 }
-export interface JuliaSetRendererState {}
+export interface FractalRendererState {}
 
-export class JuliaSetRenderer extends React.Component<JuliaSetRendererProps, JuliaSetRendererState> {
+export class FractalRenderer extends React.Component<FractalRendererProps, FractalRendererState> {
   canvasDomElement: HTMLCanvasElement;
   canvasContext: CanvasRenderingContext2D;
 
@@ -36,9 +39,13 @@ export class JuliaSetRenderer extends React.Component<JuliaSetRendererProps, Jul
   canvasDomElementWidth: number = 640;
   canvasDomElementHeight: number = 480;
 
-  renderId: string;
+  threadCount: number = 8;
+  unfinishedThreadCount: number = 0;
+  workers: Worker[] | null;
+  queuedWorkerMessages: any[];
+  lastRenderId: string;
 
-  constructor(props: JuliaSetRendererProps) {
+  constructor(props: FractalRendererProps) {
     super(props);
 
     this.state = {};
@@ -74,11 +81,11 @@ export class JuliaSetRenderer extends React.Component<JuliaSetRendererProps, Jul
   getSupersampledHeight(): number {
     return this.props.supersamplingAmount * this.canvasDomElementHeight;
   }
-  reRenderJuliaSet() {
+  
+  reRender() {
     if(!this.canvasContext) { return; }
 
-    const localRenderId = Utils.genUniqueId();
-    this.renderId = localRenderId;
+    this.lastRenderId = Utils.genUniqueId();
 
     const widthOfCanvasInPixels = this.getSupersampledWidth();
     const heightOfCanvasInPixels = this.getSupersampledHeight();
@@ -97,14 +104,27 @@ export class JuliaSetRenderer extends React.Component<JuliaSetRendererProps, Jul
     const hue = this.props.hue;
     const saturation = this.props.saturation;
     
-    const threadCount = 8;
-    const threadRowRanges = Utils.splitRangeIntoSubRanges(new Utils.IntRange(0, heightOfCanvasInPixels), threadCount);
+    const threadRowRanges = Utils.splitRangeIntoSubRanges(new Utils.IntRange(0, heightOfCanvasInPixels), this.threadCount);
 
-    for(let threadIndex = 0; threadIndex < threadCount; threadIndex++) {
+    // Queue render jobs.
+    this.queuedWorkerMessages = new Array<any>(this.threadCount);
+
+    for(let threadIndex = 0; threadIndex < this.threadCount; threadIndex++) {
       const rowStartIndex = threadRowRanges[threadIndex].start;
       const rowCount = threadRowRanges[threadIndex].count;
 
-      const renderArgs = [
+      const renderArgs = this.props.isMandelbrot ? [
+        widthOfCanvasInPixels,
+        heightOfCanvasInPixels,
+        widthOfCanvasInUnits,
+        heightOfCanvasInUnits,
+        centerPosition,
+        maxIterationCount,
+        hue,
+        saturation,
+        rowStartIndex,
+        rowCount
+      ] : [
         widthOfCanvasInPixels,
         heightOfCanvasInPixels,
         widthOfCanvasInUnits,
@@ -118,16 +138,67 @@ export class JuliaSetRenderer extends React.Component<JuliaSetRendererProps, Jul
         rowCount
       ];
 
-      const worker: Worker = new JuliaWorker();
-      worker.addEventListener("message", message => {
-        const pixels = message.data;
-        let imageData = this.canvasContext.createImageData(widthOfCanvasInPixels, rowCount);
-        imageData.data.set(pixels);
-
-        this.canvasContext.putImageData(imageData, 0, rowStartIndex);
-      });
-      worker.postMessage(renderArgs);
+      // Queue the render message.
+      this.queuedWorkerMessages[threadIndex] = {
+        renderId: this.lastRenderId,
+        renderArgs: renderArgs,
+        widthOfCanvasInPixels: widthOfCanvasInPixels,
+        rowCount: rowCount,
+        rowStartIndex: rowStartIndex
+      };
     }
+
+    // If threads aren't currently rendering, start them up.
+    if(this.unfinishedThreadCount === 0) {
+      this.executeQueuedTasks();
+    }
+  }
+  executeQueuedTasks() {
+    if(!this.queuedWorkerMessages || (this.queuedWorkerMessages.length === 0)) { return; }
+
+    // Create web workers if they haven't yet been created.
+    if(!this.workers) {
+      this.workers = [];
+
+      for(let threadIndex = 0; threadIndex < this.threadCount; threadIndex++) {
+        let worker: Worker = this.props.isMandelbrot ? new MandelbrotWorker() : new JuliaWorker();
+
+        const onNextMessageFromWorker = (message: MessageEvent) => {
+          console.log("urender");
+          if((message.data.renderId === this.lastRenderId) && (message.data.widthOfCanvasInPixels > 0) && (message.data.rowCount > 0)) {
+            console.log("render");
+            const pixels = message.data.pixels;
+
+            let imageData = this.canvasContext.createImageData(message.data.widthOfCanvasInPixels, message.data.rowCount);
+            imageData.data.set(pixels);
+            
+            this.canvasContext.putImageData(imageData, 0, message.data.rowStartIndex);
+          }
+
+          this.unfinishedThreadCount--;
+
+          if(this.unfinishedThreadCount == 0) {
+            this.executeQueuedTasks();
+          }
+        };
+        worker.addEventListener("message", onNextMessageFromWorker);
+
+        this.workers.push(worker);
+      }
+    }
+    
+    this.unfinishedThreadCount = this.threadCount;
+
+    for(let threadIndex = 0; threadIndex < this.threadCount; threadIndex++) {
+      let worker = this.workers[threadIndex];
+      let queuedMessage = this.queuedWorkerMessages[threadIndex];
+
+      // Run the worker.
+      worker.postMessage(queuedMessage);
+      console.log("post");
+    }
+
+    this.queuedWorkerMessages = [];
   }
 
   onWindowResize(event: any) {
@@ -139,7 +210,7 @@ export class JuliaSetRenderer extends React.Component<JuliaSetRendererProps, Jul
     this.canvasDomElement.width = this.getSupersampledWidth();
     this.canvasDomElement.height = this.getSupersampledHeight();
 
-    this.reRenderJuliaSet();
+    this.reRender();
   }
 
   onMouseDown(event: any) {
@@ -185,20 +256,25 @@ export class JuliaSetRenderer extends React.Component<JuliaSetRendererProps, Jul
     this.onWindowResize(null);
 
     this.canvasContext = context;
-    this.reRenderJuliaSet();
+    this.reRender();
   }
   componentWillUnmount() {
     if(this.boundOnWindowResize) {
       window.removeEventListener("resize", this.boundOnWindowResize, false);
     }
+
+    if(this.workers) {
+      this.workers.forEach(worker => worker.terminate());
+      this.workers = null;
+    }
   }
 
-  shouldComponentUpdate(nextProps: JuliaSetRendererProps, nextState: JuliaSetRendererState) {
+  shouldComponentUpdate(nextProps: FractalRendererProps, nextState: FractalRendererState) {
     return !equal(this.props, nextProps) || !equal(this.state, nextState);
   }
-  componentDidUpdate(prevProps: JuliaSetRendererProps, prevState: JuliaSetRendererState) {
+  componentDidUpdate(prevProps: FractalRendererProps, prevState: FractalRendererState) {
     if(!equal(this.props, prevProps)) {
-      this.reRenderJuliaSet();
+      this.reRender();
     }
   }
 
@@ -221,10 +297,12 @@ export class JuliaSetRenderer extends React.Component<JuliaSetRendererProps, Jul
   }
 }
 
-export interface JuliaSetRendererEditorProps {}
-export interface JuliaSetRendererEditorState {
-  componentProps: JuliaSetRendererProps,
-  nextComponentProps: JuliaSetRendererProps,
+export interface FractalRendererEditorProps {
+  isMandelbrot: boolean;
+}
+export interface FractalRendererEditorState {
+  componentProps: FractalRendererProps,
+  nextComponentProps: FractalRendererProps,
   color: Color.Color,
   isMenuOpen: boolean,
   autoMaxIterationCount: boolean,
@@ -235,7 +313,7 @@ export interface JuliaSetRendererEditorState {
   hasLoadedInitialParams: boolean
 }
 
-export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEditorProps, JuliaSetRendererEditorState> {
+export class FractalRendererEditor extends React.Component<FractalRendererEditorProps, FractalRendererEditorState> {
   containerElement: HTMLElement;
   boundOnMouseUp: ((event: any) => void) | null;
   boundOnHashChange: ((event: any) => void) | null;
@@ -243,7 +321,7 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
   defaultSaturation = 0.5;
   wasHashChangedProgrammatically = false;
 
-  constructor(props: JuliaSetRendererEditorProps) {
+  constructor(props: FractalRendererEditorProps) {
     super(props);
 
     this.state = {
@@ -260,17 +338,18 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
     };
   }
 
-  getDefaultComponentProps(): JuliaSetRendererProps {
+  getDefaultComponentProps(): FractalRendererProps {
     const heightInUnits = 3;
 
     return {
+      isMandelbrot: true,
       c: new Complex(-0.4, 0.6),
       heightInUnits: heightInUnits,
-      centerPosition: new Complex(0, 0),
+      centerPosition: new Complex(-0.75, 0),
       hue: this.defaultHue,
       saturation: this.defaultSaturation,
       maxIterationCount: this.calcAutoMaxIterationCount(heightInUnits),
-      supersamplingAmount: 2,
+      supersamplingAmount: 1,
       onMouseDown: this.onMouseDown.bind(this),
       onMouseMove: this.onMouseMove.bind(this),
       className: "hover-cursor",
@@ -278,7 +357,7 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
     };
   }
   calcAutoMaxIterationCount(heightInUnits): number {
-    return Math.floor(500 / Math.pow(heightInUnits, 1 / 8));
+    return this.props.isMandelbrot ? Math.floor(200 / Math.pow(heightInUnits, 1 / 4)) : Math.floor(500 / Math.pow(heightInUnits, 1 / 8));;
   }
 
   hsToColor(hue: number, saturation: number): Color.Color {
@@ -300,6 +379,7 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
     const newComponentProps = { ...this.state.nextComponentProps, c: newC };
     this.setState({ nextComponentProps: newComponentProps });
   }
+  
   onWidthChange(newValue: number | null, newValueString: string) {
     if(newValue === null) { return; }
 
@@ -435,10 +515,8 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
     }
   }
   
-  updateUrlFromComponentProps(newComponentProps: JuliaSetRendererProps, newColor: Color.Color, autoMaxIterationCount: boolean) {
+  updateUrlFromComponentProps(newComponentProps: FractalRendererProps, newColor: Color.Color, autoMaxIterationCount: boolean) {
     const urlParamsObj = {
-      cRe: newComponentProps.c.re,
-      cIm: newComponentProps.c.im,
       heightInUnits: newComponentProps.heightInUnits,
       x: newComponentProps.centerPosition.re,
       y: newComponentProps.centerPosition.im,
@@ -460,7 +538,6 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
 
       const newComponentProps = {
         ...this.state.componentProps,
-        c: new Complex(parseFloat(urlParams.cRe), parseFloat(urlParams.cIm)),
         heightInUnits: parseFloat(urlParams.heightInUnits),
         centerPosition: new Complex(parseFloat(urlParams.x), parseFloat(urlParams.y)),
         hue: parseFloat(urlParams.hue),
@@ -478,7 +555,7 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
       this.commitNewComponentProps(this.getDefaultComponentProps(), this.hsToColor(this.defaultHue, this.defaultSaturation), true, false);
     }
   }
-  commitNewComponentProps(newComponentProps: JuliaSetRendererProps, newColor: Color.Color, newAutoMaxIterationCount: boolean, updateUrl: boolean) {
+  commitNewComponentProps(newComponentProps: FractalRendererProps, newColor: Color.Color, newAutoMaxIterationCount: boolean, updateUrl: boolean) {
     if(updateUrl) {
       this.wasHashChangedProgrammatically = true;
       this.updateUrlFromComponentProps(newComponentProps, newColor, newAutoMaxIterationCount);
@@ -497,7 +574,7 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
   }
 
   componentDidMount() {
-    // Scroll to the Julia set.
+    // Scroll to the Mandelbrot set.
     window.scroll(0, this.containerElement.getBoundingClientRect().top);
 
     // Scroll to the top before refreshing so that Chrome doesn't mess up our auto-scrolling with its auto-scrolling.
@@ -563,11 +640,13 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
       color: "#FFF",
       fontSize: "32px"
     };
+
+    const componentProps = { ...this.state.componentProps, isMandelbrot: this.props.isMandelbrot };
     
     return (
       <div ref={containerElement => this.containerElement = containerElement} style={{width: "100%", height: "100vh"}}>
         <div onContextMenu={this.onContextMenu.bind(this)} style={{width: "100%", height: "100%", position: "relative"}}>
-          {this.state.hasLoadedInitialParams ? React.createElement(JuliaSetRenderer, this.state.componentProps) : null}
+          {this.state.hasLoadedInitialParams ? React.createElement(FractalRenderer, componentProps) : null}
 
           <div style={toolSidebarContainerStyle}>
             {this.state.isMenuOpen ? (
@@ -579,20 +658,24 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
                 <p style={{fontWeight: "bold", textAlign: "center"}}>Click to move, click and drag to zoom in, right-click to zoom out.</p>
 
                 <div>
-                  <div className="row no-padding" style={{marginBottom: "0.5em"}}>
-                    <div className="col-1-2" style={{alignSelf: "center"}}>Re(c):</div>
-                    <div className="col-1-2">
-                      <NumberInput value={this.state.nextComponentProps.c.re} onChange={this.onCReChange.bind(this)} showSlider={false} />
-                    </div>
-                  </div>
+                  {!this.props.isMandelbrot ? (
+                    <div>
+                      <div className="row no-padding" style={{marginBottom: "0.5em"}}>
+                        <div className="col-1-2" style={{alignSelf: "center"}}>Re(c):</div>
+                        <div className="col-1-2">
+                          <NumberInput value={this.state.nextComponentProps.c.re} onChange={this.onCReChange.bind(this)} showSlider={false} />
+                        </div>
+                      </div>
 
-                  <div className="row no-padding" style={{marginBottom: "0.5em"}}>
-                    <div className="col-1-2" style={{alignSelf: "center"}}>Im(c):</div>
-                    <div className="col-1-2">
-                      <NumberInput value={this.state.nextComponentProps.c.im} onChange={this.onCImChange.bind(this)} showSlider={false} />
+                      <div className="row no-padding" style={{marginBottom: "0.5em"}}>
+                        <div className="col-1-2" style={{alignSelf: "center"}}>Im(c):</div>
+                        <div className="col-1-2">
+                          <NumberInput value={this.state.nextComponentProps.c.im} onChange={this.onCImChange.bind(this)} showSlider={false} />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  
+                  ) : null}
+
                   <div className="row no-padding" style={{marginBottom: "0.5em"}}>
                     <div className="col-1-2" style={{alignSelf: "center"}}>View Height In Units:</div>
                     <div className="col-1-2">
@@ -601,14 +684,14 @@ export class JuliaSetRendererEditor extends React.Component<JuliaSetRendererEdit
                   </div>
                   
                   <div className="row no-padding" style={{marginBottom: "0.5em"}}>
-                    <div className="col-1-2" style={{alignSelf: "center"}}>Re(z):</div>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>{this.props.isMandelbrot ? "Re(c)" : "Re(z)"}:</div>
                     <div className="col-1-2">
                       <NumberInput value={this.state.nextComponentProps.centerPosition.re} onChange={this.onCenterPositionXChange.bind(this)} showSlider={false} />
                     </div>
                   </div>
 
                   <div className="row no-padding" style={{marginBottom: "0.5em"}}>
-                    <div className="col-1-2" style={{alignSelf: "center"}}>Im(z):</div>
+                    <div className="col-1-2" style={{alignSelf: "center"}}>{this.props.isMandelbrot ? "Im(c)" : "Im(z)"}:</div>
                     <div className="col-1-2">
                       <NumberInput value={this.state.nextComponentProps.centerPosition.im} onChange={this.onCenterPositionYChange.bind(this)} showSlider={false} />
                     </div>

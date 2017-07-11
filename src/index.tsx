@@ -10,8 +10,7 @@ import { InvestmentCalculator } from "./investment-calculator/InvestmentCalculat
 import { GpaCalculator } from "./gpa-calculator/GpaCalculator";
 import { SightReadingExercises } from "./sight-reading-exercises/SightReadingExercises";
 import { PendulumSimulator } from "./pendulum-simulator/PendulumSimulator";
-import { MandelbrotSetRendererEditor } from "./mandelbrot/MandelbrotSetRenderer";
-import { JuliaSetRendererEditor } from "./julia-set/JuliaSetRenderer";
+import { FractalRendererEditor } from "./mandelbrot/FractalRenderer";
 
 import { UnitConverter } from "./unit-converter/UnitConverter";
 
@@ -42,10 +41,10 @@ export function renderPendulumSimulator(element: HTMLElement) {
   ReactDOM.render(<PendulumSimulator />, element);
 }
 export function renderMandelbrotSetRenderer(element: HTMLElement) {
-  ReactDOM.render(<MandelbrotSetRendererEditor />, element);
+  ReactDOM.render(<FractalRendererEditor isMandelbrot={true} />, element);
 }
 export function renderJuliaSetRenderer(element: HTMLElement) {
-  ReactDOM.render(<JuliaSetRendererEditor />, element);
+  ReactDOM.render(<FractalRendererEditor isMandelbrot={false} />, element);
 }
 
 export function renderUnitConverter(element: HTMLElement) {
