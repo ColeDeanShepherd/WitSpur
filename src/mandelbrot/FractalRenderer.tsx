@@ -204,8 +204,8 @@ export class FractalRenderer extends React.Component<FractalRendererProps, Fract
   onWindowResize(event: any) {
     const canvasBoundingClientRect = this.canvasDomElement.getBoundingClientRect();
 
-    this.canvasDomElementWidth = canvasBoundingClientRect.width;
-    this.canvasDomElementHeight = canvasBoundingClientRect.height;
+    this.canvasDomElementWidth = Math.floor(canvasBoundingClientRect.width);
+    this.canvasDomElementHeight = Math.floor(canvasBoundingClientRect.height);
 
     this.canvasDomElement.width = this.getSupersampledWidth();
     this.canvasDomElement.height = this.getSupersampledHeight();
