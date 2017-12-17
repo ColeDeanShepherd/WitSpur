@@ -4,7 +4,7 @@
 $mobileMaxWidth = 768px;
 
 $backgroundColor = #F4F4F4;
-$linkColor = #72BBDD;
+$linkColor = #0366D6;
 $containerPaddingCompact = 0.5em;
 $containerPadding = 1em;
 $defaultBorderColor = #CCC;
@@ -28,6 +28,10 @@ textarea {
 a {
   color: $linkColor;
   text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 a > img {
@@ -204,7 +208,9 @@ button {
 }
 
 .footer {
-  margin-top: 1em;
+  text-align: center;
+  font-size: 0.8em;
+  margin: 1em 0;
 }
 
 .centered-content-container {

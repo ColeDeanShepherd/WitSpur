@@ -25,7 +25,7 @@ function generateHtmlDocument(page: any, contents: string, isDevBuild: boolean):
   const subHeaderTag = `<div class="sub-header${(page.name === "Home") ? " front-page" : ""}">Interactive tools and media to inspire your mind.</div>`;
   const headerNavTag = `<ul class="nav"><li><a href="/">More tools...</a></li></ul>`;
   const headerTag = `<div class="header${(page.name === "Home") ? " front-page" : ""}">${logoTag}${subHeaderTag}${(page.name !== "Home") ? headerNavTag : ""}${socialSharingLinks}</div>`;
-  const footerTag = `<div class="footer"></div>`;
+  const footerTag = `<div class="footer">Created by <a href="https://github.com/ColeDeanShepherd">Cole Shepherd</a></div>`;
 
   const scriptTags = `<script src="./bundle.js"></script>`;
   const bodyTag = `<body>${headerTag}${contents}${footerTag}${scriptTags}</body>`;
