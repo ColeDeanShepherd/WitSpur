@@ -268,7 +268,7 @@ export class PendulumSimulator extends React.Component<PendulumSimulatorProps, P
 
         <div className="col" style={{flexGrow: 1}}>
           <div className="card">
-            <canvas ref={canvas => this.canvasDomElement = canvas} width={this.canvasWidth} height={this.canvasHeight} onMouseMove={this.onMouseMove.bind(this)} onMouseDown={this.onMouseDown.bind(this)} onMouseUp={this.onMouseUp.bind(this)}>
+            <canvas ref={canvas => canvas ? (this.canvasDomElement = canvas) : null} width={this.canvasWidth} height={this.canvasHeight} onMouseMove={this.onMouseMove.bind(this)} onMouseDown={this.onMouseDown.bind(this)} onMouseUp={this.onMouseUp.bind(this)}>
               Your browser does not support the canvas tag. Please upgrade your browser.
             </canvas>
           </div>

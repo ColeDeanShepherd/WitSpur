@@ -282,7 +282,7 @@ export class FractalRenderer extends React.Component<FractalRendererProps, Fract
     return (
       <div style={{width: "100%", height: "100%", position: "relative"}}>
         <canvas
-          ref={canvas => this.canvasDomElement = canvas}
+          ref={canvas => canvas ? (this.canvasDomElement = canvas) : null}
           width={this.getSupersampledWidth()}
           height={this.getSupersampledHeight()}
           onMouseDown={this.onMouseDown.bind(this)}
@@ -644,7 +644,7 @@ export class FractalRendererEditor extends React.Component<FractalRendererEditor
     const componentProps = { ...this.state.componentProps, isMandelbrot: this.props.isMandelbrot };
     
     return (
-      <div ref={containerElement => this.containerElement = containerElement} style={{width: "100%", height: "100vh"}}>
+      <div ref={containerElement => containerElement ? (this.containerElement = containerElement) : null} style={{width: "100%", height: "100vh"}}>
         <div onContextMenu={this.onContextMenu.bind(this)} style={{width: "100%", height: "100%", position: "relative"}}>
           {this.state.hasLoadedInitialParams ? React.createElement(FractalRenderer, componentProps) : null}
 

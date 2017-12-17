@@ -11,7 +11,6 @@ import { GpaCalculator } from "./gpa-calculator/GpaCalculator";
 import { SightReadingExercises } from "./sight-reading-exercises/SightReadingExercises";
 import { PendulumSimulator } from "./pendulum-simulator/PendulumSimulator";
 import { FractalRendererEditor } from "./mandelbrot/FractalRenderer";
-import { PongTutorial } from "./pong-tutorial/PongTutorial";
 
 import { UnitConverter } from "./unit-converter/UnitConverter";
 
@@ -46,10 +45,6 @@ export function renderMandelbrotSetRenderer(element: HTMLElement) {
 }
 export function renderJuliaSetRenderer(element: HTMLElement) {
   ReactDOM.render(<FractalRendererEditor isMandelbrot={false} />, element);
-}
-
-export function renderPongTutorial(element: HTMLElement) {
-  ReactDOM.render(<PongTutorial />, element);
 }
 
 export function renderUnitConverter(element: HTMLElement) {

@@ -101,7 +101,7 @@ export class PomodoroTimer extends React.Component<PomodoroTimerProps, PomodoroT
           {(!this.timeout.isRunning && this.timeout.isFinished) ? <button onClick={this.stopAlarmSound.bind(this)} style={buttonStyle}>Ok</button> : null}
           <button onClick={this.reset.bind(this)} style={buttonStyle}>Reset</button>
         </div>
-        <audio ref={(audioTag) => this.audioTag = audioTag}>
+        <audio ref={(audioTag) => audioTag ? (this.audioTag = audioTag) : null}>
           Your browser does not support the <code>audio</code> element.
           <source src="sound/bell.mp3" type="audio/mp3" />
         </audio>
