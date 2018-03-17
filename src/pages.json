@@ -50,11 +50,17 @@
     "outputFileName": "pendulum-simulator"
   },
   {
+    "name": "Pong Tutorial",
+    "contentsFilePath": "pong-tutorial/pong-tutorial.html",
+    "outputFileName": "pong-tutorial"
+  },
+
+
+  {
     "name": "Investment Calculator",
     "contentsFilePath": "investment-calculator/investment-calculator.html",
     "outputFileName": "investment-calculator"
   },
-  
   {
     "name": "Unit Converter",
     "contentsFilePath": "unit-converter/unit-converter.html",
