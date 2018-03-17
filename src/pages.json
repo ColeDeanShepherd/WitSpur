@@ -1,0 +1,69 @@
+[
+  {
+    "name": "Home",
+    "contentsFilePath": "home.html",
+    "outputFileName": "index"
+  },
+  {
+    "name": "Character Counter, Word Counter, & Line Counter",
+    "contentsFilePath": "char-word-line-counter/char-word-line-counter.html",
+    "outputFileName": "character-word-line-counter"
+  },
+  {
+    "name": "CSS Box Shadow Generator",
+    "contentsFilePath": "box-shadow-generator/box-shadow-generator.html",
+    "outputFileName": "css-box-shadow-generator"
+  },
+  {
+    "name": "CSS Text Shadow Generator",
+    "contentsFilePath": "text-shadow-generator/text-shadow-generator.html",
+    "outputFileName": "css-text-shadow-generator"
+  },
+  {
+    "name": "Pomodoro Timer",
+    "contentsFilePath": "pomodoro-timer/pomodoro-timer.html",
+    "outputFileName": "pomodoro-timer"
+  },
+  {
+    "name": "GPA Calculator",
+    "contentsFilePath": "gpa-calculator/gpa-calculator.html",
+    "outputFileName": "gpa-calculator"
+  },
+  {
+    "name": "Piano Sight Reading Trainer",
+    "contentsFilePath": "sight-reading-exercises/sight-reading-exercises.html",
+    "outputFileName": "piano-sight-reading-trainer"
+  },
+  {
+    "name": "Interactive Mandelbrot Set Renderer",
+    "contentsFilePath": "mandelbrot/mandelbrot.html",
+    "outputFileName": "mandelbrot-set"
+  },
+  {
+    "name": "Interactive Julia Set Renderer",
+    "contentsFilePath": "julia-set/julia-set.html",
+    "outputFileName": "julia-set"
+  },
+  {
+    "name": "Pendulum Simulator",
+    "contentsFilePath": "pendulum-simulator/pendulum-simulator.html",
+    "outputFileName": "pendulum-simulator"
+  },
+  {
+    "name": "Pong Tutorial",
+    "contentsFilePath": "pong-tutorial/pong-tutorial.html",
+    "outputFileName": "pong-tutorial"
+  },
+
+
+  {
+    "name": "Investment Calculator",
+    "contentsFilePath": "investment-calculator/investment-calculator.html",
+    "outputFileName": "investment-calculator"
+  },
+  {
+    "name": "Unit Converter",
+    "contentsFilePath": "unit-converter/unit-converter.html",
+    "outputFileName": "unit-converter"
+  }
+]

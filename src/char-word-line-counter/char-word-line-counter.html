@@ -1,0 +1,50 @@
+<div class="centered-content-container" style="text-align: center;">
+  <h1>Character Counter, Word Counter, &amp; Line Counter</h1>
+  <p>Word count does not include numbers. Tool may not work with non-English languages.</p>
+
+  <div id="text-analyzer"></div>
+
+  <div class="card" style="margin-top: 1em;">
+    <h2>About WitSpur's Character Counter, Word Counter, &amp; Line Counter</h2>
+    <p>This is a free web tool to compute counts and frequencies of letters and other characters, words, and lines. Our tool is free of intrusive ads, works well with mobile-devices, and focuses on simplicity and performance.</p>
+    <p>Use this tool for:</p>
+    <ul>
+      <li>ensuring character limits aren't exceeded for Twitter (140 characters), SMS (160 characters), etc.</li>
+      <li>checking if essays or short stories meet word count requirements for school assignments or website/journal submissions</li>
+      <li>search engine optimization with keyword counts and <a href="https://en.wikipedia.org/wiki/Keyword_density">keyword density analysis</a></li>
+      <li>improve your writing by identifying <a href="https://www.consultpivotal.com/commonly_overused.htm">overused</a> or weak words</li>
+      <li>breaking <a href="https://en.wikipedia.org/wiki/Caesar_cipher">Caesar ciphers</a> and other simple substitution ciphers</li>
+    </ul>
+    <p>and more.</p>
+  </div>
+
+  <div style="text-align: center; margin-top: 4em;">
+    <h2>More Tools</h2>
+    <div class="card tool-card">
+      <a href="css-box-shadow-generator.html">
+        <img src="img/css-box-shadow-generator.png" alt="CSS Box Shadow Generator" class="thumbnail" />
+        <div class="tool-name">CSS Box Shadow Generator</div>
+      </a>
+    </div>
+
+    <div class="card tool-card">
+      <a href="pomodoro-timer.html">
+        <img src="img/pomodoro-timer.png" alt="Pomodoro Timer" class="thumbnail" />
+        <div class="tool-name">Pomodoro Timer</div>
+      </a>
+    </div>
+
+    <div class="card tool-card">
+      <a href="gpa-calculator.html">
+        <img src="img/gpa-calculator.png" alt="GPA Calculator" class="thumbnail" />
+        <div class="tool-name">GPA Calculator</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function (event) {
+  WitSpur.renderTextAnalysis(document.getElementById("text-analyzer"));
+});
+</script>

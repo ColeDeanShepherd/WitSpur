@@ -1,0 +1,313 @@
+@require "../node_modules/jotted/jotted.css"
+
+/* Variables */
+$mobileMaxWidth = 768px;
+
+$backgroundColor = #F4F4F4;
+$linkColor = #0366D6;
+$containerPaddingCompact = 0.5em;
+$containerPadding = 1em;
+$defaultBorderColor = #CCC;
+$defaultBorderRadius = 4px;
+$headerColor = #2F2F2F;
+$cardBackgroundColor = #FFF;
+
+body {
+  background-color: $backgroundColor;
+  font-family: sans-serif;
+}
+
+div,
+img,
+table,
+input,
+textarea {
+  box-sizing: border-box;
+}
+
+a {
+  color: $linkColor;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+a > img {
+  vertical-align: middle;
+}
+
+table {
+  background-color: #FFF;
+  border-collapse: collapse;
+  width: 100%;
+
+  td {
+    border-radius: 0;
+  }
+}
+
+table td,
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+  background-color: #FFF;
+  padding: $containerPaddingCompact;
+  border: 1px solid $defaultBorderColor;
+  border-radius: $defaultBorderRadius;
+}
+
+input[type="text"]:disabled,
+input[type="number"]:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: #F5F5F5;
+  color: #7A7A7A;
+  cursor: not-allowed;
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+  width: 100%;
+}
+
+button {
+  background-color: #0095FF;
+  padding: $containerPaddingCompact;
+  border: 1px solid #07C;
+  border-radius: $defaultBorderRadius;
+  color: #FFF;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #07C;
+  }
+  &.green {
+    background-color: #14CC00;
+    border-color: #12B800;
+
+    &:hover {
+      background-color: #12B800;
+    }
+  }
+}
+
+.jotted button {
+  color: #000;
+}
+
+.hover-cursor:hover {
+  cursor: pointer;
+}
+
+.no-user-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.no-pointer-events {
+  pointer-events: none;
+}
+
+.light-above,
+.header,
+.card {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07);
+}
+
+.card {
+  background-color: $cardBackgroundColor;
+  text-align: left;
+  padding: $containerPadding;
+  border-radius: $defaultBorderRadius;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  background-color: $headerColor;
+  height: 40px;
+
+  .logo {
+    font-size: 1.5em;
+    margin-left: 0.25em;
+
+    a {
+      color: #FFF;
+      text-decoration: none;
+
+      &:hover {
+        color: #AAA;
+      }
+    }
+  }
+
+  &.front-page {
+    display: block;
+    background-color: transparent;
+    font-size: 2em;
+    text-align: center;
+    padding: 1em 0 2em 0;
+    box-shadow: none;
+    height: auto;
+
+    .logo {
+      margin-bottom: 0.25em;
+
+      a {
+        color: #000;
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+.sub-header {
+  display: none;
+
+  &.front-page {
+    display: block;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 0.5em;
+  }
+}
+
+.nav {
+  display: none;
+
+  li a {
+    color: white;
+    font-size: 1.25em;
+    margin: 0 2em 0 3em;
+  }
+}
+
+.social-sharing-icons {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 0 1em;
+
+  li {
+    display: inline;
+    margin-left: 1rem;
+
+    a img {
+      width: 30px;
+      height: 30px;
+    }
+  }
+}
+.header.front-page .social-sharing-icons li:first-child {
+  margin-left: 0;
+}
+
+.footer {
+  text-align: center;
+  font-size: 0.8em;
+  margin: 1em 0;
+}
+
+.centered-content-container {
+  max-width: 1140px;
+  padding: 0 $containerPadding;
+  margin: 0 auto;
+}
+
+.tool-card {
+  display: inline-block;
+  text-align: center;
+  padding-bottom: 0;
+  margin-bottom: 1em;
+
+  a {
+    display: flex;
+    flex-direction: column;
+    color: #000;
+    font-size: 1.2em;
+    text-decoration: none;
+
+    .thumbnail {
+      display: block;
+      width: 100%;
+      min-height: 1px; /* Thanks IE! */
+      height: auto;
+      border: 1px solid $defaultBorderColor;
+    }
+  }
+  .tool-name {
+    width: 100%;
+    padding: $containerPadding 0;
+  }
+}
+
+.arrow-head {
+  border: solid black;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 3px;
+
+  &.right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+  }
+  &.left {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+  }
+  &.up {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+  }
+  &.down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+  }
+}
+
+.col.tool-sidebar {
+  margin-bottom: 1em;
+}
+
+.piano-key:hover {
+  cursor: pointer;
+}
+
+@media (min-width: $mobileMaxWidth) {
+  .row {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .col,
+  .col-1-2,
+  .col-1-3 {
+    padding: 0 0.75rem;
+  }
+
+  .row.no-padding .col-1-2,
+  .row.no-padding .col-1-3 {
+    padding: 0;
+  }
+
+  .col-1-2 {
+    width: 50%;
+  }
+  .col-1-3 {
+    width: 33.33%;
+  }
+
+  .tool-card {
+    width: 33%;
+  }
+
+  .col.tool-sidebar {
+    width: 360px;
+    margin: 0;
+  }
+}
