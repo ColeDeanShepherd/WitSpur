@@ -12,6 +12,7 @@ import { SightReadingExercises } from "./sight-reading-exercises/SightReadingExe
 import { PendulumSimulator } from "./pendulum-simulator/PendulumSimulator";
 import { FractalRendererEditor } from "./mandelbrot/FractalRenderer";
 import { PongTutorial } from "./pong-tutorial/PongTutorial";
+import { VerilogTutorial } from "./verilog/Verilog";
 
 import { UnitConverter } from "./unit-converter/UnitConverter";
 
@@ -46,6 +47,9 @@ export function renderMandelbrotSetRenderer(element: HTMLElement) {
 }
 export function renderJuliaSetRenderer(element: HTMLElement) {
   ReactDOM.render(<FractalRendererEditor isMandelbrot={false} />, element);
+}
+export function renderVerilogTutorial(element: HTMLElement) {
+  ReactDOM.render(<VerilogTutorial />, element);
 }
 
 export function renderPongTutorial(element: HTMLElement) {

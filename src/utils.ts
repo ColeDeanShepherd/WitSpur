@@ -100,6 +100,10 @@ export function randomInt(inclusiveMin: number, inclusiveMax: number): number {
   return inclusiveMin + Math.floor(Math.random() * (inclusiveMax - inclusiveMin + 1));
 }
 
+export function clamp(min: number, max: number, value: number) {
+  return Math.min(Math.max(value, min), max);
+};
+
 export class IntRange {
   start: number;
   count: number;
@@ -348,6 +352,12 @@ export function genUniqueId(): string {
   }
 
   return dateValue.toString() + _genUniqueIdState.collisionCount.toString();
+}
+
+export function importAll(reqContext: any): any {
+  let imports = {};
+  reqContext.keys().map((item, index) => { imports[item.replace('./', '')] = reqContext(item); });
+  return imports;
 }
 
 // TODO: actually run in background. use webpack-worker/require()
