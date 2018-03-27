@@ -11,13 +11,11 @@ endmodule
 module test_my_AND;
   reg a, b;
   wire out;
-
   my_AND m(.a(a), .b(b), .out(out));
-
-  initial
-  begin
+  
+  initial begin
     $monitor("Time=%0d a=%b b=%b out1=%b", $time, a, b, out);
-
+    
     a = 1'b0;
     b = 1'b0;
 

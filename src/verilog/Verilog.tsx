@@ -3,7 +3,22 @@ import * as React from "react";
 
 declare let ace: any;
 const steps = Utils.importAll(require.context("raw-loader!./steps", false, /\.v$/));
-const stepFileNames = Object.keys(steps).sort();
+//const stepFileNames = Object.keys(steps).sort();
+const stepFileNames = [
+  "Introduction.v",
+  "SingleLineComments.v",
+  "MultiLineComments.v",
+  "Modules.v",
+  "ANDModuleEmpty.v",
+  "ANDModuleWithIO.v",
+  "ANDModuleAssign.v",
+  "ANDModuleTestBench.v",
+  "ANDModuleTestBench2.v",
+  "ANDModuleTestBench3.v",
+  "ANDModuleTestBench4.v",
+  "ANDModuleTestBench5.v",
+  "ANDModuleTestBench6.v"
+];
 
 export interface VerilogTutorialProps {}
 export interface VerilogTutorialState {
@@ -35,7 +50,7 @@ export class VerilogTutorial extends React.Component<VerilogTutorialProps, Veril
   }
 
   public componentDidMount() {
-    let Range = ace.require('ace/range').Range;
+    let Range = ace.require("ace/range").Range;
     this.aceEditor = ace.edit("editor");
     this.aceEditor.setTheme("ace/theme/monokai");
     this.aceEditor.session.setMode("ace/mode/verilog");
@@ -53,7 +68,11 @@ export class VerilogTutorial extends React.Component<VerilogTutorialProps, Veril
         <ul>
           {stepFileNames.map((stepFileName, index) => <li><a href="" onClick={event => { event.preventDefault(); moveToStep(index); }}>{stepFileName}</a></li>)}
         </ul>
+
+        <h3>{stepFileNames[this.state.stepNumber]}</h3>
+
         <div id="editor" style={{height: "400px"}}></div>
+
         <div>
           <button onClick={moveToPrevStep}>Prev</button>
           <button onClick={moveToNextStep}>Next</button>

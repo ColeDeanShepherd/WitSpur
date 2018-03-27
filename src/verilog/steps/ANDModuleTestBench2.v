@@ -1,4 +1,3 @@
-// Here is the module again without comments.
 module my_AND(
   input a,
   input b,
@@ -7,14 +6,6 @@ module my_AND(
   assign out = a & b;
 endmodule
 
-/*
-Now that we've defined our module "my_AND", let's use it!
-
-Here we will declare another module called "test_my_AND" to test our
-module "my_AND".
-*/
-
-// Because test_my_AND has no inputs or outputs, we can exclude the parenthesis.
 module test_my_AND;
   /*
   my_AND has two inputs and one output, so let's create some registers and
@@ -37,11 +28,4 @@ module test_my_AND;
 
   // Here we create a one-bit wire for our output.
   wire out;
-
-  // Now we create an instance of the "my_AND" module called "m", and connect
-  // our registers and wire to the module. To connect registers or wires to
-  // inputs or outputs of a module, type a ".", followed by the name of the
-  // input or output in the module, followed by the name of the register/wire
-  // we wish to connect to the input/output port surrounded by parenthesis.
-  my_AND m(.a(a), .b(b), .out(out));
 endmodule

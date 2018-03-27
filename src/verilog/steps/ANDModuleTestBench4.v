@@ -9,7 +9,6 @@ endmodule
 module test_my_AND;
   reg a, b;
   wire out;
-
   my_AND m(.a(a), .b(b), .out(out));
 
   /*
@@ -20,8 +19,7 @@ module test_my_AND;
   an "initial" block. We denote the start of an initial block with the keywords
   "intial" and "begin", and we denote the end of an initial block with "end".
   */
-  initial 
-  begin
+  initial begin
     // At the start of the program, set registers "a" and "b" = 0.
     // To denote a binary literal, type the number of bits (1 in this case),
     // then a "'", then "b" for binary, then the value in binary.
@@ -39,5 +37,8 @@ module test_my_AND;
     
     // Wait for 100 time units, then set register "a" to 0.
     #100 a = 1'b0;
+    
+    // Wait for 100 time unit, then exit the program.
+    #100 $finish;
   end
 endmodule

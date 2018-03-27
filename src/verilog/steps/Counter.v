@@ -1,50 +1,37 @@
-module first_counter (
-  input wire clock,
-  input wire reset,
-  input wire enable,
-  output reg [3:0] counter_out
+module counter (
+  input clock,
+  input reset,
+  output reg [3:0] out
 );
-  always @(posedge clock)
-  begin
-    if (reset == 1'b1)
-    begin
-      counter_out <= #1 4'b0000;
-    end
-    else if (enable == 1'b1)
-    begin
-      counter_out <= #1 counter_out + 1;
+  always @(posedge clock) begin
+    if (reset) begin
+      out = #1 0;
+    end else begin
+      out = #1 out + 1;
     end
   end
 endmodule
 
-module first_counter_tb;
-  reg clock, reset, enable;
+module counter_test_bench;
+  reg clock, reset;
   wire [3:0] out;
 
   // Initialize all variables
-  initial
-  begin        
-    $display ("time\t clk reset enable counter");	
-    $monitor ("%g\t %b   %b   %b   %b", $time, clock, reset, enable, out);	
-    clock = 1;
-    reset = 0;
-    enable = 0;
-    #5 reset = 1;
-    #10 reset = 0;
-    #10 enable = 1;
-    #100 enable = 0; 
-    #5 $finish;
+  initial begin        
+    $display ("time\t clk reset counter");	
+    $monitor ("%g\t %b   %b   %b", $time, clock, reset, out);	
+
+    clock = 0;
+    reset = 1;
+
+    #15 reset = 0;
+
+    #100 $finish;
   end
 
-  always
-  begin
+  always begin
     #5 clock = ~clock;
   end
 
-  first_counter U_counter(
-    clock,
-    reset,
-    enable,
-    out
-  );
-  endmodule
+  counter U_counter(.clock(clock), .reset(reset), .out(out));
+endmodule
