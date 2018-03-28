@@ -1,30 +1,35 @@
-module my_AND(
+module half_adder(
   input a,
   input b,
-  output out
+  output sum,
+  output carry
 );
-  assign out = a & b;
+  assign sum = a ^ b;
+  assign carry = a & b;
 endmodule
 
-module test_my_AND;
+module test_half_adder;
   reg a, b;
   wire out;
-  my_AND m(.a(a), .b(b), .out(out));
+  half_adder UUT(.a(a), .b(b), .sum(sum), .carry(carry));
   
   initial begin
     // Let's use the built-in function "$monitor" to automatically print out
-    // the values of our registers and the output of the module whenever they
+    // the values of our registers and the outputs of the module whenever they
     // change. We are using the built-in variable $time to indicate the number
     // of time unit that have passed. We are using format strings, preceded by
     // "%", to format our output. "%b" means binary, and "%0d" means...
-    $monitor("Time=%0d a=%b b=%b out1=%b", $time, a, b, out);
+    $monitor("Time=%0d a=%b b=%b carry=%b sum=%b", $time, a, b, carry, sum);
     
     a = 1'b0;
     b = 1'b0;
 
-    #100 a = 1'b1;
     #100 b = 1'b1;
-    #100 a = 1'b0;
+
+    #100 a = 1'b1;
+    b = 1'b0;
+    
+    #100 b = 1'b1;
     
     #100 $finish;
   end

@@ -4,5 +4,5 @@
 // Comments are used to document code, temporarily disable code, and more.
 
 // You should strive to make your code as readable as possible without relying
-// on comments as a crutch, but comments are useful for including aditional
+// on comments as a crutch, but comments are useful for including additional
 // information that the code itself cannot convey.

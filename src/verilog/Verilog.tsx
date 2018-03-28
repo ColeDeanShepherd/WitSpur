@@ -9,15 +9,18 @@ const stepFileNames = [
   "SingleLineComments.v",
   "MultiLineComments.v",
   "Modules.v",
-  "ANDModuleEmpty.v",
-  "ANDModuleWithIO.v",
-  "ANDModuleAssign.v",
-  "ANDModuleTestBench.v",
-  "ANDModuleTestBench2.v",
-  "ANDModuleTestBench3.v",
-  "ANDModuleTestBench4.v",
-  "ANDModuleTestBench5.v",
-  "ANDModuleTestBench6.v"
+  "HalfAdderEmpty.v",
+  "HalfAdderWithIOPorts.v",
+  "HalfAdderAssign.v",
+  "HalfAdderTestBench.v",
+  "HalfAdderTestBenchRegWire.v",
+  "HalfAdderTestBenchInstantiateModule.v",
+  "HalfAdderTestBenchInitialBlock.v",
+  "HalfAdderTestBenchInitInputs.v",
+  "HalfAdderTestBenchAllInputs.v",
+  "HalfAdderTestBenchFinish.v",
+  "HalfAdderTestBenchMonitor.v",
+  "HalfAdderTestBenchComplete.v"
 ];
 
 export interface VerilogTutorialProps {}

@@ -1,5 +1,5 @@
 /*
-Verilog is a hardware description language; a specialized computer language
+Verilog is a hardware description language: a specialized computer language
 used to describe the structure and behavior of electronic circuits, from
 simple flip-flops to complex microprocessors and more.
 
