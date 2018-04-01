@@ -25,20 +25,11 @@ module full_adder(
   assign carry = carry1 | carry2;
 endmodule
 
+// Now we start creating a test bench for the full adder module.
 module full_adder_test_bench;
+  // Create an instance of the full adder, connecting registers to its inputs
+  // and wires to its outputs.
   reg a, b, c_in;
   wire sum, carry;
   full_adder uut(.a(a), .b(b), .c_in(c_in), .sum(sum), .carry(carry));
-
-  integer i;
-
-  initial begin
-    $monitor("Time=%0d a=%b b=%b c_in=%b sum=%b carry=%b", $time, a, b, c_in, sum, carry);
-
-    for(i = 0; i < 8; i = i + 1) begin
-      #10 {a, b, c_in} = i;
-    end
-
-    #10 $finish;
-  end
 endmodule

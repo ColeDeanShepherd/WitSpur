@@ -20,7 +20,14 @@ const stepFileNames = [
   "HalfAdderTestBenchAllInputs.v",
   "HalfAdderTestBenchFinish.v",
   "HalfAdderTestBenchMonitor.v",
-  "HalfAdderTestBenchComplete.v"
+  "HalfAdderTestBenchComplete.v",
+  "FullAdderEmpty.v",
+  "FullAdderIOPorts.v",
+  "FullAdderEmptyHalfAdders.v",
+  "FullAdderHalfAdderWires.v",
+  "FullAdderHalfAdderInputs.v",
+  "FullAdderOutputs.v",
+  "FullAdderTestBenchNoLogic.v"
 ];
 
 export interface VerilogTutorialProps {}

@@ -21,24 +21,11 @@ module full_adder(
   wire sum2, carry2;
   half_adder ha2(.a(c_in), .b(sum1), .sum(sum2), .carry(carry2));
 
+  // Now we implement the outputs of the full adder:
+  // sum = sum output of the half adder 2
   assign sum = sum2;
+  // carry = (carry output of half adder 1) OR (carry output of half adder 2)
   assign carry = carry1 | carry2;
 endmodule
 
-module full_adder_test_bench;
-  reg a, b, c_in;
-  wire sum, carry;
-  full_adder uut(.a(a), .b(b), .c_in(c_in), .sum(sum), .carry(carry));
-
-  integer i;
-
-  initial begin
-    $monitor("Time=%0d a=%b b=%b c_in=%b sum=%b carry=%b", $time, a, b, c_in, sum, carry);
-
-    for(i = 0; i < 8; i = i + 1) begin
-      #10 {a, b, c_in} = i;
-    end
-
-    #10 $finish;
-  end
-endmodule
+// The full adder is done!
