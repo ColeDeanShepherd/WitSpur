@@ -1,3 +1,4 @@
+// Here is the completed full adder & test bench.
 module half_adder(
   input a,
   input b,
@@ -35,7 +36,7 @@ module full_adder_test_bench;
   initial begin
     $monitor("Time=%0d a=%b b=%b c_in=%b sum=%b carry=%b", $time, a, b, c_in, sum, carry);
 
-    for(i = 0; i < 8; i = i + 1) begin
+    for(i = 0; i <= 7; i = i + 1) begin
       #10 {a, b, c_in} = i;
     end
 

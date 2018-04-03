@@ -209,6 +209,12 @@ export function unzip(zippedArray) {
   return unzippedArray;
 }
 
+export function flatten(arr) {
+  return arr.reduce(function (flat, toFlatten) {
+    return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
+  }, []);
+}
+
 /**
  * Parses a string of records separated by newlines, which have fields separated by an arbitrary one-line string.
  * @param {String} str
