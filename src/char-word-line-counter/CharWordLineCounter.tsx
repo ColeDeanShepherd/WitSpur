@@ -233,7 +233,7 @@ export class CharWordLineCounter extends React.Component<CharWordLineCounterProp
       const countsElement = !this.state.showTablesAsTextAreas ?
         <table style={{margin: "1em 0"}}><tbody>{wordCountTrs}</tbody></table> :
         <textarea value={this.getWordCountTsv(wordCount, orderedWordCountPairs, visibleWordCountRowCount)} readOnly style={columnTextAreaStyle} />;
-      const showMoreOrLessLink = (orderedWordCountPairs.length > visibleWordCountRowCount) ? <a href="" onClick={this.toggleShowAllWordCountRows.bind(this)}>{!this.state.showingAllWordCountRows ? "Show More" : "Show Less"}</a> : null;
+      const showMoreOrLessLink = (orderedWordCountPairs.length > visibleWordCountRowCount) ? <a onClick={this.toggleShowAllWordCountRows.bind(this)}>{!this.state.showingAllWordCountRows ? "Show More" : "Show Less"}</a> : null;
         
       return (
         <div className="col-1-3">

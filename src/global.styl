@@ -26,11 +26,12 @@ textarea {
   box-sizing: border-box;
 }
 
-a {
+a, a:not([href]):not([tabindex]) {
   color: $linkColor;
   text-decoration: none;
 
   &:hover {
+    cursor: pointer;
     text-decoration: underline;
   }
 }

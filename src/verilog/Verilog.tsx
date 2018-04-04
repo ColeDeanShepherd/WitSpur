@@ -142,11 +142,22 @@ export class VerilogTutorial extends React.Component<VerilogTutorialProps, Veril
     const renderStep = (step, index) => {
       if(!step.children) {
         const stepFileName = step.name;
-        return <li><a href="" onClick={event => { event.preventDefault(); moveToStep(step); }}>{stepFileName}</a></li>;
+        const onClick = event => {
+          event.preventDefault();
+          moveToStep(step);
+        };
+        return <li><a onClick={onClick}>{stepFileName}</a></li>;
       } else {
+        const onClick = event => {
+          event.preventDefault();
+
+          if(step.children.length > 0) {
+            moveToStep(step.children[0]);
+          }
+        };
         return (
           <li>
-            {step.name}
+            <a onClick={onClick}>{step.name}</a>
             <ul>{step.children.map(renderStep)}</ul>
           </li>
         );

@@ -6,7 +6,7 @@ function generateHtmlDocument(page: any, contents: string, isDevBuild: boolean):
   const metaTags = `<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1">`;
   const titleTag = `<title>${page.name} - WitSpur</title>`;
   const faviconTags = `<link rel="shortcut icon" href="/favicon.ico"> <link rel="icon" sizes="16x16 32x32 64x64" href="/favicon.ico"> <link rel="icon" type="image/png" sizes="196x196" href="/favicon-192.png"> <link rel="icon" type="image/png" sizes="160x160" href="/favicon-160.png"> <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png"> <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png"> <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"> <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png"> <link rel="apple-touch-icon" href="/favicon-57.png"> <link rel="apple-touch-icon" sizes="114x114" href="/favicon-114.png"> <link rel="apple-touch-icon" sizes="72x72" href="/favicon-72.png"> <link rel="apple-touch-icon" sizes="144x144" href="/favicon-144.png"> <link rel="apple-touch-icon" sizes="60x60" href="/favicon-60.png"> <link rel="apple-touch-icon" sizes="120x120" href="/favicon-120.png"> <link rel="apple-touch-icon" sizes="76x76" href="/favicon-76.png"> <link rel="apple-touch-icon" sizes="152x152" href="/favicon-152.png"> <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png"> <meta name="msapplication-TileColor" content="#FFFFFF"> <meta name="msapplication-TileImage" content="/favicon-144.png"> <meta name="msapplication-config" content="/browserconfig.xml">`;
-  const stylesheetLinks = `<link rel="stylesheet" href="./normalize.css"><link rel="stylesheet" href="./global.css"><link rel="stylesheet" href="./img/font-awesome-4.7.0/css/font-awesome.min.css">`;
+  const stylesheetLinks = `<link rel="stylesheet" href="./global.css"><link rel="stylesheet" href="./img/font-awesome-4.7.0/css/font-awesome.min.css">`;
   const googleAnalyticsTag = !isDevBuild ? `<script> (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) })(window,document,'script','https://www.google-analytics.com/analytics.js','ga'); ga('create', 'UA-72494315-4', 'auto'); ga('send', 'pageview'); </script>` : ``;
   const headTag = `<head>${metaTags}${titleTag}${faviconTags}${stylesheetLinks}${googleAnalyticsTag}</head>`;
 
@@ -50,7 +50,6 @@ export function buildHTML(outputDir: string, isDevBuild: boolean) {
 }
 
 export function buildCSS(outputDir: string) {
-  fs.copySync("vendor/normalize.css", `${outputDir}/normalize.css`);
   execSync(`stylus src/global.styl --include-css --out ${outputDir}`);
 }
 
