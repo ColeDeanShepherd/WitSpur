@@ -47,6 +47,17 @@ const steps = [
       { name: "Complete.v" }
     ]
   },
+  {
+    name: "4BitRippleCarryAdder",
+    children: [
+      { name: "Empty.v" },
+      { name: "IOPorts.v" },
+      { name: "FullAdders.v" },
+      { name: "FullAdderConnections.v" },
+      { name: "Outputs.v" },
+      { name: "Complete.v" },
+    ]
+  }
 ].map(step => {
   initStepParents(step, null);
   return step;
