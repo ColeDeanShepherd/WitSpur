@@ -11,6 +11,14 @@ export function assertUnreachable(x: never): never {
   throw new Error("Failed unreachable assertion.");
 }
 
+export function unwrapValueOrUndefined<T>(valueOrUndefined: T | undefined): T {
+  if(valueOrUndefined) {
+    return valueOrUndefined;
+  } else {
+    throw new Error("Tried to unwrap an undefined value.");
+  }
+}
+
 export function objectToUrlParamsString(obj: object): string {
   let urlParamsString = "";
 

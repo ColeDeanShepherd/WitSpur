@@ -1,5 +1,6 @@
 import * as Utils from "../Utils";
 import * as React from "react";
+import * as diff from "diff";
 
 declare let ace: any;
 const importedSteps = Utils.importAll(require.context("raw-loader!./steps", true, /\.v$/));
@@ -89,6 +90,36 @@ function getNextStep(step) {
   return (stepIndex < (flattenedSteps.length - 1)) ? flattenedSteps[stepIndex + 1] : null;
 }
 
+function clearAceMarkers(aceEditSession: any) {
+  const backMarkers = aceEditSession.getMarkers(false);
+
+  for(let key in backMarkers) {
+    let backMarker = backMarkers[key];
+    aceEditSession.removeMarker(backMarker.id);
+  }
+}
+function addAdditionMarkersToAceEditor(aceEditor: any, oldText: string, newText: string) {
+  const textChanges = diff.diffLines(oldText, newText, {
+    ignoreWhitespace: true,
+    newlineIsToken: true
+  });
+
+  let lineIndex = 0;
+  textChanges.forEach(change => {
+    if(change.removed) return;
+
+    if(change.added) {
+      const startLineNumber = lineIndex;
+      const endLineNumber = startLineNumber + Utils.unwrapValueOrUndefined(change.count);
+
+      let range = new ace.Range(startLineNumber, 0, endLineNumber, 99999);
+      aceEditor.session.addMarker(range, "added-text-highlight", "text");
+    }
+
+    lineIndex += Utils.unwrapValueOrUndefined(change.count);
+  });
+}
+
 export interface VerilogTutorialProps {}
 export interface VerilogTutorialState {
   step: any;
@@ -108,7 +139,15 @@ export class VerilogTutorial extends React.Component<VerilogTutorialProps, Veril
     this.setState({
       step: step
     }, () => {
-      this.aceEditor.setValue(importedSteps[getStepFileName(this.state.step)], -1);
+      const prevStep = getPrevStep(this.state.step);
+      const prevStepSourceCode = prevStep ? importedSteps[getStepFileName(prevStep)] : "";
+
+      const stepSourceCode = importedSteps[getStepFileName(this.state.step)];
+
+      clearAceMarkers(this.aceEditor.session);
+      this.aceEditor.setValue(stepSourceCode, -1);
+
+      //addAdditionMarkersToAceEditor(this.aceEditor, prevStepSourceCode, stepSourceCode);
     });
   }
   public moveToPrevStep() {
@@ -131,8 +170,6 @@ export class VerilogTutorial extends React.Component<VerilogTutorialProps, Veril
     this.aceEditor = ace.edit("editor");
     this.aceEditor.setTheme("ace/theme/monokai");
     this.aceEditor.session.setMode("ace/mode/verilog");
-    /*let range = new Range(4, 0, 4, 100);
-    this.aceEditor.session.addMarker(range, "added-text-highlight", "text");*/
     this.moveToStep(this.state.step);
   }
   public render(): JSX.Element {

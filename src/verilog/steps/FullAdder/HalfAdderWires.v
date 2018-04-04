@@ -11,9 +11,9 @@ endmodule
 module full_adder(
   input a,
   input b,
-  input c_in,
+  input carry_in,
   output sum,
-  output carry
+  output carry_out
 );
   // Creating & connecting wires for the half adder outputs.
   wire sum1, carry1;
