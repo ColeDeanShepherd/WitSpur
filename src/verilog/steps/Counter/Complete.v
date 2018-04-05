@@ -15,6 +15,7 @@ endmodule
 module counter_test_bench;
   reg clock, reset;
   wire [3:0] out;
+  counter U_counter(.clock(clock), .reset(reset), .out(out));
 
   // Initialize all variables
   initial begin        
@@ -26,12 +27,10 @@ module counter_test_bench;
 
     #15 reset = 0;
 
-    #100 $finish;
+    #200 $finish;
   end
 
   always begin
     #5 clock = ~clock;
   end
-
-  counter U_counter(.clock(clock), .reset(reset), .out(out));
 endmodule

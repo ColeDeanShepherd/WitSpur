@@ -1,3 +1,11 @@
+/*
+Now we will build a 4-bit ripple-carry adder: a module which takes two 4-bit
+input signals "a" and "b", and a 1-bit carry input, and outputs a 4-bit sum
+and a carry bit.
+
+Ripple-carry adders are built with 4 full-adders in series, with each carry bit
+"rippling" to the next full-adder in the series.
+*/
 module half_adder(
   input a,
   input b,

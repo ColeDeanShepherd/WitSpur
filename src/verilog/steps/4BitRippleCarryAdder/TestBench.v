@@ -1,4 +1,3 @@
-// Here is the complete 4-bit ripple-carry adder.
 module half_adder(
   input a,
   input b,
@@ -49,6 +48,7 @@ module ripple_carry_adder_4_bit(
   assign carry_out = carry4;
 endmodule
 
+// Now we add the test bench.
 module ripple_carry_adder_4_bit_test_bench;
   reg [3:0] a;
   reg [3:0] b;
@@ -62,9 +62,22 @@ module ripple_carry_adder_4_bit_test_bench;
   initial begin
     $monitor("Time=%0d a=%b b=%b carry_in=%b sum=%b carry_out=%b", $time, a, b, carry_in, out, carry_out);
 
+    // Here we use two nested for-loops, one for each of the ripple-carry
+    // adder's inputs, to iterate through all possible inputs when carry_in = 0.
     for(k = 0; k <= 1'b1; k = k + 1) begin
       for(i = 0; i <= 4'b1111; i = i + 1) begin
         for(j = 0; j <= 4'b1111; j = j + 1) begin
+          /*
+          Because the concatenation of a, b, and carry_in is 9 bits
+          (4 + 4 + 1) but i, j, and k are 32-bit integers, we need to
+          concatenate a subset of i, j, and k's bits to get the assignment
+          to work.
+
+          To select a subset of bits from a multi-bit value, use the syntax:
+          <multi-bit value>[<highest bit index>:<lowest bit index>]
+
+          So, i[3:0] selects the 4 lowest-order bits of i.
+          */
           #10 {a, b, carry_in} = {i[3:0], j[3:0], k[0]};
         end
       end

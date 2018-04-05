@@ -33,6 +33,7 @@ module ripple_carry_adder_4_bit(
   output carry_out
 );
   // Start creating the 4 full-adders.
+  // Input & output connections haven't been made yet.
   wire sum1, carry1;
   full_adder fa1(.a(), .b(), .carry_in(), .sum(), .carry_out());
   

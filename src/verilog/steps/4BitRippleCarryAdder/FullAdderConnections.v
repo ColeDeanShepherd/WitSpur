@@ -44,14 +44,14 @@ module ripple_carry_adder_4_bit(
   */
 
   wire sum1, carry1;
-  full_adder fa1(.a(a[0]), .b(b[1]), .carry_in(carry_in), .sum(sum1), .carry_out(carry1));
+  full_adder fa1(.a(a[0]), .b(b[0]), .carry_in(carry_in), .sum(sum1), .carry_out(carry1));
   
   wire sum2, carry2;
-  full_adder fa2(.a(a[1]), .b(b[2]), .carry_in(carry1), .sum(sum2), .carry_out(carry2));
+  full_adder fa2(.a(a[1]), .b(b[1]), .carry_in(carry1), .sum(sum2), .carry_out(carry2));
   
   wire sum3, carry3;
-  full_adder fa3(.a(a[2]), .b(b[3]), .carry_in(carry2), .sum(sum3), .carry_out(carry3));
+  full_adder fa3(.a(a[2]), .b(b[2]), .carry_in(carry2), .sum(sum3), .carry_out(carry3));
   
   wire sum4, carry4;
-  full_adder fa4(.a(a[3]), .b(b[0]), .carry_in(carry3), .sum(sum4), .carry_out(carry4));
+  full_adder fa4(.a(a[3]), .b(b[3]), .carry_in(carry3), .sum(sum4), .carry_out(carry4));
 endmodule

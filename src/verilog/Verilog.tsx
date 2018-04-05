@@ -55,7 +55,32 @@ const steps = [
       { name: "FullAdders.v" },
       { name: "FullAdderConnections.v" },
       { name: "Outputs.v" },
+      { name: "TestBench.v" },
       { name: "Complete.v" },
+    ]
+  },
+  {
+    name: "Counter",
+    children: [
+      { name: "Empty.v" },
+      { name: "AlwaysBlock.v" },
+      { name: "ConditionalAssignment.v" },
+      { name: "TestBench.v" },
+      { name: "Complete.v" }
+    ]
+  },
+  {
+    name: "4BitMultiplexer",
+    children: [
+      { name: "Empty.v" },
+      { name: "Complete.v" }
+    ]
+  },
+  {
+    name: "RAM",
+    children: [
+      { name: "Empty.v" },
+      { name: "Complete.v" }
     ]
   }
 ].map(step => {
