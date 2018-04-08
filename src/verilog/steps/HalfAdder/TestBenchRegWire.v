@@ -8,7 +8,7 @@ module half_adder(
   assign carry = a & b;
 endmodule
 
-module test_half_adder;
+module half_adder_test_bench;
   /*
   half_adder has two inputs and two outputs, so let's create some registers and
   wires to hook it up to a test circuit.

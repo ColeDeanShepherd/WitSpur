@@ -1,13 +1,3 @@
-module half_adder(
-  input a,
-  input b,
-  output sum,
-  output carry
-);
-  assign sum = a ^ b;
-  assign carry = a & b;
-endmodule
-
 module full_adder(
   input a,
   input b,
@@ -26,4 +16,14 @@ module full_adder(
   // Input "carry_in" and the sum output of the first half adder "sum1" are routed
   // to the inputs of the second half adder.
   half_adder ha2(.a(carry_in), .b(sum1), .sum(sum2), .carry(carry2));
+endmodule
+
+module half_adder(
+  input a,
+  input b,
+  output sum,
+  output carry
+);
+  assign sum = a ^ b;
+  assign carry = a & b;
 endmodule

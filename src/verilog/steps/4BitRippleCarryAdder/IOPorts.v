@@ -1,3 +1,14 @@
+module ripple_carry_adder_4_bit(
+  // To create multi-bit inputs, outputs, wires, and registers, use the syntax:
+  // [<high order bit index>:<low order bit index>]
+  input [3:0] a, // create a 4-bit input "a"
+  input [3:0] b, // create a 4-bit input "b"
+  input carry_in,
+  output [3:0] out, // create a 4-bit output "out"
+  output carry_out
+);
+endmodule
+
 module half_adder(
   input a,
   input b,
@@ -23,15 +34,4 @@ module full_adder(
 
   assign sum = sum2;
   assign carry_out = carry1 | carry2;
-endmodule
-
-module ripple_carry_adder_4_bit(
-  // To create multi-bit inputs, outputs, wires, and registers, use the syntax:
-  // [<high order bit index>:<low order bit index>]
-  input [3:0] a, // create a 4-bit input "a"
-  input [3:0] b, // create a 4-bit input "b"
-  input carry_in,
-  output [3:0] out, // create a 4-bit output "out"
-  output carry_out
-);
 endmodule

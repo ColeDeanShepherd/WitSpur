@@ -6,6 +6,11 @@ and a carry bit.
 Ripple-carry adders are built with 4 full-adders in series, with each carry bit
 "rippling" to the next full-adder in the series.
 */
+
+// Creating an empty module.
+module ripple_carry_adder_4_bit;
+endmodule
+
 module half_adder(
   input a,
   input b,
@@ -31,8 +36,4 @@ module full_adder(
 
   assign sum = sum2;
   assign carry_out = carry1 | carry2;
-endmodule
-
-// Creating an empty module.
-module ripple_carry_adder_4_bit;
 endmodule

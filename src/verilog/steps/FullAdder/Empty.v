@@ -6,6 +6,10 @@ Now we will build a full-adder: a module which takes three 1-bit input signals
 Full adders can be built from two half adders, so we will reuse the half adder
 module we have already created.
 */
+// Creating an empty "full_adder" module.
+module full_adder;
+endmodule
+
 module half_adder(
   input a,
   input b,
@@ -14,8 +18,4 @@ module half_adder(
 );
   assign sum = a ^ b;
   assign carry = a & b;
-endmodule
-
-// Creating an empty "full_adder" module.
-module full_adder;
 endmodule

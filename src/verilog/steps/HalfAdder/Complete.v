@@ -12,7 +12,7 @@ module half_adder(
   assign carry = a & b;
 endmodule
 
-module test_half_adder;
+module half_adder_test_bench;
   reg a, b;
   wire out;
   half_adder UUT(.a(a), .b(b), .sum(sum), .carry(carry));

@@ -8,7 +8,7 @@ module half_adder(
   assign carry = a & b;
 endmodule
 
-module test_half_adder;
+module half_adder_test_bench;
   reg a, b;
   wire sum, carry;
 

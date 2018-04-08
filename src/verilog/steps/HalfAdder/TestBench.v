@@ -11,8 +11,8 @@ endmodule
 /*
 Now that we've defined our module "half_adder", let's use it!
 
-Here we will declare another module called "test_half_adder" to test our
-module "half_adder".
+Here we declare a test bench for the half-adder. A test bench is simply a
+module designed to test the correctness of another module.
 */
-module test_half_adder;
+module half_adder_test_bench;
 endmodule

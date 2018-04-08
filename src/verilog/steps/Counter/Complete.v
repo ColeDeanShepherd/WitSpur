@@ -1,3 +1,4 @@
+// Here is the complete counter module and test-bench.
 module counter (
   input clock,
   input reset,

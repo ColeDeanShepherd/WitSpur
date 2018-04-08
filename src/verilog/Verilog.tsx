@@ -2,6 +2,22 @@ import * as Utils from "../Utils";
 import * as React from "react";
 import * as diff from "diff";
 
+/*
+TODO
+====
+-async assign
+-always @(*)
+-$display (use for test bench tables)
+-tasks
+-functions
+-block labels
+-explain test benches
+-include
+-signed/unsigned integers
+-float
+-case
+*/
+
 declare let ace: any;
 const importedSteps = Utils.importAll(require.context("raw-loader!./steps", true, /\.v$/));
 const steps = [
@@ -28,7 +44,7 @@ const steps = [
       { name: "TestBenchAllInputs.v" },
       { name: "TestBenchFinish.v" },
       { name: "TestBenchMonitor.v" },
-      { name: "TestBenchComplete.v" }
+      { name: "Complete.v" }
     ]
   },
   {
@@ -182,7 +198,7 @@ export class VerilogTutorial extends React.Component<VerilogTutorialProps, Veril
 
       clearAceMarkers(this.aceEditor.session);
       this.aceEditor.setValue(stepSourceCode, -1);
-
+      this.aceEditor.scrollToLine(0, false, false, () => {});
       //addAdditionMarkersToAceEditor(this.aceEditor, prevStepSourceCode, stepSourceCode);
     });
   }
@@ -241,6 +257,11 @@ export class VerilogTutorial extends React.Component<VerilogTutorialProps, Veril
       <div>
         <div className="row">
           <div className="col-md-3" style={{textAlign: "left"}}>
+            <div>
+              <button onClick={moveToPrevStep}>Prev</button>
+              <button onClick={moveToNextStep}>Next</button>
+            </div>
+            
             <ul>
               {steps.map(renderStep)}
             </ul>
@@ -249,12 +270,7 @@ export class VerilogTutorial extends React.Component<VerilogTutorialProps, Veril
           <div className="col-md">
             <h3>{getStepFileName(this.state.step)}</h3>
             
-            <div id="editor" style={{height: "400px"}}></div>
-            
-            <div>
-              <button onClick={moveToPrevStep}>Prev</button>
-              <button onClick={moveToNextStep}>Next</button>
-            </div>
+            <div id="editor" style={{height: "600px"}}></div>
           </div>
         </div>
       </div>

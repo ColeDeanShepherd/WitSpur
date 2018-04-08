@@ -1,13 +1,3 @@
-module half_adder(
-  input a,
-  input b,
-  output sum,
-  output carry
-);
-  assign sum = a ^ b;
-  assign carry = a & b;
-endmodule
-
 module full_adder(
   input a,
   input b,
@@ -32,4 +22,14 @@ module full_adder_test_bench;
   reg a, b, carry_in;
   wire sum, carry_out;
   full_adder uut(.a(a), .b(b), .carry_in(carry_in), .sum(sum), .carry_out(carry_out));
+endmodule
+
+module half_adder(
+  input a,
+  input b,
+  output sum,
+  output carry
+);
+  assign sum = a ^ b;
+  assign carry = a & b;
 endmodule

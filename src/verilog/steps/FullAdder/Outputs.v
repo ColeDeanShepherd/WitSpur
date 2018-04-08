@@ -1,13 +1,3 @@
-module half_adder(
-  input a,
-  input b,
-  output sum,
-  output carry
-);
-  assign sum = a ^ b;
-  assign carry = a & b;
-endmodule
-
 module full_adder(
   input a,
   input b,
@@ -29,3 +19,13 @@ module full_adder(
 endmodule
 
 // The full adder is done!
+
+module half_adder(
+  input a,
+  input b,
+  output sum,
+  output carry
+);
+  assign sum = a ^ b;
+  assign carry = a & b;
+endmodule
