@@ -157,7 +157,8 @@ function clearAceMarkers(aceEditSession: any) {
 function addAdditionMarkersToAceEditor(aceEditor: any, oldText: string, newText: string) {
   const textChanges = diff.diffLines(oldText, newText, {
     ignoreWhitespace: true,
-    newlineIsToken: true
+    newlineIsToken: true,
+    ignoreCase: false
   });
 
   let lineIndex = 0;
