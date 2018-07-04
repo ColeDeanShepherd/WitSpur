@@ -89,13 +89,17 @@ const steps = [
     name: "4BitMultiplexer",
     children: [
       { name: "Empty.v" },
+      { name: "AlwaysBlock.v" },
+      { name: "Case.v" },
+      { name: "TestBench.v" },
       { name: "Complete.v" }
     ]
   },
   {
     name: "RAM",
     children: [
-      { name: "Empty.v" },
+      { name: "Module.v" },
+      { name: "TestBench.v" },
       { name: "Complete.v" }
     ]
   }
